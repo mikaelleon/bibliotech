@@ -1,0 +1,201 @@
+@import "tailwindcss";
+
+/* Light tokens. Dark values sit on [data-theme=dark] so a toggle can use them later. */
+:root {
+  --background: #f2f0e6;
+  --foreground: #1f2330;
+  --card: #fbfaf5;
+  --card-foreground: #1f2330;
+  --popover: #fbfaf5;
+  --popover-foreground: #1f2330;
+  --primary: #20232f;
+  --primary-foreground: #ffffff;
+  --primary-hover: #343848;
+  --muted: #fbfaf5;
+  --muted-foreground: #6f6e66;
+  --accent: #f2f0e6;
+  --accent-foreground: #1f2330;
+  --border: #e2dfd2;
+  --input: #e2dfd2;
+  --ring: #1f2330;
+  --brand: #e2504f;
+  --brand-text: #c23b3e;
+  --shadow-cover: 0 4px 12px rgba(31, 35, 48, 0.2);
+  --shadow-overlay: 0 8px 32px rgba(31, 35, 48, 0.2);
+}
+
+[data-theme="dark"] {
+  --background: #14161d;
+  --foreground: #ece9dd;
+  --card: #1c1f28;
+  --card-foreground: #ece9dd;
+  --popover: #1c1f28;
+  --popover-foreground: #ece9dd;
+  --primary: #ece9dd;
+  --primary-foreground: #14161d;
+  --primary-hover: #ffffff;
+  --muted: #1c1f28;
+  --muted-foreground: #a3a299;
+  --accent: #14161d;
+  --accent-foreground: #ece9dd;
+  --border: #2e313c;
+  --input: #2e313c;
+  --ring: #ece9dd;
+  --brand: #e2504f;
+  --brand-text: #f0807f;
+  --shadow-cover: 0 4px 12px rgba(0, 0, 0, 0.5);
+  --shadow-overlay: 0 8px 32px rgba(0, 0, 0, 0.6);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary-hover: var(--primary-hover);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-brand: var(--brand);
+  --color-brand-text: var(--brand-text);
+  --font-sans: var(--font-inter), system-ui, sans-serif;
+  --font-serif: var(--font-newsreader), Georgia, serif;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-inter), system-ui, sans-serif;
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+.serif {
+  font-family: var(--font-newsreader), Georgia, serif;
+  font-weight: 300;
+  letter-spacing: -0.01em;
+}
+
+:focus-visible {
+  outline: 2px solid var(--foreground);
+  outline-offset: 2px;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Typographic cover. Sizes are a percent of the cover width. */
+.cv {
+  aspect-ratio: 2 / 3;
+  width: 100%;
+  border-radius: 4px;
+  box-shadow: var(--shadow-cover);
+  padding: 9cqw;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  container-type: inline-size;
+  overflow: hidden;
+}
+
+.cv::before {
+  content: "";
+  width: 18cqw;
+  height: 1.5cqw;
+  background: currentColor;
+  opacity: 0.6;
+}
+
+.cv .ct {
+  font-family: var(--font-newsreader), Georgia, serif;
+  font-weight: 400;
+  font-size: 12cqw;
+  line-height: 1.1;
+}
+
+.cv .ca {
+  font-family: var(--font-inter), system-ui, sans-serif;
+  font-size: 7cqw;
+  line-height: 1.3;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+[data-theme="dark"] .cv {
+  box-shadow: 0 0 0 1px rgba(236, 233, 221, 0.12), var(--shadow-cover);
+}
+
+@keyframes elib-pulse {
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.sk-pulse {
+  animation: elib-pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes elib-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes elib-slide-left {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+@keyframes elib-slide-up {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+.sheet-overlay[data-state="open"] {
+  animation: elib-fade 200ms ease;
+}
+
+.sheet-right[data-state="open"] {
+  animation: elib-slide-left 200ms ease;
+}
+
+.sheet-bottom[data-state="open"] {
+  animation: elib-slide-up 200ms ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sk-pulse,
+  .sheet-overlay,
+  .sheet-right,
+  .sheet-bottom {
+    animation: none;
+  }
+}

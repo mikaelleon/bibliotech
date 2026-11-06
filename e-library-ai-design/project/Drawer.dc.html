@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>AI assistant drawer</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./shared.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&family=Newsreader:opsz,wght@6..72,300;6..72,400&display=swap">
+</helmet>
+<div style="position: relative; width: 1440px; height: 900px; overflow: hidden">
+  <div class="app" style="height: 900px">
+    <nav class="rail" aria-label="Main">
+      <a class="ri on" href="Browse.dc.html" aria-label="Browse"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 7v14"/><path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z"/></svg></a>
+      <a class="ri" href="Library.dc.html" aria-label="My Library"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="m16 6 4 14"/><path d="M12 6v14"/><path d="M8 8v12"/><path d="M4 4v16"/></svg></a>
+      <a class="ri" href="Favorites.dc.html" aria-label="Favorites"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg></a>
+      <a class="ri" href="Profile.dc.html" aria-label="Profile"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></a>
+    </nav>
+    <div class="col">
+      <header class="top">
+        <div class="sr"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg><div class="f">Search by title or author</div><span class="kbd">Ctrl K</span></div>
+        <span style="margin-left: auto; display: flex; align-items: center; gap: 8px" class="t14 w5"><span class="av">S</span>Sam Reyes</span>
+      </header>
+      <div class="strip"><div style="max-width: 1200px; margin: 0 auto; display: flex; align-items: center; gap: 12px"><p class="t14 muted">0 of 10 downloads used</p><div class="bar"><i style="width: 0%"></i></div></div></div>
+      <main class="wrap">
+        <section class="panel">
+          <h1 class="serif t40" style="max-width: 576px">Public-domain books, free to read and download.</h1>
+          <p class="muted" style="margin-top: 12px">Every title comes from Project Gutenberg, so it is legal to keep.</p>
+          <ul style="display: flex; gap: 24px; align-items: flex-start; margin-top: 32px">
+            <li style="width: 192px"><div class="cv" style="background:#8C3B3F;color:#FBFAF5"><span class="ct">Pride and Prejudice</span><span class="ca">Jane Austen</span></div></li>
+            <li style="width: 128px"><div class="cv" style="background:#2F4A43;color:#FBFAF5"><span class="ct">Frankenstein</span><span class="ca">Mary Shelley</span></div></li>
+            <li style="width: 128px"><div class="cv" style="background:#1F3A57;color:#FBFAF5"><span class="ct">Moby-Dick</span><span class="ca">Herman Melville</span></div></li>
+          </ul>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <div aria-hidden="true" style="position: absolute; inset: 0; background: rgba(31,35,48,.3)"></div>
+
+  <aside role="dialog" aria-modal="true" aria-labelledby="dt" style="position: absolute; top: 0; right: 0; bottom: 0; width: 384px; background: var(--surface); border-left: 1px solid var(--line); box-shadow: var(--shadow-overlay); display: flex; flex-direction: column">
+    <div style="display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; border-bottom: 1px solid var(--line)">
+      <h2 id="dt" class="serif t20" style="font-weight: 400">AI assistant</h2>
+      <button type="button" class="btn" aria-label="Close AI assistant" style="width: 44px; padding: 0"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button>
+    </div>
+    <div style="flex: 1; padding: 24px 16px">
+      <svg class="i i24 muted" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+      <p class="serif t24" style="margin-top: 16px">AI assistant coming in Phase 2.</p>
+      <p class="t14 muted" style="margin-top: 8px">It will answer questions about the library and help you pick your next book.</p>
+      <p class="t14 w5" style="margin-top: 24px">Try asking</p>
+      <ul style="margin-top: 8px">
+        <li><button type="button" style="width: 100%; min-height: 44px; text-align: left; background: none; border: 0; border-bottom: 1px solid var(--line); font: 400 14px/20px 'Inter', sans-serif; color: var(--ink); padding: 8px 0; cursor: pointer">Find a short book about economics</button></li>
+        <li><button type="button" style="width: 100%; min-height: 44px; text-align: left; background: none; border: 0; border-bottom: 1px solid var(--line); font: 400 14px/20px 'Inter', sans-serif; color: var(--ink); padding: 8px 0; cursor: pointer">What is in the Science category?</button></li>
+        <li><button type="button" style="width: 100%; min-height: 44px; text-align: left; background: none; border: 0; border-bottom: 1px solid var(--line); font: 400 14px/20px 'Inter', sans-serif; color: var(--ink); padding: 8px 0; cursor: pointer">Suggest a classic I can finish in a week</button></li>
+      </ul>
+    </div>
+    <form style="border-top: 1px solid var(--line); padding: 16px">
+      <label for="ai" style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0)">Message the assistant</label>
+      <div style="display: flex; gap: 8px">
+        <input id="ai" class="in" style="border-radius: 999px; padding: 0 16px; background: var(--bg); font-size: 14px" placeholder="Ask about a book">
+        <button type="submit" class="btn btn-p dis" disabled aria-label="Send message" style="width: 44px; padding: 0"><svg class="i i16" viewBox="0 0 24 24" aria-hidden="true"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg></button>
+      </div>
+      <p class="hint" style="margin-top: 8px">Sending is switched off until Phase 2.</p>
+    </form>
+  </aside>
+  <p class="t12 muted" style="position: absolute; left: 112px; bottom: 16px; background: var(--surface); padding: 4px 8px; border-radius: 4px; border: 1px solid var(--line)">Motion: drawer slides in over 200ms ease, scrim fades. Closed state is the floating "Ask AI" button on Browse.</p>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":900}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

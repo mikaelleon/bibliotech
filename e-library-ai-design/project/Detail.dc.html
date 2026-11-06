@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Book detail</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./shared.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&family=Newsreader:opsz,wght@6..72,300;6..72,400&display=swap">
+</helmet>
+<div class="app">
+  <nav class="rail" aria-label="Main">
+    <a class="ri on" href="Browse.dc.html" aria-label="Browse" aria-current="page"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 7v14"/><path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z"/></svg></a>
+    <a class="ri" href="Library.dc.html" aria-label="My Library"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="m16 6 4 14"/><path d="M12 6v14"/><path d="M8 8v12"/><path d="M4 4v16"/></svg></a>
+    <a class="ri" href="Favorites.dc.html" aria-label="Favorites"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg></a>
+    <a class="ri" href="Profile.dc.html" aria-label="Profile"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></a>
+  </nav>
+  <div class="col">
+    <header class="top">
+      <div class="sr"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg><div class="f">Search by title or author</div><span class="kbd">Ctrl K</span></div>
+      <button type="button" style="margin-left: auto; display: flex; align-items: center; gap: 8px; min-height: 44px; background: none; border: 0; font: 500 14px/20px 'Inter', sans-serif; color: var(--ink); cursor: pointer" aria-label="Account menu for Sam Reyes"><span class="av">S</span>Sam Reyes<svg class="i i16" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button>
+    </header>
+    <div class="strip"><div style="max-width: 1200px; margin: 0 auto; display: flex; align-items: center; gap: 12px"><p class="t14 muted">0 of 10 downloads used</p><div class="bar"><i style="width: 0%"></i></div></div></div>
+
+    <main class="wrap">
+      <a href="Browse.dc.html" style="display: inline-flex; align-items: center; gap: 8px; min-height: 44px; color: var(--muted); text-decoration: none" class="t14"><svg class="i i16" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></svg>Back to Browse</a>
+
+      <div style="display: flex; flex-wrap: wrap; gap: 48px; margin-top: 16px; align-items: flex-start">
+        <div style="flex: 0 0 280px"><div class="cv" role="img" aria-label="Cover of Frankenstein by Mary Shelley" style="background:#2F4A43;color:#FBFAF5"><span class="ct">Frankenstein</span><span class="ca">Mary Shelley</span></div></div>
+        <div style="flex: 1 1 400px; min-width: 0">
+          <h1 class="serif t40">Frankenstein</h1>
+          <p class="t20 muted" style="margin-top: 4px">Mary Shelley</p>
+          <dl class="dl" style="margin-top: 24px">
+            <dt>Category</dt><dd>Fiction</dd>
+            <dt>Language</dt><dd>English</dd>
+            <dt>License</dt><dd>Public Domain</dd>
+            <dt>Source</dt><dd><a href="#" class="atext" style="text-underline-offset: 4px">Project Gutenberg</a></dd>
+          </dl>
+          <p style="margin-top: 32px; max-width: 640px">Frankenstein; or, The Modern Prometheus follows Victor Frankenstein, a young scientist who builds a living creature and then abandons it. The novel traces what each of them does next, and what each owes the other.</p>
+          <div style="margin-top: 32px">
+            <div style="display: flex; gap: 8px; flex-wrap: wrap">
+              <button class="btn btn-p" disabled aria-describedby="note"><svg class="i i16" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5"/><path d="M12 15V3"/></svg>Download</button>
+              <button class="btn btn-o" disabled aria-describedby="note"><svg class="i i16" viewBox="0 0 24 24" aria-hidden="true"><path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>Save to Library</button>
+            </div>
+            <p id="note" class="t14 muted" style="margin-top: 8px">Downloads arrive in Phase 2.</p>
+          </div>
+        </div>
+      </div>
+
+      <section style="margin-top: 64px" aria-label="More in Fiction">
+        <h2 class="serif t24">More in Fiction</h2>
+        <ul style="display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 24px; margin-top: 24px; max-width: 960px">
+          <li><a class="bk" href="Detail.dc.html"><div class="cv" role="img" aria-label="Cover of Dracula by Bram Stoker" style="background:#3A2430;color:#FBFAF5"><span class="ct">Dracula</span><span class="ca">Bram Stoker</span></div><p class="t">Dracula</p><p class="a">Bram Stoker</p></a></li>
+          <li><a class="bk" href="Detail.dc.html"><div class="cv" role="img" aria-label="Cover of Moby-Dick by Herman Melville" style="background:#1F3A57;color:#FBFAF5"><span class="ct">Moby-Dick</span><span class="ca">Herman Melville</span></div><p class="t">Moby-Dick</p><p class="a">Herman Melville</p></a></li>
+          <li><a class="bk" href="Detail.dc.html"><div class="cv" role="img" aria-label="Cover of Great Expectations by Charles Dickens" style="background:#6B5B7A;color:#FBFAF5"><span class="ct">Great Expectations</span><span class="ca">Charles Dickens</span></div><p class="t">Great Expectations</p><p class="a">Charles Dickens</p></a></li>
+          <li><a class="bk" href="Detail.dc.html"><div class="cv" role="img" aria-label="Cover of Pride and Prejudice by Jane Austen" style="background:#8C3B3F;color:#FBFAF5"><span class="ct">Pride and Prejudice</span><span class="ca">Jane Austen</span></div><p class="t">Pride and Prejudice</p><p class="a">Jane Austen</p></a></li>
+          <li><a class="bk" href="Detail.dc.html"><div class="cv" role="img" aria-label="Cover of The Time Machine by H. G. Wells" style="background:#C9D3D6;color:#1F2330"><span class="ct">The Time Machine</span><span class="ca">H. G. Wells</span></div><p class="t">The Time Machine</p><p class="a">H. G. Wells</p></a></li>
+        </ul>
+      </section>
+    </main>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1400}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

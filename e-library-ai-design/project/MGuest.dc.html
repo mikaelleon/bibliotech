@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Mobile browse as guest</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./shared.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&family=Newsreader:opsz,wght@6..72,300;6..72,400&display=swap">
+</helmet>
+<div style="position: relative; width: 390px; height: 844px; overflow: hidden; background: var(--bg)">
+  <header style="display: flex; align-items: center; gap: 8px; padding: 12px 16px; border-bottom: 1px solid var(--line)">
+    <div class="sr" style="max-width: none"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg><div class="f" style="padding-right: 16px">Search books</div></div>
+    <a class="btn btn-o" href="MRegister.dc.html" style="padding: 0 16px">Register</a>
+  </header>
+  <div style="padding: 8px 16px; border-bottom: 1px solid var(--line)"><p class="t14 muted">Guest: 5 downloads left. <a href="MRegister.dc.html" class="atext w5" style="text-underline-offset: 4px">Sign up</a> for 10.</p></div>
+
+  <main style="padding: 24px 16px 0">
+    <section aria-labelledby="mh">
+      <h1 id="mh" class="serif t32">Public-domain books, free to read and download.</h1>
+      <p class="muted t14" style="margin-top: 8px">Every title comes from Project Gutenberg, so it is legal to keep.</p>
+      <a class="btn btn-p" href="MDetail.dc.html" style="margin-top: 16px">View Frankenstein<svg class="i i16" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></a>
+      <ul style="display: flex; gap: 16px; align-items: flex-start; margin-top: 24px; margin-right: -16px; overflow: hidden">
+        <li style="flex: 0 0 160px"><a class="bk" href="MDetail.dc.html"><div class="cv" role="img" aria-label="Cover of Frankenstein by Mary Shelley" style="background:#2F4A43;color:#FBFAF5"><span class="ct">Frankenstein</span><span class="ca">Mary Shelley</span></div><p class="t">Frankenstein</p><p class="a">Mary Shelley</p></a></li>
+        <li style="flex: 0 0 112px"><a class="bk" href="MDetail.dc.html"><div class="cv" role="img" aria-label="Cover of Dracula by Bram Stoker" style="background:#3A2430;color:#FBFAF5"><span class="ct">Dracula</span><span class="ca">Bram Stoker</span></div><p class="t">Dracula</p><p class="a">Bram Stoker</p></a></li>
+        <li style="flex: 0 0 112px"><a class="bk" href="MDetail.dc.html"><div class="cv" role="img" aria-label="Cover of Walden by Henry David Thoreau" style="background:#56704F;color:#FBFAF5"><span class="ct">Walden</span><span class="ca">Henry David Thoreau</span></div><p class="t">Walden</p><p class="a">Henry David Thoreau</p></a></li>
+      </ul>
+      <p class="t14 atext" style="margin-top: 16px">1 / 24 books</p>
+    </section>
+    <nav aria-label="Filter by category" style="margin: 24px -16px 0"><ul class="chips" style="flex-wrap: nowrap; overflow: hidden; padding: 0 16px">
+      <li><a class="chip on" href="#" aria-current="true">All</a></li><li><a class="chip" href="#">Technology</a></li><li><a class="chip" href="#">Science</a></li><li><a class="chip" href="#">Business</a></li><li><a class="chip" href="#">Education</a></li>
+    </ul></nav>
+  </main>
+
+  <nav class="tabbar" aria-label="Main">
+    <a class="tab on" href="MGuest.dc.html" aria-current="page"><span class="ic"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 7v14"/><path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z"/></svg></span>Browse</a>
+    <a class="tab" href="MLocked.dc.html"><span class="ic"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="m16 6 4 14"/><path d="M12 6v14"/><path d="M8 8v12"/><path d="M4 4v16"/></svg><svg class="i lk" viewBox="0 0 24 24" aria-hidden="true"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span>Library<span style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0)"> (requires an account)</span></a>
+    <a class="tab" href="MLocked.dc.html"><span class="ic"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg><svg class="i lk" viewBox="0 0 24 24" aria-hidden="true"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span>Favorites</a>
+    <a class="tab" href="MLocked.dc.html"><span class="ic"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg><svg class="i lk" viewBox="0 0 24 24" aria-hidden="true"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span>Profile</a>
+  </nav>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

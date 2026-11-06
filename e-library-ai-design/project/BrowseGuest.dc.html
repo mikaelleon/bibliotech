@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Browse as guest</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./shared.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&family=Newsreader:opsz,wght@6..72,300;6..72,400&display=swap">
+</helmet>
+<div style="position: relative">
+<div class="app">
+  <nav class="rail" aria-label="Main">
+    <a class="ri on" href="BrowseGuest.dc.html" aria-label="Browse" aria-current="page"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 7v14"/><path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z"/></svg></a>
+    <a class="ri" href="Locked.dc.html" aria-label="My Library (requires an account)"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="m16 6 4 14"/><path d="M12 6v14"/><path d="M8 8v12"/><path d="M4 4v16"/></svg><svg class="i lk" viewBox="0 0 24 24" aria-hidden="true"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></a>
+    <a class="ri" href="Locked.dc.html" aria-label="Favorites (requires an account)"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg><svg class="i lk" viewBox="0 0 24 24" aria-hidden="true"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></a>
+    <a class="ri" href="Locked.dc.html" aria-label="Profile (requires an account)"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg><svg class="i lk" viewBox="0 0 24 24" aria-hidden="true"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></a>
+  </nav>
+  <div class="col">
+    <header class="top">
+      <div class="sr"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg><div class="f">Search by title or author</div><span class="kbd">Ctrl K</span></div>
+      <div style="margin-left: auto; display: flex; align-items: center; gap: 16px"><a class="btn btn-l t14" href="Login.dc.html">Log in</a><a class="btn btn-o" href="Register.dc.html">Register</a></div>
+    </header>
+    <div class="strip"><div style="max-width: 1200px; margin: 0 auto"><p class="t14 muted">Guest: 5 downloads left. <a href="Register.dc.html" class="atext w5" style="text-underline-offset: 4px">Sign up</a> for 10.</p></div></div>
+
+    <main class="wrap" style="display: grid; gap: 32px">
+      <section class="panel" aria-labelledby="fh">
+        <div style="max-width: 576px">
+          <h1 id="fh" class="serif t40">Public-domain books, free to read and download.</h1>
+          <p class="muted" style="margin-top: 12px">Every title comes from Project Gutenberg, so it is legal to keep.</p>
+          <a class="btn btn-p" href="Detail.dc.html" style="margin-top: 24px">View Frankenstein<svg class="i i16" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></a>
+        </div>
+        <ul style="display: flex; gap: 24px; align-items: flex-start; margin-top: 32px">
+          <li style="width: 192px"><a class="bk" href="Detail.dc.html"><div class="cv" role="img" aria-label="Cover of Frankenstein by Mary Shelley" style="background:#2F4A43;color:#FBFAF5"><span class="ct">Frankenstein</span><span class="ca">Mary Shelley</span></div><p class="t">Frankenstein</p><p class="a">Mary Shelley</p></a></li>
+          <li style="width: 128px"><a class="bk" href="Detail.dc.html"><div class="cv" role="img" aria-label="Cover of Dracula by Bram Stoker" style="background:#3A2430;color:#FBFAF5"><span class="ct">Dracula</span><span class="ca">Bram Stoker</span></div><p class="t">Dracula</p><p class="a">Bram Stoker</p></a></li>
+          <li style="width: 128px"><a class="bk" href="Detail.dc.html"><div class="cv" role="img" aria-label="Cover of Walden by Henry David Thoreau" style="background:#56704F;color:#FBFAF5"><span class="ct">Walden</span><span class="ca">Henry David Thoreau</span></div><p class="t">Walden</p><p class="a">Henry David Thoreau</p></a></li>
+          <li style="width: 128px"><a class="bk" href="Detail.dc.html"><div class="cv" role="img" aria-label="Cover of Meditations by Marcus Aurelius" style="background:#CFC9B8;color:#1F2330"><span class="ct">Meditations</span><span class="ca">Marcus Aurelius</span></div><p class="t">Meditations</p><p class="a">Marcus Aurelius</p></a></li>
+        </ul>
+        <div style="display: flex; align-items: center; gap: 16px; margin-top: 24px">
+          <div style="display: flex; gap: 8px">
+            <button type="button" class="btn btn-o dis" disabled aria-label="Previous book" style="padding: 0; width: 44px"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg></button>
+            <button type="button" class="btn btn-o" aria-label="Next book" style="padding: 0; width: 44px"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg></button>
+          </div>
+          <p class="t14 atext">1 / 24 books</p>
+        </div>
+      </section>
+
+      <nav aria-label="Filter by category"><ul class="chips">
+        <li><a class="chip on" href="#" aria-current="true">All</a></li><li><a class="chip" href="#">Technology</a></li><li><a class="chip" href="#">Science</a></li><li><a class="chip" href="#">Business</a></li><li><a class="chip" href="#">Education</a></li><li><a class="chip" href="#">Fiction</a></li><li><a class="chip" href="#">History</a></li>
+      </ul></nav>
+
+      <section aria-label="Books"><ul class="grid">
+        <li><a class="bk" href="Detail.dc.html"><div class="cv" role="img" aria-label="Cover of Pride and Prejudice by Jane Austen" style="background:#8C3B3F;color:#FBFAF5"><span class="ct">Pride and Prejudice</span><span class="ca">Jane Austen</span></div><p class="t">Pride and Prejudice</p><p class="a">Jane Austen</p><p class="c">Fiction</p></a></li>
+        <li><a class="bk" href="Detail.dc.html"><div class="cv" role="img" aria-label="Cover of Moby-Dick by Herman Melville" style="background:#1F3A57;color:#FBFAF5"><span class="ct">Moby-Dick</span><span class="ca">Herman Melville</span></div><p class="t">Moby-Dick</p><p class="a">Herman Melville</p><p class="c">Fiction</p></a></li>
+        <li><a class="bk" href="Detail.dc.html"><div class="cv" role="img" aria-label="Cover of Alice's Adventures in Wonderland by Lewis Carroll" style="background:#D9C58A;color:#1F2330"><span class="ct">Alice&rsquo;s Adventures in Wonderland</span><span class="ca">Lewis Carroll</span></div><p class="t">Alice&rsquo;s Adventures in Wonderland</p><p class="a">Lewis Carroll</p><p class="c">Fiction</p></a></li>
+        <li><a class="bk" href="Detail.dc.html"><div class="cv" role="img" aria-label="Cover of The Art of War by Sun Tzu" style="background:#A24A34;color:#FBFAF5"><span class="ct">The Art of War</span><span class="ca">Sun Tzu</span></div><p class="t">The Art of War</p><p class="a">Sun Tzu</p><p class="c">History</p></a></li>
+        <li><a class="bk" href="Detail.dc.html"><div class="cv" role="img" aria-label="Cover of The Time Machine by H. G. Wells" style="background:#C9D3D6;color:#1F2330"><span class="ct">The Time Machine</span><span class="ca">H. G. Wells</span></div><p class="t">The Time Machine</p><p class="a">H. G. Wells</p><p class="c">Fiction</p></a></li>
+        <li><a class="bk" href="Detail.dc.html"><div class="cv" role="img" aria-label="Cover of Great Expectations by Charles Dickens" style="background:#6B5B7A;color:#FBFAF5"><span class="ct">Great Expectations</span><span class="ca">Charles Dickens</span></div><p class="t">Great Expectations</p><p class="a">Charles Dickens</p><p class="c">Fiction</p></a></li>
+        <li><a class="bk" href="Detail.dc.html"><div class="cv" role="img" aria-label="Cover of The Wealth of Nations by Adam Smith" style="background:#E4D3B4;color:#1F2330"><span class="ct">The Wealth of Nations</span><span class="ca">Adam Smith</span></div><p class="t">The Wealth of Nations</p><p class="a">Adam Smith</p><p class="c">Business</p></a></li>
+        <li><a class="bk" href="Detail.dc.html"><div class="cv" role="img" aria-label="Cover of On the Origin of Species by Charles Darwin" style="background:#7A6A4F;color:#FBFAF5"><span class="ct">On the Origin of Species</span><span class="ca">Charles Darwin</span></div><p class="t">On the Origin of Species</p><p class="a">Charles Darwin</p><p class="c">Science</p></a></li>
+      </ul></section>
+    </main>
+  </div>
+</div>
+<a class="fab" href="Drawer.dc.html" style="top: 748px"><svg class="i i16" viewBox="0 0 24 24" aria-hidden="true"><path d="M9.94 14.06 9 18l-.94-3.94L4 13l4.06-1.06L9 8l.94 3.94L14 13z"/><path d="M19 3v4"/><path d="M21 5h-4"/></svg>Ask AI</a>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1500}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

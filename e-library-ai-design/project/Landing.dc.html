@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Landing</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./shared.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&family=Newsreader:opsz,wght@6..72,300;6..72,400&display=swap">
+</helmet>
+<header style="border-bottom: 1px solid var(--line)">
+  <div style="max-width: 1200px; margin: 0 auto; padding: 12px 32px; display: flex; align-items: center; justify-content: space-between; gap: 16px">
+    <a href="#" style="display: inline-flex; align-items: center; gap: 8px; min-height: 44px; text-decoration: none" class="serif t20"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 7v14"/><path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z"/></svg>E-Library AI</a>
+    <nav aria-label="Account" style="display: flex; gap: 8px"><a class="btn btn-o" href="Login.dc.html">Log in</a><a class="btn btn-p" href="Register.dc.html">Register</a></nav>
+  </div>
+</header>
+<main style="max-width: 1200px; margin: 0 auto; padding: 64px 32px">
+  <div style="max-width: 672px">
+    <h1 class="serif t40">Search free, legally downloadable books.</h1>
+    <p class="muted" style="margin-top: 12px">Every title is in the public domain. Search by title or author to start.</p>
+    <div class="sr lg" style="margin-top: 24px; max-width: none">
+      <svg class="i" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+      <div class="f">Search by title or author</div><span class="kbd">Ctrl K</span>
+    </div>
+    <a class="btn btn-l" href="Browse.dc.html" style="margin-top: 8px">Continue as guest</a>
+  </div>
+
+  <section style="margin-top: 64px" aria-label="Recently added">
+    <h2 class="serif t32">Recently added</h2>
+    <ul class="shelf" style="margin-top: 24px">
+      <li><a class="bk" href="Detail.dc.html"><div class="cv" role="img" aria-label="Cover of Pride and Prejudice by Jane Austen" style="background:#8C3B3F;color:#FBFAF5"><span class="ct">Pride and Prejudice</span><span class="ca">Jane Austen</span></div><p class="t">Pride and Prejudice</p><p class="a">Jane Austen</p></a></li>
+      <li><a class="bk" href="Detail.dc.html"><div class="cv" role="img" aria-label="Cover of Frankenstein by Mary Shelley" style="background:#2F4A43;color:#FBFAF5"><span class="ct">Frankenstein</span><span class="ca">Mary Shelley</span></div><p class="t">Frankenstein</p><p class="a">Mary Shelley</p></a></li>
+      <li><a class="bk" href="Detail.dc.html"><div class="cv" role="img" aria-label="Cover of Dracula by Bram Stoker" style="background:#3A2430;color:#FBFAF5"><span class="ct">Dracula</span><span class="ca">Bram Stoker</span></div><p class="t">Dracula</p><p class="a">Bram Stoker</p></a></li>
+      <li><a class="bk" href="Detail.dc.html"><div class="cv" role="img" aria-label="Cover of Great Expectations by Charles Dickens" style="background:#6B5B7A;color:#FBFAF5"><span class="ct">Great Expectations</span><span class="ca">Charles Dickens</span></div><p class="t">Great Expectations</p><p class="a">Charles Dickens</p></a></li>
+      <li><a class="bk" href="Detail.dc.html"><div class="cv" role="img" aria-label="Cover of The Art of War by Sun Tzu" style="background:#A24A34;color:#FBFAF5"><span class="ct">The Art of War</span><span class="ca">Sun Tzu</span></div><p class="t">The Art of War</p><p class="a">Sun Tzu</p></a></li>
+      <li><a class="bk" href="Detail.dc.html"><div class="cv" role="img" aria-label="Cover of Meditations by Marcus Aurelius" style="background:#CFC9B8;color:#1F2330"><span class="ct">Meditations</span><span class="ca">Marcus Aurelius</span></div><p class="t">Meditations</p><p class="a">Marcus Aurelius</p></a></li>
+    </ul>
+  </section>
+
+  <section style="margin-top: 64px" aria-label="Popular in Science">
+    <h2 class="serif t32">Popular in Science</h2>
+    <ul class="shelf" style="margin-top: 24px">
+      <li><a class="bk" href="Detail.dc.html"><div class="cv" role="img" aria-label="Cover of On the Origin of Species by Charles Darwin" style="background:#7A6A4F;color:#FBFAF5"><span class="ct">On the Origin of Species</span><span class="ca">Charles Darwin</span></div><p class="t">On the Origin of Species</p><p class="a">Charles Darwin</p></a></li>
+      <li><a class="bk" href="Detail.dc.html"><div class="cv" role="img" aria-label="Cover of Relativity by Albert Einstein" style="background:#C9D3D6;color:#1F2330"><span class="ct">Relativity</span><span class="ca">Albert Einstein</span></div><p class="t">Relativity</p><p class="a">Albert Einstein</p></a></li>
+      <li><a class="bk" href="Detail.dc.html"><div class="cv" role="img" aria-label="Cover of The Voyage of the Beagle by Charles Darwin" style="background:#1F3A57;color:#FBFAF5"><span class="ct">The Voyage of the Beagle</span><span class="ca">Charles Darwin</span></div><p class="t">The Voyage of the Beagle</p><p class="a">Charles Darwin</p></a></li>
+      <li><a class="bk" href="Detail.dc.html"><div class="cv" role="img" aria-label="Cover of Opticks by Isaac Newton" style="background:#E4D3B4;color:#1F2330"><span class="ct">Opticks</span><span class="ca">Isaac Newton</span></div><p class="t">Opticks</p><p class="a">Isaac Newton</p></a></li>
+      <li><a class="bk" href="Detail.dc.html"><div class="cv" role="img" aria-label="Cover of The Time Machine by H. G. Wells" style="background:#56704F;color:#FBFAF5"><span class="ct">The Time Machine</span><span class="ca">H. G. Wells</span></div><p class="t">The Time Machine</p><p class="a">H. G. Wells</p></a></li>
+      <li><a class="bk" href="Detail.dc.html"><div class="cv" role="img" aria-label="Cover of Walden by Henry David Thoreau" style="background:#D9C58A;color:#1F2330"><span class="ct">Walden</span><span class="ca">Henry David Thoreau</span></div><p class="t">Walden</p><p class="a">Henry David Thoreau</p></a></li>
+    </ul>
+  </section>
+</main>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1500}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

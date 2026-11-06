@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Browse loading</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./shared.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&family=Newsreader:opsz,wght@6..72,300;6..72,400&display=swap">
+</helmet>
+<div class="app">
+  <nav class="rail" aria-label="Main">
+    <a class="ri on" href="Browse.dc.html" aria-label="Browse" aria-current="page"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 7v14"/><path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z"/></svg></a>
+    <a class="ri" href="Library.dc.html" aria-label="My Library"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="m16 6 4 14"/><path d="M12 6v14"/><path d="M8 8v12"/><path d="M4 4v16"/></svg></a>
+    <a class="ri" href="Favorites.dc.html" aria-label="Favorites"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg></a>
+    <a class="ri" href="Profile.dc.html" aria-label="Profile"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></a>
+  </nav>
+  <div class="col">
+    <header class="top">
+      <div class="sr"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg><div class="f">Search by title or author</div><span class="kbd">Ctrl K</span></div>
+      <span style="margin-left: auto; display: flex; align-items: center; gap: 8px" class="t14 w5"><span class="av">S</span>Sam Reyes</span>
+    </header>
+    <div class="strip"><div style="max-width: 1200px; margin: 0 auto; display: flex; align-items: center; gap: 12px"><p class="t14 muted">0 of 10 downloads used</p><div class="bar"><i style="width: 0%"></i></div></div></div>
+    <main class="wrap" style="display: grid; gap: 32px" role="status" aria-label="Loading books">
+      <section class="panel">
+        <div class="sk" style="height: 40px; width: 66%"></div>
+        <div class="sk" style="height: 16px; width: 33%; margin-top: 12px"></div>
+        <div class="sk" style="height: 44px; width: 192px; margin-top: 24px; border-radius: 999px"></div>
+        <div style="display: flex; gap: 24px; margin-top: 32px"><div class="sk" style="width: 192px; aspect-ratio: 2/3"></div><div class="sk" style="width: 128px; aspect-ratio: 2/3"></div><div class="sk" style="width: 128px; aspect-ratio: 2/3"></div><div class="sk" style="width: 128px; aspect-ratio: 2/3"></div></div>
+      </section>
+      <div class="chips"><span class="chip on">All</span><span class="chip">Technology</span><span class="chip">Science</span><span class="chip">Business</span><span class="chip">Education</span><span class="chip">Fiction</span><span class="chip">History</span></div>
+      <div class="grid">
+        <div><div class="sk" style="aspect-ratio: 2/3"></div><div class="sk" style="height: 16px; margin-top: 12px"></div><div class="sk" style="height: 16px; width: 66%; margin-top: 8px"></div></div>
+        <div><div class="sk" style="aspect-ratio: 2/3"></div><div class="sk" style="height: 16px; margin-top: 12px"></div><div class="sk" style="height: 16px; width: 66%; margin-top: 8px"></div></div>
+        <div><div class="sk" style="aspect-ratio: 2/3"></div><div class="sk" style="height: 16px; margin-top: 12px"></div><div class="sk" style="height: 16px; width: 66%; margin-top: 8px"></div></div>
+        <div><div class="sk" style="aspect-ratio: 2/3"></div><div class="sk" style="height: 16px; margin-top: 12px"></div><div class="sk" style="height: 16px; width: 66%; margin-top: 8px"></div></div>
+        <div><div class="sk" style="aspect-ratio: 2/3"></div><div class="sk" style="height: 16px; margin-top: 12px"></div><div class="sk" style="height: 16px; width: 66%; margin-top: 8px"></div></div>
+        <div><div class="sk" style="aspect-ratio: 2/3"></div><div class="sk" style="height: 16px; margin-top: 12px"></div><div class="sk" style="height: 16px; width: 66%; margin-top: 8px"></div></div>
+        <div><div class="sk" style="aspect-ratio: 2/3"></div><div class="sk" style="height: 16px; margin-top: 12px"></div><div class="sk" style="height: 16px; width: 66%; margin-top: 8px"></div></div>
+        <div><div class="sk" style="aspect-ratio: 2/3"></div><div class="sk" style="height: 16px; margin-top: 12px"></div><div class="sk" style="height: 16px; width: 66%; margin-top: 8px"></div></div>
+      </div>
+    </main>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1100}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Mobile book detail</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./shared.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&family=Newsreader:opsz,wght@6..72,300;6..72,400&display=swap">
+</helmet>
+<div style="position: relative; width: 390px; height: 844px; overflow: hidden; background: var(--bg)">
+  <main style="padding: 8px 16px 0">
+    <a href="MBrowse.dc.html" style="display: inline-flex; align-items: center; gap: 8px; min-height: 44px; color: var(--muted); text-decoration: none" class="t14"><svg class="i i16" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></svg>Back to Browse</a>
+    <div style="width: 192px; margin-top: 8px"><div class="cv" role="img" aria-label="Cover of Frankenstein by Mary Shelley" style="background:#2F4A43;color:#FBFAF5"><span class="ct">Frankenstein</span><span class="ca">Mary Shelley</span></div></div>
+    <h1 class="serif t32" style="margin-top: 24px">Frankenstein</h1>
+    <p class="muted" style="margin-top: 4px">Mary Shelley</p>
+    <dl class="dl" style="margin-top: 16px">
+      <dt>Category</dt><dd>Fiction</dd>
+      <dt>Language</dt><dd>English</dd>
+      <dt>License</dt><dd>Public Domain</dd>
+      <dt>Source</dt><dd><a href="#" class="atext" style="text-underline-offset: 4px">Project Gutenberg</a></dd>
+    </dl>
+    <p class="t14" style="margin-top: 16px">A young scientist builds a living creature and then abandons it. The novel traces what each of them does next.</p>
+    <div style="display: grid; gap: 8px; margin-top: 24px">
+      <button class="btn btn-p full" disabled aria-describedby="n"><svg class="i i16" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5"/><path d="M12 15V3"/></svg>Download</button>
+      <button class="btn btn-o full" disabled aria-describedby="n"><svg class="i i16" viewBox="0 0 24 24" aria-hidden="true"><path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>Save to Library</button>
+    </div>
+    <p id="n" class="t14 muted" style="margin-top: 8px">Downloads arrive in Phase 2.</p>
+  </main>
+  <nav class="tabbar" aria-label="Main">
+    <a class="tab on" href="MBrowse.dc.html" aria-current="page"><span class="ic"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 7v14"/><path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z"/></svg></span>Browse</a>
+    <a class="tab" href="#"><span class="ic"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="m16 6 4 14"/><path d="M12 6v14"/><path d="M8 8v12"/><path d="M4 4v16"/></svg></span>Library</a>
+    <a class="tab" href="#"><span class="ic"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg></span>Favorites</a>
+    <a class="tab" href="#"><span class="ic"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span>Profile</a>
+  </nav>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

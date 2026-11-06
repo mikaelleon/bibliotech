@@ -1,0 +1,82 @@
+import { randomBytes, scryptSync, timingSafeEqual } from "crypto";
+import { mkdir, readFile, writeFile } from "fs/promises";
+import path from "path";
+
+export type StoredUser = {
+  email: string;
+  name: string;
+  role: "user" | "admin";
+  downloadsUsed: number;
+  passwordHash: string;
+  passwordSalt: string;
+};
+
+/**
+ * Local stand-in for the account table. There is no database in this repo.
+ * Seeded admin: dane@elibrary.local / library1
+ */
+const filePath = path.join(process.cwd(), "data", "users.json");
+
+async function readUsers(): Promise<StoredUser[]> {
+  try {
+    const raw = await readFile(filePath, "utf8");
+    const parsed = JSON.parse(raw) as StoredUser[];
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
+}
+
+async function writeUsers(users: StoredUser[]): Promise<void> {
+  await mkdir(path.dirname(filePath), { recursive: true });
+  await writeFile(filePath, `${JSON.stringify(users, null, 2)}\n`, "utf8");
+}
+
+function hashPassword(password: string, salt: string): string {
+  return scryptSync(password, salt, 32).toString("hex");
+}
+
+export async function findUser(email: string): Promise<StoredUser | undefined> {
+  const users = await readUsers();
+  const key = email.trim().toLowerCase();
+  return users.find((user) => user.email === key);
+}
+
+export async function verifyUser(
+  email: string,
+  password: string,
+): Promise<StoredUser | undefined> {
+  const user = await findUser(email);
+  if (!user) return undefined;
+
+  const actual = Buffer.from(hashPassword(password, user.passwordSalt), "hex");
+  const expected = Buffer.from(user.passwordHash, "hex");
+  if (actual.length !== expected.length || !timingSafeEqual(actual, expected)) return undefined;
+  return user;
+}
+
+export async function createUser(
+  name: string,
+  email: string,
+  password: string,
+): Promise<{ user?: StoredUser; error?: string }> {
+  const users = await readUsers();
+  const key = email.trim().toLowerCase();
+  if (users.some((user) => user.email === key)) {
+    return { error: "An account with that email already exists." };
+  }
+
+  const salt = randomBytes(16).toString("hex");
+  const user: StoredUser = {
+    email: key,
+    name: name.trim(),
+    role: "user",
+    downloadsUsed: 0,
+    passwordSalt: salt,
+    passwordHash: hashPassword(password, salt),
+  };
+
+  users.push(user);
+  await writeUsers(users);
+  return { user };
+}

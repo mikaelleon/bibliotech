@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Design system</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./shared.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&family=Newsreader:opsz,wght@6..72,300;6..72,400&display=swap">
+</helmet>
+<main style="max-width: 1200px; margin: 0 auto; padding: 64px 32px">
+  <p class="t14 atext w5">E-Library AI</p>
+  <h1 class="serif t56" style="margin-top: 8px">Design system, Phase 1</h1>
+  <p class="muted" style="margin-top: 16px; max-width: 640px">One component set for the Next.js web app and the Expo Android app. Everything below snaps to the tokens and spacing scale.</p>
+
+  <!-- COLOR -->
+  <section class="sec">
+    <h2 class="serif t32">Color tokens</h2>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(264px, 100%), 1fr)); gap: 24px; margin-top: 24px">
+      <div><div style="height: 64px; background: #F2F0E6; border: 1px solid #E2DFD2; border-radius: 12px"></div><p class="t14 w5" style="margin-top: 8px">bg  #F2F0E6</p><p class="t12 muted">Page background (beige off-white)</p></div>
+      <div><div style="height: 64px; background: #FBFAF5; border: 1px solid #E2DFD2; border-radius: 12px"></div><p class="t14 w5" style="margin-top: 8px">surface  #FBFAF5</p><p class="t12 muted">Panels, cards, inputs, drawer</p></div>
+      <div><div style="height: 64px; background: #1F2330; border-radius: 12px"></div><p class="t14 w5" style="margin-top: 8px">ink  #1F2330</p><p class="t12 muted">Headings and body text</p></div>
+      <div><div style="height: 64px; background: #6F6E66; border-radius: 12px"></div><p class="t14 w5" style="margin-top: 8px">ink-muted  #6F6E66</p><p class="t12 muted">Captions, metadata, placeholders</p></div>
+      <div><div style="height: 64px; background: #E2DFD2; border: 1px solid #d3d0c1; border-radius: 12px"></div><p class="t14 w5" style="margin-top: 8px">line  #E2DFD2</p><p class="t12 muted">1px borders, dividers, skeletons</p></div>
+      <div><div style="height: 64px; background: #20232F; border-radius: 12px"></div><p class="t14 w5" style="margin-top: 8px">primary  #20232F</p><p class="t12 muted">Main buttons, white text</p></div>
+      <div><div style="height: 64px; background: #E2504F; border-radius: 12px"></div><p class="t14 w5" style="margin-top: 8px">accent  #E2504F</p><p class="t12 muted">Active rail item, counters, progress. Never body text</p></div>
+      <div><div style="height: 64px; background: #C23B3E; border-radius: 12px"></div><p class="t14 w5" style="margin-top: 8px">accent-text  #C23B3E</p><p class="t12 muted">Accent as text or links, errors</p></div>
+    </div>
+  </section>
+
+  <!-- TYPE + SPACING -->
+  <section class="sec" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(480px, 100%), 1fr)); gap: 48px">
+    <div>
+      <h2 class="serif t32">Type scale</h2>
+      <p class="muted t14" style="margin-top: 8px">Newsreader Light for headings, Inter for UI. Body 16 / 24.</p>
+      <ul style="margin-top: 24px; display: grid; gap: 12px">
+        <li style="display: flex; align-items: baseline; gap: 16px; border-bottom: 1px solid var(--line); padding-bottom: 12px"><span class="t12 muted" style="width: 48px">56</span><span class="serif t56">Reading room</span></li>
+        <li style="display: flex; align-items: baseline; gap: 16px; border-bottom: 1px solid var(--line); padding-bottom: 12px"><span class="t12 muted" style="width: 48px">40</span><span class="serif t40">Search free books</span></li>
+        <li style="display: flex; align-items: baseline; gap: 16px; border-bottom: 1px solid var(--line); padding-bottom: 12px"><span class="t12 muted" style="width: 48px">32</span><span class="serif t32">Recently added</span></li>
+        <li style="display: flex; align-items: baseline; gap: 16px; border-bottom: 1px solid var(--line); padding-bottom: 12px"><span class="t12 muted" style="width: 48px">24</span><span class="serif t24">Your library is empty.</span></li>
+        <li style="display: flex; align-items: baseline; gap: 16px; border-bottom: 1px solid var(--line); padding-bottom: 12px"><span class="t12 muted" style="width: 48px">20</span><span class="t20 w5">Section heading (Inter 500)</span></li>
+        <li style="display: flex; align-items: baseline; gap: 16px; border-bottom: 1px solid var(--line); padding-bottom: 12px"><span class="t12 muted" style="width: 48px">16</span><span>Body text for descriptions and form fields.</span></li>
+        <li style="display: flex; align-items: baseline; gap: 16px; border-bottom: 1px solid var(--line); padding-bottom: 12px"><span class="t12 muted" style="width: 48px">14</span><span class="t14">Buttons, captions, book titles in the grid.</span></li>
+        <li style="display: flex; align-items: baseline; gap: 16px"><span class="t12 muted" style="width: 48px">12</span><span class="t12 muted">Category under a title, helper text, counters.</span></li>
+      </ul>
+    </div>
+    <div>
+      <h2 class="serif t32">Spacing and radii</h2>
+      <p class="muted t14" style="margin-top: 8px">4px base. Only these steps are used for padding, margin and gap.</p>
+      <ul style="margin-top: 24px; display: grid; gap: 8px">
+        <li style="display: flex; align-items: center; gap: 16px"><span class="t12 muted" style="width: 48px">4</span><span style="height: 12px; width: 4px; background: var(--ink)"></span></li>
+        <li style="display: flex; align-items: center; gap: 16px"><span class="t12 muted" style="width: 48px">8</span><span style="height: 12px; width: 8px; background: var(--ink)"></span></li>
+        <li style="display: flex; align-items: center; gap: 16px"><span class="t12 muted" style="width: 48px">12</span><span style="height: 12px; width: 12px; background: var(--ink)"></span></li>
+        <li style="display: flex; align-items: center; gap: 16px"><span class="t12 muted" style="width: 48px">16</span><span style="height: 12px; width: 16px; background: var(--ink)"></span></li>
+        <li style="display: flex; align-items: center; gap: 16px"><span class="t12 muted" style="width: 48px">24</span><span style="height: 12px; width: 24px; background: var(--ink)"></span></li>
+        <li style="display: flex; align-items: center; gap: 16px"><span class="t12 muted" style="width: 48px">32</span><span style="height: 12px; width: 32px; background: var(--ink)"></span></li>
+        <li style="display: flex; align-items: center; gap: 16px"><span class="t12 muted" style="width: 48px">48</span><span style="height: 12px; width: 48px; background: var(--ink)"></span></li>
+        <li style="display: flex; align-items: center; gap: 16px"><span class="t12 muted" style="width: 48px">64</span><span style="height: 12px; width: 64px; background: var(--ink)"></span></li>
+      </ul>
+      <div style="display: flex; gap: 24px; margin-top: 32px; align-items: flex-end">
+        <div><div style="width: 96px; height: 44px; background: var(--primary); border-radius: 999px"></div><p class="t12 muted" style="margin-top: 8px">Button: full</p></div>
+        <div><div style="width: 96px; height: 64px; background: var(--surface); border: 1px solid var(--line); border-radius: 12px"></div><p class="t12 muted" style="margin-top: 8px">Panel, card: 12</p></div>
+        <div><div style="width: 48px; height: 72px; background: #1F3A57; border-radius: 4px; box-shadow: var(--shadow-cover)"></div><p class="t12 muted" style="margin-top: 8px">Cover: 4</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- BUTTONS -->
+  <section class="sec">
+    <h2 class="serif t32">Buttons</h2>
+    <p class="muted t14" style="margin-top: 8px">44px minimum height. One primary action per screen or section.</p>
+    <div style="display: flex; flex-wrap: wrap; gap: 24px; align-items: center; margin-top: 24px">
+      <div><button class="btn btn-p">Register<svg class="i i16" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></button><p class="t12 muted" style="margin-top: 8px">Primary</p></div>
+      <div><button class="btn btn-o">Log in</button><p class="t12 muted" style="margin-top: 8px">Secondary outline</p></div>
+      <div><a class="btn btn-l" href="#">Continue as guest</a><p class="t12 muted" style="margin-top: 8px">Text link</p></div>
+      <div><button class="btn btn-p" disabled>Download</button><p class="t12 muted" style="margin-top: 8px">Disabled</p></div>
+      <div><button class="btn btn-p" disabled style="opacity: 1; cursor: progress"><svg class="i i16 spin" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>Logging in...</button><p class="t12 muted" style="margin-top: 8px">Loading</p></div>
+      <div><button class="btn btn-p focus">Focused</button><p class="t12 muted" style="margin-top: 8px">Focus ring: 2px ink, 2px offset</p></div>
+    </div>
+  </section>
+
+  <!-- INPUTS -->
+  <section class="sec">
+    <h2 class="serif t32">Inputs</h2>
+    <p class="muted t14" style="margin-top: 8px">Labels always sit above the field. Errors appear under it, in accent-text with an icon.</p>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(264px, 100%), 1fr)); gap: 24px; margin-top: 24px">
+      <div><label class="lbl" for="d1">Email</label><div class="in" id="d1" style="color: var(--muted)">name@example.com</div><p class="hint">Default</p></div>
+      <div><label class="lbl" for="d2">Email</label><div class="in focus" id="d2">sam@ub.edu.ph</div><p class="hint">Focus</p></div>
+      <div><label class="lbl" for="d3">Password</label><div class="in bad" id="d3">&bull;&bull;&bull;&bull;&bull;</div><p class="err"><svg class="i i16" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 8v4"/><path d="M12 16h.01"/></svg>Use at least 8 characters.</p></div>
+      <div><label class="lbl" for="d4">Display name</label><div class="in off" id="d4">Locked</div><p class="hint">Disabled</p></div>
+    </div>
+  </section>
+
+  <!-- RAIL + CARD + QUOTA -->
+  <section class="sec" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(360px, 100%), 1fr)); gap: 48px">
+    <div>
+      <h2 class="serif t32">Rail item states</h2>
+      <p class="muted t14" style="margin-top: 8px">44px circle, thin line icon. Tooltip on hover and focus (desktop), text label under the icon (mobile tab bar).</p>
+      <div style="display: flex; gap: 24px; margin-top: 24px; align-items: flex-start; flex-wrap: wrap">
+        <div style="text-align: left"><a class="ri" href="#" aria-label="Default"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 7v14"/><path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z"/></svg></a><p class="t12 muted" style="margin-top: 8px">Default</p></div>
+        <div><a class="ri" href="#" aria-label="Hover" style="background: var(--bg)"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 7v14"/><path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z"/></svg></a><p class="t12 muted" style="margin-top: 8px">Hover</p></div>
+        <div><a class="ri on" href="#" aria-label="Active" aria-current="page"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 7v14"/><path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z"/></svg></a><p class="t12 muted" style="margin-top: 8px">Active</p></div>
+        <div><a class="ri" href="#" aria-label="Locked"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="m16 6 4 14"/><path d="M12 6v14"/><path d="M8 8v12"/><path d="M4 4v16"/></svg><svg class="i lk" viewBox="0 0 24 24" aria-hidden="true"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></a><p class="t12 muted" style="margin-top: 8px">Locked</p></div>
+        <div><a class="ri focus" href="#" aria-label="Focus"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></a><p class="t12 muted" style="margin-top: 8px">Focus</p></div>
+      </div>
+
+      <h2 class="serif t32" style="margin-top: 48px">Quota indicator</h2>
+      <div style="margin-top: 24px; display: grid; gap: 16px">
+        <div style="display: flex; align-items: center; gap: 12px"><p class="t14 muted">0 of 10 downloads used</p><div class="bar"><i style="width: 0%"></i></div></div>
+        <div style="display: flex; align-items: center; gap: 12px"><p class="t14 muted">7 of 10 downloads used</p><div class="bar"><i style="width: 70%"></i></div></div>
+        <p class="t14 muted">Guest: 5 downloads left. <a href="#" class="atext w5">Sign up</a> for 10.</p>
+      </div>
+    </div>
+    <div>
+      <h2 class="serif t32">Book card</h2>
+      <p class="muted t14" style="margin-top: 8px">2:3 cover, soft shadow, plain caption. Category is muted text, not a badge. Hover lifts the cover 4px in 200ms.</p>
+      <div style="display: flex; gap: 24px; margin-top: 24px; align-items: flex-start">
+        <a class="bk" href="#" style="width: 160px"><div class="cv" style="background: #1F3A57; color: #FBFAF5"><span class="ct">Moby-Dick</span><span class="ca">Herman Melville</span></div><p class="t">Moby-Dick</p><p class="a">Herman Melville</p><p class="c">Fiction</p></a>
+        <a class="bk" href="#" style="width: 160px"><div class="cv" style="background: #D9C58A; color: #1F2330"><span class="ct">Alice&rsquo;s Adventures in Wonderland</span><span class="ca">Lewis Carroll</span></div><p class="t">Alice&rsquo;s Adventures in Wonderland</p><p class="a">Lewis Carroll</p><p class="c">Fiction</p></a>
+      </div>
+    </div>
+  </section>
+
+  <!-- EMPTY + SKELETON -->
+  <section class="sec" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(360px, 100%), 1fr)); gap: 48px">
+    <div>
+      <h2 class="serif t32">Empty state</h2>
+      <p class="muted t14" style="margin-top: 8px">Says what is missing and offers one next action. Left aligned.</p>
+      <div class="empty" style="margin-top: 24px">
+        <svg class="i i24 muted" viewBox="0 0 24 24" aria-hidden="true"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
+        <h3 class="serif t24">No favorites yet.</h3>
+        <p class="muted">Open a book and choose Save to add it here.</p>
+        <a class="btn btn-o" href="#">Browse books</a>
+      </div>
+    </div>
+    <div>
+      <h2 class="serif t32">Skeleton</h2>
+      <p class="muted t14" style="margin-top: 8px">Pulsing line-colored blocks in the exact shape of the content. 1.5s, off for reduced motion.</p>
+      <div style="display: flex; gap: 24px; margin-top: 24px">
+        <div style="width: 160px"><div class="sk" style="aspect-ratio: 2/3"></div><div class="sk" style="height: 16px; margin-top: 12px"></div><div class="sk" style="height: 16px; margin-top: 8px; width: 66%"></div></div>
+        <div style="width: 160px"><div class="sk" style="aspect-ratio: 2/3"></div><div class="sk" style="height: 16px; margin-top: 12px"></div><div class="sk" style="height: 16px; margin-top: 8px; width: 66%"></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- DEV NOTES -->
+  <section class="sec panel">
+    <h2 class="serif t32">Developer notes</h2>
+    <dl class="dl" style="margin-top: 24px; grid-template-columns: max-content 1fr; row-gap: 12px">
+      <dt>Tokens</dt><dd>Eight colors above, defined once as CSS variables or in the Tailwind theme. No other colors in UI chrome. Covers use their own muted fills.</dd>
+      <dt>Layout</dt><dd>Content max width 1200px, 32px page gutters (16px on mobile), 64px between major sections. Rail is 80px wide on desktop and becomes a bottom tab bar under 768px.</dd>
+      <dt>Shadows</dt><dd>Only on book covers (0 4 12 at 20% ink) and overlays: menus and the AI drawer (0 8 32 at 20% ink). Panels and cards are flat with a 1px line border.</dd>
+      <dt>Accent use</dt><dd>accent fills the active rail item, progress bars and counters. Any accent-colored text or link uses accent-text to meet AA contrast.</dd>
+      <dt>States</dt><dd>Every control has default, hover, focus (2px ink ring), active and disabled. Forms validate inline on blur, show a loading state on submit, and never show raw errors.</dd>
+      <dt>Motion</dt><dd>150ms ease for hover and focus, 200ms for the drawer and bottom sheet. Honor prefers-reduced-motion by removing transitions and the skeleton pulse.</dd>
+      <dt>Accessibility</dt><dd>WCAG AA text contrast, 44px touch targets, labels above inputs, descriptive cover alt text ("Cover of Frankenstein by Mary Shelley"), icon-only controls carry an aria-label and a tooltip.</dd>
+      <dt>Icons</dt><dd>Lucide line icons, 20px, 1.5 stroke. 16px inside buttons and helper text.</dd>
+    </dl>
+  </section>
+</main>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":2300}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

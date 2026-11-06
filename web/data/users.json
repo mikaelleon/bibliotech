@@ -1,0 +1,10 @@
+[
+  {
+    "email": "dane@elibrary.local",
+    "name": "Dane Peralta",
+    "role": "admin",
+    "downloadsUsed": 0,
+    "passwordSalt": "372921c2c2d6c7426eecafcafeb0ef8d",
+    "passwordHash": "cf6615976a814db96361a829e0aed057b53b0e41c0707816911787f5e2608984"
+  }
+]

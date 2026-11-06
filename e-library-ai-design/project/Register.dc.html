@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Register</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./shared.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&family=Newsreader:opsz,wght@6..72,300;6..72,400&display=swap">
+</helmet>
+<main style="max-width: 384px; margin: 0 auto; padding: 64px 16px">
+  <a href="Landing.dc.html" style="display: inline-flex; align-items: center; gap: 8px; min-height: 44px; text-decoration: none" class="serif t20"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 7v14"/><path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z"/></svg>E-Library AI</a>
+  <h1 class="serif t32" style="margin-top: 32px">Create an account</h1>
+  <p class="muted" style="margin-top: 8px">Free. Get 10 downloads, a library and favorites.</p>
+
+  <form style="margin-top: 24px; display: grid; gap: 16px">
+    <div>
+      <label class="lbl" for="name">Display name</label>
+      <input class="in" id="name" type="text" autocomplete="name" value="Sam Reyes">
+      <p class="ok"><svg class="i i16" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>Looks good.</p>
+    </div>
+    <div>
+      <label class="lbl" for="email">Email</label>
+      <input class="in bad" id="email" type="email" autocomplete="email" value="sam@ub" aria-invalid="true">
+      <p class="err"><svg class="i i16" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 8v4"/><path d="M12 16h.01"/></svg>Enter a valid email, like name@example.com.</p>
+    </div>
+    <div>
+      <label class="lbl" for="pw">Password</label>
+      <div class="pw">
+        <input class="in bad" id="pw" type="password" autocomplete="new-password" value="library" aria-invalid="true" style="padding-right: 48px">
+        <button type="button" class="eye" aria-label="Show password"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg></button>
+      </div>
+      <p class="hint">At least 8 characters.</p>
+      <p class="err"><svg class="i i16" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 8v4"/><path d="M12 16h.01"/></svg>Use at least 8 characters.</p>
+    </div>
+    <button type="submit" class="btn btn-p full">Create account<svg class="i i16" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></button>
+  </form>
+
+  <p class="t14 muted" style="margin-top: 24px">Already have an account? <a href="Login.dc.html" class="atext w5" style="text-underline-offset: 4px">Log in</a></p>
+  <a class="btn btn-l t14" href="Browse.dc.html" style="margin-top: 4px">Continue as guest</a>
+</main>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1000}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

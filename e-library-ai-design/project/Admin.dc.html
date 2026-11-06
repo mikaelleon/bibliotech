@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Admin placeholder</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./shared.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&family=Newsreader:opsz,wght@6..72,300;6..72,400&display=swap">
+</helmet>
+<div class="app">
+  <nav class="rail" aria-label="Main">
+    <a class="ri" href="Browse.dc.html" aria-label="Browse"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 7v14"/><path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z"/></svg></a>
+    <a class="ri" href="Library.dc.html" aria-label="My Library"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="m16 6 4 14"/><path d="M12 6v14"/><path d="M8 8v12"/><path d="M4 4v16"/></svg></a>
+    <a class="ri" href="Favorites.dc.html" aria-label="Favorites"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg></a>
+    <a class="ri" href="Profile.dc.html" aria-label="Profile"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></a>
+    <a class="ri on" href="Admin.dc.html" aria-label="Admin" aria-current="page"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/></svg></a>
+  </nav>
+  <div class="col">
+    <header class="top">
+      <div class="sr"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg><div class="f">Search by title or author</div><span class="kbd">Ctrl K</span></div>
+      <button type="button" style="margin-left: auto; display: flex; align-items: center; gap: 8px; min-height: 44px; background: none; border: 0; font: 500 14px/20px 'Inter', sans-serif; color: var(--ink); cursor: pointer" aria-label="Account menu for Dane Peralta"><span class="av">D</span>Dane Peralta<svg class="i i16" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button>
+    </header>
+    <main class="wrap">
+      <h1 class="serif t32">Admin dashboard</h1>
+      <p class="muted" style="margin-top: 8px">Admin dashboard: coming in Phase 2.</p>
+      <p class="t14 muted" style="margin-top: 16px; max-width: 560px">This page is only served to accounts whose role is admin. Everyone else is sent back to Browse.</p>
+      <a class="btn btn-o" href="Browse.dc.html" style="margin-top: 24px">Back to Browse</a>
+    </main>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":900}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>
