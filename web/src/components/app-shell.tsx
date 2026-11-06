@@ -10,6 +10,7 @@ import { SearchBar } from "@/components/search-bar";
 import { ShellSearch } from "@/components/shell-search";
 import { SideRail } from "@/components/side-rail";
 import { TabBar } from "@/components/tab-bar";
+import { ToastProvider } from "@/components/toast";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import type { Session } from "@/lib/types";
 
@@ -21,6 +22,7 @@ export function AppShell({ session, children }: { session: Session; children: Re
 
   return (
     <TooltipProvider>
+      <ToastProvider>
       <div className="min-h-screen bg-background">
         <div className="flex min-h-screen">
           <SideRail session={session} />
@@ -42,6 +44,7 @@ export function AppShell({ session, children }: { session: Session; children: Re
         <TabBar session={session} />
         {onBrowse ? <AIAssistant hideTriggerOnMobile={session.kind !== "user"} /> : null}
       </div>
+      </ToastProvider>
     </TooltipProvider>
   );
 }

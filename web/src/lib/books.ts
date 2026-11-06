@@ -297,5 +297,5 @@ export function filterBooks(
 }
 
 export function relatedBooks(book: Book): Book[] {
-  return books.filter((item) => item.category === book.category && item.id !== book.id).slice(0, 5);
+  return books.filter((item) => item.category === book.category && item.id !== book.id).slice(0, 6);
 }

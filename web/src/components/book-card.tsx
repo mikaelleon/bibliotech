@@ -1,4 +1,5 @@
 import Link from "next/link";
+import type { ReactNode } from "react";
 
 import { BookCover } from "@/components/book-cover";
 import type { Book } from "@/lib/types";
@@ -8,17 +9,22 @@ export function BookCard({
   book,
   showCategory = false,
   href,
+  corner,
 }: {
   book: Book;
   showCategory?: boolean;
   href?: string;
+  corner?: ReactNode;
 }) {
   return (
-    <Link href={href ?? `/books/${book.id}`} className="block text-inherit no-underline">
-      <BookCover book={book} decorative />
-      <p className="mt-3 text-sm leading-5 font-medium">{book.title}</p>
-      <p className="text-sm leading-5 text-muted-foreground">{book.author}</p>
-      {showCategory ? <p className="text-xs leading-4 text-muted-foreground">{book.category}</p> : null}
-    </Link>
+    <div className="relative">
+      <Link href={href ?? `/books/${book.id}`} className="block text-inherit no-underline">
+        <BookCover book={book} decorative />
+        <p className="mt-3 text-sm leading-5 font-medium">{book.title}</p>
+        <p className="text-sm leading-5 text-muted-foreground">{book.author}</p>
+        {showCategory ? <p className="text-xs leading-4 text-muted-foreground">{book.category}</p> : null}
+      </Link>
+      {corner ? <div className="absolute top-2 right-2">{corner}</div> : null}
+    </div>
   );
 }

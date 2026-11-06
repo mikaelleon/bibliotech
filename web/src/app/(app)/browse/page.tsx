@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 
 import { BookCard } from "@/components/book-card";
 import { CategoryFilter } from "@/components/category-filter";
@@ -21,6 +22,12 @@ export default async function BrowsePage({
   const category = CATEGORIES.includes(params.category as Category) ? params.category : undefined;
   const books = filterBooks(getBooks(), query, category);
   const searching = query.length > 0;
+  if (searching) {
+    const next = new URLSearchParams();
+    next.set("q", query);
+    if (category) next.set("category", category);
+    redirect(`/search?${next.toString()}`);
+  }
 
   return (
     <main className="mx-auto flex w-full max-w-[1200px] flex-col gap-6 px-4 py-6 md:gap-8 md:px-8 md:py-8">

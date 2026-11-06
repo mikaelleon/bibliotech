@@ -16,7 +16,10 @@ type Item = {
 };
 
 function isCurrent(href: string, path: string): boolean {
-  if (href === "/browse") return path === "/browse" || path.startsWith("/books/");
+  if (href === "/browse") {
+    return path === "/browse" || path.startsWith("/books/") || path.startsWith("/search");
+  }
+  if (href === "/admin") return path.startsWith("/admin");
   return path === href;
 }
 

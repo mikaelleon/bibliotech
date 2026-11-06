@@ -1,10 +1,12 @@
-import { ArrowLeft, BookOpen, Bookmark, Download } from "lucide-react-native";
+import { ArrowLeft, BookOpen, Bookmark, Download, Info } from "lucide-react-native";
 import { Link, Redirect, useLocalSearchParams } from "expo-router";
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
+import { Banner } from "@/components/Banner";
 import { BookCover } from "@/components/BookCover";
 import { Button } from "@/components/Button";
+import { FavoriteButton } from "@/components/FavoriteButton";
 import { EmptyState } from "@/components/EmptyState";
 import { TabBar } from "@/components/TabBar";
 import { getBook } from "@/lib/books";
@@ -28,9 +30,11 @@ export default function BookScreen() {
 }
 
 function BookBody({ id }: { id: string }) {
+  const { session, favoriteIds, toggleFavorite } = useSession();
   const book = getBook(id);
   if (!book) return null;
   const summary = book.summaryShort ?? book.summary;
+  const saved = favoriteIds.includes(book.id);
 
   return (
     <ScrollView contentContainerStyle={styles.content}>
@@ -61,6 +65,20 @@ function BookBody({ id }: { id: string }) {
         </View>
       </View>
       <Text style={styles.summary}>{summary}</Text>
+      {session.kind === "guest" ? (
+        <View style={styles.banner}>
+          <Banner icon={<Info color={colors.ink} size={20} strokeWidth={1.5} />}>
+            5 of 5 downloads left. Create a free account for 10.
+          </Banner>
+        </View>
+      ) : null}
+      {session.kind === "user" ? (
+        <View style={styles.banner}>
+          <Banner icon={<Info color={colors.ink} size={20} strokeWidth={1.5} />}>
+            {session.downloadsUsed} of 10 downloads used.
+          </Banner>
+        </View>
+      ) : null}
       <View style={styles.actions}>
         <Button
           label="Download"
@@ -78,6 +96,9 @@ function BookBody({ id }: { id: string }) {
           icon={<Bookmark />}
           iconPosition="start"
         />
+        {session.kind === "user" ? (
+          <FavoriteButton active={saved} onPress={() => toggleFavorite(book.id)} />
+        ) : null}
       </View>
       <Text style={styles.note}>Downloads arrive in Phase 2.</Text>
     </ScrollView>
@@ -185,8 +206,11 @@ const styles = StyleSheet.create({
     lineHeight: 20,
     color: colors.ink,
   },
-  actions: {
+  banner: {
     marginTop: 24,
+  },
+  actions: {
+    marginTop: 16,
     gap: 8,
   },
   note: {

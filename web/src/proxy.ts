@@ -16,13 +16,6 @@ export function proxy(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
-  if (pathname.startsWith("/admin") && token?.role !== "admin") {
-    const url = request.nextUrl.clone();
-    url.pathname = "/browse";
-    url.search = "";
-    return NextResponse.redirect(url);
-  }
-
   return NextResponse.next();
 }
 

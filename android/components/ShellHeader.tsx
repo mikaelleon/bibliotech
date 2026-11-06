@@ -1,4 +1,4 @@
-import { useGlobalSearchParams, useRouter } from "expo-router";
+import { useGlobalSearchParams, useRouter, type Href } from "expo-router";
 import { useState } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 
@@ -22,12 +22,12 @@ export function ShellHeader() {
   function submit() {
     const next = text.trim();
     router.push({
-      pathname: "/browse",
+      pathname: "/search",
       params: {
         ...(next ? { q: next } : {}),
         ...(category ? { category } : {}),
       },
-    });
+    } as unknown as Href);
   }
 
   return (

@@ -3,16 +3,24 @@ import Link from "next/link";
 import { CATEGORIES } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
-function hrefFor(category: string | null, query: string): string {
+function hrefFor(base: string, category: string | null, query: string): string {
   const params = new URLSearchParams();
   if (query) params.set("q", query);
   if (category) params.set("category", category);
   const value = params.toString();
-  return value ? `/browse?${value}` : "/browse";
+  return value ? `${base}?${value}` : base;
 }
 
 /** Shareable category chips. The selected chip is charcoal, not coral. */
-export function CategoryFilter({ selected, query }: { selected?: string; query?: string }) {
+export function CategoryFilter({
+  selected,
+  query,
+  base = "/browse",
+}: {
+  selected?: string;
+  query?: string;
+  base?: string;
+}) {
   const current = selected && CATEGORIES.includes(selected as (typeof CATEGORIES)[number]) ? selected : "All";
   const chips = ["All", ...CATEGORIES];
 
@@ -24,7 +32,7 @@ export function CategoryFilter({ selected, query }: { selected?: string; query?:
           return (
             <li key={chip} className="shrink-0">
               <Link
-                href={hrefFor(chip === "All" ? null : chip, query ?? "")}
+                href={hrefFor(base, chip === "All" ? null : chip, query ?? "")}
                 aria-current={on ? "true" : undefined}
                 className={cn(
                   "inline-flex min-h-11 items-center rounded-full border px-4 text-sm leading-5 no-underline",

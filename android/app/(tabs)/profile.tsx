@@ -1,57 +1,115 @@
 import { LogOut } from "lucide-react-native";
 import { useRouter } from "expo-router";
-import { ScrollView, StyleSheet, Text, View } from "react-native";
+import { useState } from "react";
+import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
 
 import { Button } from "@/components/Button";
-import { DefinitionList } from "@/components/DefinitionList";
 import { LockedPanel } from "@/components/LockedPanel";
 import { useSession } from "@/lib/session";
 import { colors, font, radius } from "@/theme/tokens";
 
 export default function ProfileScreen() {
   const router = useRouter();
-  const { session, logout } = useSession();
+  const { session, logout, rename, changePassword } = useSession();
+  const [name, setName] = useState(session.kind === "user" ? session.name : "");
+  const [password, setPassword] = useState("");
+  const [confirm, setConfirm] = useState("");
+  const [nameError, setNameError] = useState<string | null>(null);
+  const [passwordError, setPasswordError] = useState<string | null>(null);
+  const [saved, setSaved] = useState<string | null>(null);
   if (session.kind !== "user") return <LockedPanel title="Profile" />;
 
   const used = session.downloadsUsed;
   const width = `${Math.max(0, Math.min(100, (used / 10) * 100))}%` as const;
 
   return (
+    <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : undefined} style={styles.flex}>
     <ScrollView contentContainerStyle={styles.page}>
       <Text style={styles.title}>Profile</Text>
-      <DefinitionList
-        card
-        items={[
-          { term: "Display name", value: session.name },
-          { term: "Email", value: session.email },
-          { term: "Account type", value: session.role === "admin" ? "Admin" : "Registered user" },
-        ]}
-      />
+      <Text style={styles.lede}>Your account, downloads, and session.</Text>
       <View style={styles.card}>
-        <Text style={styles.usage}>Download usage</Text>
-        <Text style={styles.note}>Registered accounts get 10 downloads.</Text>
-        <View style={styles.meter}>
-          <Text style={styles.meterText}>{used} of 10 downloads used</Text>
-          <View accessibilityElementsHidden style={styles.track}>
-            <View style={[styles.fill, { width }]} />
-          </View>
-        </View>
+        <Text style={styles.usage}>Account</Text>
+        <Text style={styles.label}>Display name</Text>
+        <TextInput
+          value={name}
+          onChangeText={setName}
+          accessibilityLabel="Display name"
+          style={styles.input}
+        />
+        {nameError ? <Text style={styles.error}>{nameError}</Text> : null}
+        <Button
+          label="Save"
+          onPress={() => {
+            const message = rename(name);
+            setNameError(message);
+            setSaved(message ? null : "Display name saved.");
+          }}
+        />
+        <Text style={styles.label}>Email</Text>
+        <Text style={styles.note}>{session.email}</Text>
       </View>
-      <Button
-        label="Log out"
-        variant="outline"
-        icon={<LogOut />}
-        iconPosition="start"
-        onPress={() => {
-          logout();
-          router.replace("/login");
-        }}
-      />
+      <View style={styles.card}>
+        <Text style={styles.usage}>Downloads</Text>
+        <Text style={styles.meterText}>{used} of 10 downloads used</Text>
+        <View accessibilityElementsHidden style={styles.track}>
+          <View style={[styles.fill, { width }]} />
+        </View>
+        <Text style={styles.note}>Registered accounts include 10 downloads.</Text>
+      </View>
+      <View style={styles.card}>
+        <Text style={styles.usage}>Security</Text>
+        <Text style={styles.label}>New password</Text>
+        <TextInput
+          value={password}
+          onChangeText={setPassword}
+          secureTextEntry
+          accessibilityLabel="New password"
+          style={styles.input}
+        />
+        <Text style={styles.label}>Confirm password</Text>
+        <TextInput
+          value={confirm}
+          onChangeText={setConfirm}
+          secureTextEntry
+          accessibilityLabel="Confirm password"
+          style={styles.input}
+        />
+        {passwordError ? <Text style={styles.error}>{passwordError}</Text> : null}
+        <Button
+          label="Update password"
+          variant="outline"
+          onPress={() => {
+            const message = changePassword(password, confirm);
+            setPasswordError(message);
+            if (!message) {
+              setPassword("");
+              setConfirm("");
+              setSaved("Password updated.");
+            }
+          }}
+        />
+      </View>
+      <View style={styles.card}>
+        <Text style={styles.usage}>Session</Text>
+        <Button
+          label="Log out"
+          variant="outline"
+          icon={<LogOut />}
+          iconPosition="start"
+          onPress={() => {
+            logout();
+            router.replace("/login");
+          }}
+        />
+      </View>
+      {saved ? <Text accessibilityRole="alert" style={styles.saved}>{saved}</Text> : null}
     </ScrollView>
+    </KeyboardAvoidingView>
   );
 }
 
 const styles = StyleSheet.create({
+  flex: { flex: 1 },
   page: {
     paddingHorizontal: 16,
     paddingTop: 24,
@@ -63,6 +121,44 @@ const styles = StyleSheet.create({
     fontSize: 32,
     lineHeight: 40,
     letterSpacing: -0.32,
+    color: colors.ink,
+  },
+  lede: {
+    fontFamily: font.sans,
+    fontSize: 16,
+    lineHeight: 24,
+    color: colors.muted,
+  },
+  label: {
+    marginTop: 16,
+    marginBottom: 8,
+    fontFamily: font.sans,
+    fontSize: 14,
+    lineHeight: 20,
+    color: colors.ink,
+  },
+  input: {
+    minHeight: 44,
+    borderWidth: 1,
+    borderColor: colors.line,
+    borderRadius: radius.panel,
+    backgroundColor: colors.bg,
+    paddingHorizontal: 12,
+    fontFamily: font.sans,
+    fontSize: 16,
+    color: colors.ink,
+  },
+  error: {
+    marginTop: 8,
+    fontFamily: font.sans,
+    fontSize: 14,
+    lineHeight: 20,
+    color: colors.atext,
+  },
+  saved: {
+    fontFamily: font.sans,
+    fontSize: 14,
+    lineHeight: 20,
     color: colors.ink,
   },
   card: {
@@ -84,12 +180,6 @@ const styles = StyleSheet.create({
     fontSize: 14,
     lineHeight: 20,
     color: colors.muted,
-  },
-  meter: {
-    marginTop: 16,
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 12,
   },
   meterText: {
     fontFamily: font.sans,

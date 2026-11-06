@@ -8,6 +8,7 @@ type SearchBarProps = {
   onChangeText: (value: string) => void;
   onSubmit: () => void;
   placeholder?: string;
+  autoFocus?: boolean;
 };
 
 export function SearchBar({
@@ -15,6 +16,7 @@ export function SearchBar({
   onChangeText,
   onSubmit,
   placeholder = "Search books",
+  autoFocus = false,
 }: SearchBarProps) {
   return (
     <View style={styles.wrap}>
@@ -29,6 +31,7 @@ export function SearchBar({
         autoCapitalize="none"
         autoCorrect={false}
         accessibilityLabel="Search books"
+        autoFocus={autoFocus}
         style={styles.input}
       />
     </View>

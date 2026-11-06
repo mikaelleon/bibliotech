@@ -17,7 +17,7 @@ export function SearchBar({ query = "", large = false, compact = false, action, 
 
   return (
     <form
-      action={action ?? "/browse"}
+      action={action ?? "/search"}
       role="search"
       className={cn("relative min-w-0 flex-1", !large && "max-w-xl", className)}
     >

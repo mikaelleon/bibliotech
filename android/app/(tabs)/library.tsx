@@ -1,20 +1,34 @@
 import { Library } from "lucide-react-native";
-import { ScrollView, StyleSheet, Text, View } from "react-native";
+import { FlatList, StyleSheet, View } from "react-native";
 
+import { BookCard } from "@/components/BookCard";
 import { Button } from "@/components/Button";
 import { EmptyState } from "@/components/EmptyState";
 import { LockedPanel } from "@/components/LockedPanel";
+import { PageHeader } from "@/components/PageHeader";
+import { getBook } from "@/lib/books";
 import { useSession } from "@/lib/session";
-import { colors, font } from "@/theme/tokens";
+import { colors } from "@/theme/tokens";
 
 export default function LibraryScreen() {
-  const { session } = useSession();
+  const { session, libraryIds } = useSession();
   if (session.kind !== "user") return <LockedPanel title="My Library" />;
 
+  const books = libraryIds.map((id) => getBook(id)).filter((book) => book !== undefined);
+  const count = books.length === 1 ? "1 book you've saved." : `${books.length} books you've saved.`;
+
   return (
-    <ScrollView contentContainerStyle={styles.page}>
-      <Text style={styles.title}>My Library</Text>
-      <View style={styles.gap}>
+    <FlatList
+      data={books}
+      keyExtractor={(item) => item.id}
+      numColumns={2}
+      contentContainerStyle={styles.page}
+      ListHeaderComponent={
+        <View style={styles.header}>
+          <PageHeader title="My Library" lede={count} />
+        </View>
+      }
+      ListEmptyComponent={
         <EmptyState
           icon={<Library color={colors.muted} size={24} strokeWidth={1.5} />}
           title="Your library is empty."
@@ -22,8 +36,14 @@ export default function LibraryScreen() {
         >
           Books you download will appear here, so you can find them again.
         </EmptyState>
-      </View>
-    </ScrollView>
+      }
+      columnWrapperStyle={books.length > 0 ? styles.row : undefined}
+      renderItem={({ item }) => (
+        <View style={styles.cell}>
+          <BookCard book={item} />
+        </View>
+      )}
+    />
   );
 }
 
@@ -32,15 +52,15 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingTop: 24,
     paddingBottom: 32,
+    gap: 16,
   },
-  title: {
-    fontFamily: font.serif,
-    fontSize: 32,
-    lineHeight: 40,
-    letterSpacing: -0.32,
-    color: colors.ink,
+  header: {
+    marginBottom: 8,
   },
-  gap: {
-    marginTop: 24,
+  row: {
+    gap: 16,
+  },
+  cell: {
+    flex: 1,
   },
 });

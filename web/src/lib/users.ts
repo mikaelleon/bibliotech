@@ -80,3 +80,31 @@ export async function createUser(
   await writeUsers(users);
   return { user };
 }
+
+export async function listUsers(): Promise<StoredUser[]> {
+  return readUsers();
+}
+
+/** Changes the display name only. Role is never written here. */
+export async function updateDisplayName(email: string, name: string): Promise<string | null> {
+  const trimmed = name.trim();
+  if (!trimmed) return "Enter a display name.";
+  const users = await readUsers();
+  const user = users.find((item) => item.email === email.trim().toLowerCase());
+  if (!user) return "That account is not available.";
+  user.name = trimmed;
+  await writeUsers(users);
+  return null;
+}
+
+/** Replaces the password. Role is never written here. */
+export async function updatePassword(email: string, password: string): Promise<string | null> {
+  if (password.length < 8) return "Use at least 8 characters.";
+  const users = await readUsers();
+  const user = users.find((item) => item.email === email.trim().toLowerCase());
+  if (!user) return "That account is not available.";
+  user.passwordSalt = randomBytes(16).toString("hex");
+  user.passwordHash = hashPassword(password, user.passwordSalt);
+  await writeUsers(users);
+  return null;
+}
