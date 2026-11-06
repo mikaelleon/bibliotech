@@ -1,5 +1,5 @@
 import { ArrowRight, CircleAlert } from "lucide-react-native";
-import { useRouter } from "expo-router";
+import { useRouter, type Href } from "expo-router";
 import { useState } from "react";
 import {
   KeyboardAvoidingView,
@@ -69,6 +69,9 @@ export default function LoginScreen() {
             ) : null}
             <Button label="Log in" full busy={busy} onPress={onSubmit} icon={<ArrowRight />} />
           </View>
+          <Text accessibilityRole="link" onPress={() => router.push("/forgot-password" as unknown as Href)} style={styles.switch}>
+            Forgot password
+          </Text>
           <Text style={styles.switch}>
             New here?{" "}
             <Text accessibilityRole="link" onPress={() => router.push("/register")} style={styles.inline}>

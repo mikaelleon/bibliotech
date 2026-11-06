@@ -5,6 +5,7 @@ import { Suspense, type ReactNode } from "react";
 
 import { AccountMenu } from "@/components/account-menu";
 import { AIAssistant } from "@/components/ai-assistant";
+import { OfflineBanner } from "@/components/offline-banner";
 import { QuotaStrip } from "@/components/quota-strip";
 import { SearchBar } from "@/components/search-bar";
 import { ShellSearch } from "@/components/shell-search";
@@ -37,6 +38,7 @@ export function AppShell({ session, children }: { session: Session; children: Re
                 </div>
               </header>
               {onAdmin ? null : <QuotaStrip session={session} />}
+              <OfflineBanner />
             </div>
             {children}
           </div>

@@ -18,6 +18,7 @@ type FieldProps = {
   error?: string;
   hint?: string;
   success?: string;
+  onBlur?: () => void;
 };
 
 /** Label, 44px input, optional hint, and an error or success line. */
@@ -32,6 +33,7 @@ export function Field({
   error,
   hint,
   success,
+  onBlur,
 }: FieldProps) {
   const generatedId = useId();
   const [visible, setVisible] = useState(false);
@@ -51,6 +53,7 @@ export function Field({
           defaultValue={value === undefined ? defaultValue : undefined}
           value={value}
           onChange={onChange ? (event) => onChange(event.target.value) : undefined}
+          onBlur={onBlur}
           aria-invalid={error ? true : undefined}
           aria-describedby={describedBy}
           className={cn(isPassword && "pr-12")}

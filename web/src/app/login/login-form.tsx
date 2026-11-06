@@ -1,6 +1,7 @@
 "use client";
 
 import { ArrowRight, CircleAlert, Eye, EyeOff } from "lucide-react";
+import Link from "next/link";
 import { useActionState, useState } from "react";
 
 import { Button } from "@/components/ui/button";
@@ -44,6 +45,9 @@ export function LoginForm() {
           {state.error}
         </p>
       ) : null}
+      <Link href="/forgot-password" className="text-sm leading-5 text-brand-text underline underline-offset-4">
+        Forgot password
+      </Link>
       <Button type="submit" className="w-full" disabled={pending} aria-busy={pending}>
         {pending ? "Logging in" : "Log in"}
         {pending ? null : <ArrowRight strokeWidth={1.5} />}

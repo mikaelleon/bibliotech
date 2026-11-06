@@ -3,6 +3,7 @@ import { StyleSheet, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { AIAssistant } from "@/components/AIAssistant";
+import { OfflineBanner } from "@/components/OfflineBanner";
 import { QuotaStrip } from "@/components/QuotaStrip";
 import { ShellHeader } from "@/components/ShellHeader";
 import { TabBar } from "@/components/TabBar";
@@ -26,6 +27,7 @@ export default function TabLayout() {
       <SafeAreaView edges={["top"]} style={styles.chrome}>
         <ShellHeader />
         <QuotaStrip />
+        <OfflineBanner />
       </SafeAreaView>
       <View style={styles.body}>
         <Tabs
