@@ -9,6 +9,10 @@ export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const token = readSessionToken(request.cookies.get(SESSION_COOKIE)?.value);
 
+  if (pathname.startsWith("/dev") && process.env.NODE_ENV === "production") {
+    return new NextResponse(null, { status: 404 });
+  }
+
   if (!token && !publicPaths.has(pathname)) {
     const url = request.nextUrl.clone();
     url.pathname = "/login";
