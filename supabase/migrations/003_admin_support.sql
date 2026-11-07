@@ -1,6 +1,6 @@
 -- Additive. Replaces the admin functions from 002 with the pieces that were missing:
 -- downloads per day, a match count on the user list, and a downloads list.
--- 002 is left as it was. This file is not applied automatically.
+-- 002 is left as it was.
 
 drop function if exists public.admin_list_users(text, int, int);
 

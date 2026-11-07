@@ -1,7 +1,6 @@
 -- Additive Phase 1 migration.
--- Expects public.profiles, public.books, and public.downloads to exist already.
+-- Expects public.profiles, public.books, and public.downloads from 001_base_schema.sql.
 -- Assumed columns are listed in docs/database.md.
--- This file is not applied automatically. There is no live database in this repo.
 
 create table if not exists public.library_items (
   user_id uuid not null references public.profiles (id) on delete cascade,
