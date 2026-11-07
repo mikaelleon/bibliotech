@@ -60,8 +60,9 @@ export function DataTable<T extends { id: string }>({
     );
   }
 
-  const titleColumn = columns[0];
-  const metaColumns = columns.slice(1).filter((column) => column.key !== "menu");
+  const titleColumn =
+    columns.find((column) => column.key === "title" || column.key === "name") ?? columns[0];
+  const metaColumns = columns.filter((column) => column !== titleColumn && column.key !== "menu");
   const menuColumn = columns.find((column) => column.key === "menu");
 
   return (
@@ -105,9 +106,11 @@ export function DataTable<T extends { id: string }>({
               <div className="min-w-0 flex-1">
                 {titleColumn ? <div className="text-sm leading-5">{titleColumn.cell(row)}</div> : null}
                 <p className="text-sm leading-5 text-muted-foreground">
-                  {metaColumns.map((column) => (
-                    <span key={column.key}>{column.stack ? column.stack(row) : column.cell(row)} </span>
-                  ))}
+                  {metaColumns.map((column) => {
+                    const content = column.stack ? column.stack(row) : column.cell(row);
+                    if (content == null || content === false) return null;
+                    return <span key={column.key}>{content} </span>;
+                  })}
                 </p>
               </div>
               {menuColumn ? <div>{menuColumn.cell(row)}</div> : null}

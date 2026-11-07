@@ -1,11 +1,11 @@
 import Link from "next/link";
 
+import { AdminBooksFilters } from "@/components/admin-books-filters";
 import { AdminBooksTable } from "@/components/admin-books-table";
 import { PageHeader } from "@/components/page-header";
 import { Pagination } from "@/components/pagination";
 import { SectionTabs } from "@/components/section-tabs";
 import { Button } from "@/components/ui/button";
-import { Select } from "@/components/ui/select";
 import { isAdminSession } from "@/lib/admin";
 import { filterBooks, getBooks } from "@/lib/books";
 import { getSession } from "@/lib/session";
@@ -32,7 +32,7 @@ export default async function AdminBooksPage({
   const visible = matches.slice((page - 1) * pageSize, page * pageSize);
 
   return (
-    <main className="mx-auto flex w-full max-w-[1200px] flex-col gap-8 px-4 py-6 md:px-8 md:py-8">
+    <main className="mx-auto flex w-full max-w-[1200px] flex-col gap-16 px-4 py-6 md:px-8 md:py-8">
       <div>
         <PageHeader
           title="Books"
@@ -45,31 +45,7 @@ export default async function AdminBooksPage({
         />
         <SectionTabs />
       </div>
-      <form action="/admin/books" className="flex flex-col gap-3 md:flex-row md:items-center">
-        <label className="grid min-w-0 flex-1 gap-2 text-sm leading-5">
-          <span className="sr-only">Search by title or author</span>
-          <input
-            name="q"
-            defaultValue={query}
-            placeholder="Search by title or author"
-            className="h-11 rounded-full border border-border bg-card px-4 text-base"
-          />
-        </label>
-        <label className="grid gap-2 text-sm leading-5">
-          <span className="sr-only">Category</span>
-          <Select name="category" defaultValue={category ?? ""}>
-            <option value="">All categories</option>
-            {CATEGORIES.map((item) => (
-              <option key={item} value={item}>
-                {item}
-              </option>
-            ))}
-          </Select>
-        </label>
-        <Button type="submit" variant="outline">
-          Apply
-        </Button>
-      </form>
+      <AdminBooksFilters query={query} category={category} />
       <div>
         <AdminBooksTable books={visible} />
         <div className="overflow-hidden rounded-b-xl border border-t-0 border-border bg-card">

@@ -48,6 +48,9 @@ export function AccountMenu({ session }: { session: Session }) {
           <ChevronDown size={16} strokeWidth={1.5} aria-hidden />
         </DropdownMenuTrigger>
         <DropdownMenuContent>
+          {session.role === "admin" ? (
+            <p className="px-3 py-2 text-sm leading-5 text-muted-foreground">Admin</p>
+          ) : null}
           <LogoutItem />
         </DropdownMenuContent>
       </DropdownMenu>

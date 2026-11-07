@@ -25,7 +25,7 @@ export default async function AdminUsersPage({
   const result = await adminListUsers(session, query, pageSize, (page - 1) * pageSize);
 
   return (
-    <main className="mx-auto flex w-full max-w-[1200px] flex-col gap-8 px-4 py-6 md:px-8 md:py-8">
+    <main className="mx-auto flex w-full max-w-[1200px] flex-col gap-16 px-4 py-6 md:px-8 md:py-8">
       <div>
         <PageHeader title="Users" lede="Role changes arrive in Phase 2." />
         <SectionTabs />

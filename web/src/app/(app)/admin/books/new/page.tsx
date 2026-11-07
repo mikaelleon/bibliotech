@@ -11,7 +11,7 @@ export default async function NewBookPage() {
   if (!isAdminSession(session)) return null;
 
   return (
-    <main className="mx-auto flex w-full max-w-[1200px] flex-col gap-8 px-4 py-6 md:px-8 md:py-8">
+    <main className="mx-auto flex w-full max-w-[1200px] flex-col gap-16 px-4 py-6 md:px-8 md:py-8">
       <div>
         <PageHeader title="Add book" lede="The form is ready. Saving stays off until Phase 2." />
         <SectionTabs />
