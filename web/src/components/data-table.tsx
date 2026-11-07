@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { type KeyboardEvent, type ReactNode } from "react";
+import { useEffect, useState, type KeyboardEvent, type ReactNode } from "react";
 
 import { cn } from "@/lib/utils";
 
@@ -48,17 +48,17 @@ export function DataTable<T extends { id: string }>({
 }: {
   columns: DataColumn<T>[];
   rows: T[];
-  empty: string;
+  /** Shown as one full-width row, so the header and pagination stay where they are. */
+  empty: ReactNode;
   hrefFor?: (row: T) => string;
   caption: string;
 }) {
-  if (rows.length === 0) {
-    return (
-      <div className="rounded-xl bg-card px-4 py-8 text-sm leading-5 text-muted-foreground">
-        {empty}
-      </div>
-    );
-  }
+  // Rows stagger in on first render only. Paging, sorting, and filtering swap without replaying it.
+  const [firstRender, setFirstRender] = useState(true);
+  useEffect(() => {
+    const timer = window.setTimeout(() => setFirstRender(false), 700);
+    return () => window.clearTimeout(timer);
+  }, []);
 
   const titleColumn =
     columns.find((column) => column.key === "title" || column.key === "name") ?? columns[0];
@@ -82,9 +82,16 @@ export function DataTable<T extends { id: string }>({
             ))}
           </tr>
         </thead>
-        <tbody>
+        <tbody className={firstRender ? "stagger" : undefined}>
+          {rows.length === 0 ? (
+            <tr>
+              <td colSpan={columns.length} className="px-4 py-8 text-sm leading-5 text-muted-foreground">
+                {empty}
+              </td>
+            </tr>
+          ) : null}
           {rows.map((row) => (
-            <RowLink key={row.id} href={hrefFor?.(row)} className="h-16 hover:bg-background">
+            <RowLink key={row.id} href={hrefFor?.(row)} className="hover-fill h-16 hover:bg-background">
               {columns.map((column) => (
                 <td
                   key={column.key}
@@ -99,7 +106,10 @@ export function DataTable<T extends { id: string }>({
           ))}
         </tbody>
       </table>
-      <ul className="md:hidden">
+      <ul className={cn("md:hidden", firstRender && "stagger")}>
+        {rows.length === 0 ? (
+          <li className="px-4 py-8 text-sm leading-5 text-muted-foreground">{empty}</li>
+        ) : null}
         {rows.map((row) => (
           <li key={row.id} className="py-2">
             <div className="flex items-start gap-3 px-4 py-3">

@@ -58,14 +58,14 @@ export default async function AdminPage() {
           Latest registrations
         </h2>
         {stats.latestUsers.length === 0 ? (
-          <p className="text-sm leading-5 text-muted-foreground">No accounts yet.</p>
+          <p className="text-sm leading-5 text-muted-foreground">No accounts yet</p>
         ) : (
-          <ul className="overflow-hidden rounded-xl bg-card">
+          <ul className="stagger overflow-hidden rounded-xl bg-card">
             {stats.latestUsers.map((user) => (
               <li key={user.id}>
                 <Link
                   href={`/admin/users/${encodeURIComponent(user.id)}`}
-                  className="block px-4 py-3 no-underline hover:bg-background"
+                  className="hover-fill block px-4 py-3 no-underline hover:bg-background"
                 >
                   <span>
                     <span className="block text-sm leading-5">{user.name}</span>

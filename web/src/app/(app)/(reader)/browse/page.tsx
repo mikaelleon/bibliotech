@@ -65,14 +65,14 @@ export default async function BrowsePage({
       {books.length === 0 ? (
         <EmptyState
           icon={<SearchX size={24} strokeWidth={1.5} aria-hidden className="text-muted-foreground" />}
-          title="No books in this category"
+          title={category ? `No books in ${category}` : "No books yet"}
           action={
             <Button asChild variant="outline">
               <Link href="/browse">Show all books</Link>
             </Button>
           }
         >
-          Pick another category, or show the full catalog.
+          Try another category.
         </EmptyState>
       ) : (
         <section aria-label="Books">

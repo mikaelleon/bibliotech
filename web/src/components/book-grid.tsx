@@ -1,12 +1,12 @@
 import { BookCard } from "@/components/book-card";
 import { CardFavorite } from "@/components/card-favorite";
+import { bookGridClass } from "@/lib/book-grid-class";
 import { listFavoriteIds } from "@/lib/records";
 import { getSession } from "@/lib/session";
 import type { Book } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
-export const bookGridClass =
-  "grid grid-cols-2 gap-x-4 gap-y-8 md:grid-cols-[repeat(auto-fill,minmax(160px,1fr))]";
+export { bookGridClass };
 
 /** One card style: cover, title, author, category, and a heart. */
 export async function BookGrid({

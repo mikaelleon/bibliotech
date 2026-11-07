@@ -49,11 +49,11 @@ export default async function LibraryPage({
           title="Your library is empty"
           action={
             <Button asChild variant="outline">
-              <Link href="/books/pride-and-prejudice">Start with Pride and Prejudice</Link>
+              <Link href="/browse">Browse books</Link>
             </Button>
           }
         >
-          Books you download will appear here, so you can find them again.
+          Books you save show up here.
         </EmptyState>
       ) : (
         <BookGrid books={books} />

@@ -3,6 +3,7 @@ import { SearchX } from "lucide-react-native";
 import { FlatList, StyleSheet, Text, useWindowDimensions, View } from "react-native";
 
 import { BookCard } from "@/components/BookCard";
+import { FadeIn, useFreshList } from "@/components/FadeIn";
 import { Button } from "@/components/Button";
 import { CategoryFilter } from "@/components/CategoryFilter";
 import { EmptyState } from "@/components/EmptyState";
@@ -12,6 +13,7 @@ import { CATEGORIES, type Category } from "@/lib/types";
 import { colors, font } from "@/theme/tokens";
 
 export default function BrowseScreen() {
+  const fresh = useFreshList();
   const router = useRouter();
   const params = useLocalSearchParams<{ q?: string; category?: string }>();
   const query = typeof params.q === "string" ? params.q.trim() : "";
@@ -42,24 +44,22 @@ export default function BrowseScreen() {
       ListEmptyComponent={
         <EmptyState
           icon={<SearchX color={colors.muted} size={24} strokeWidth={1.5} />}
-          title={searching ? "No books match that search." : "No books in this category."}
+          title={searching ? `No matches for “${query}”` : `No books in ${category ?? "this category"}`}
           action={
             <Button
-              label="Clear search and filters"
+              label={searching ? "Clear search" : "Show all books"}
               variant="outline"
               onPress={() => router.setParams({ q: "", category: "" })}
             />
           }
         >
-          {searching
-            ? "Check the spelling, try an author’s last name, or remove the category filter."
-            : "Pick another category, or clear the filter to see the full library."}
+          {searching ? "Check the spelling or search by author." : "Try another category."}
         </EmptyState>
       }
-      renderItem={({ item }) => (
-        <View style={[styles.cell, { width: cellWidth }]}>
+      renderItem={({ item, index }) => (
+        <FadeIn index={index} skip={!fresh} style={[styles.cell, { width: cellWidth }]}>
           <BookCard book={item} showCategory />
-        </View>
+        </FadeIn>
       )}
     />
   );

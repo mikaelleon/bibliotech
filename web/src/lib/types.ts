@@ -27,6 +27,8 @@ export type Book = {
   author: string;
   category: Category;
   language: string;
+  /** First publication, as display text (a year, or "c. 400 BC" for ancient works). */
+  published?: string;
   license: string;
   sourceName: string;
   sourceUrl: string;

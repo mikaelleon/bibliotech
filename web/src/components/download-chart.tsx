@@ -34,50 +34,50 @@ export function DownloadChart({
       <h2 id="downloads-30" className="text-xl leading-7 font-medium">
         Downloads in the last {days} days
       </h2>
-      {max === 0 ? (
-        <p className="mt-6 text-sm leading-5 text-muted-foreground">
-          No downloads yet
-        </p>
-      ) : (
-        <div className="mt-6">
-          <p className="text-right text-xs leading-4 text-muted-foreground">{max}</p>
-          <svg viewBox={`0 0 ${width} ${height}`} className="mt-2 h-40 w-full" role="img" aria-hidden="true">
-            {[0.25, 0.5, 0.75].map((step) => (
-              <line
-                key={step}
-                x1="0"
-                x2={width}
-                y1={height * (1 - step)}
-                y2={height * (1 - step)}
-                stroke="var(--border)"
-                strokeWidth="1"
+      {/* The frame stays even with no data, so nothing jumps when the first download arrives. */}
+      <div className="relative mt-6">
+        <p className="text-right text-xs leading-4 text-muted-foreground">{max}</p>
+        <svg viewBox={`0 0 ${width} ${height}`} className="mt-2 h-40 w-full" role="img" aria-hidden="true">
+          {[0.25, 0.5, 0.75].map((step) => (
+            <line
+              key={step}
+              x1="0"
+              x2={width}
+              y1={height * (1 - step)}
+              y2={height * (1 - step)}
+              stroke="var(--border)"
+              strokeWidth="1"
+            />
+          ))}
+          <line x1="0" x2={width} y1={height - 0.5} y2={height - 0.5} stroke="var(--border)" strokeWidth="1" />
+          {max === 0 ? null : points.map((point, index) => {
+            const barHeight = (point.count / max) * (height - 4);
+            const x = index * (barWidth + gap);
+            return (
+              <path
+                key={point.date}
+                className="bar-rise"
+                style={{ animationDelay: `${Math.min(index, 12) * 30}ms` }}
+                d={barPath(x, height - barHeight, barWidth, barHeight)}
+                fill="var(--foreground)"
               />
-            ))}
-            <line x1="0" x2={width} y1={height - 0.5} y2={height - 0.5} stroke="var(--border)" strokeWidth="1" />
-            {points.map((point, index) => {
-              const barHeight = (point.count / max) * (height - 4);
-              const x = index * (barWidth + gap);
-              return (
-                <path
-                  key={point.date}
-                  className="bar-rise"
-                  style={{ animationDelay: `${Math.min(index, 12) * 30}ms` }}
-                  d={barPath(x, height - barHeight, barWidth, barHeight)}
-                  fill="var(--foreground)"
-                />
-              );
-            })}
-          </svg>
-          {first && last ? (
-            <div className="mt-2 flex justify-between text-xs leading-4 text-muted-foreground">
-              <span>{shortDate(first.date)}</span>
-              <span>{shortDate(last.date)}</span>
-            </div>
-          ) : null}
-        </div>
-      )}
+            );
+          })}
+        </svg>
+        {first && last ? (
+          <div className="mt-2 flex justify-between text-xs leading-4 text-muted-foreground">
+            <span>{shortDate(first.date)}</span>
+            <span>{shortDate(last.date)}</span>
+          </div>
+        ) : null}
+        {max === 0 ? (
+          <p className="absolute inset-x-0 top-1/2 -translate-y-1/2 text-center text-sm leading-5 text-muted-foreground">
+            No downloads yet
+          </p>
+        ) : null}
+      </div>
       <table className="sr-only">
-        <caption>Downloads per day for the last 30 days</caption>
+        <caption>Downloads per day for the last {days} days</caption>
         <thead>
           <tr>
             <th>Date</th>

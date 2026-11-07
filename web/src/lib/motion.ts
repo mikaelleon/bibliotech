@@ -12,4 +12,12 @@ export const durPanelExit = 200;
 export const durDrawer = 300;
 export const durDrawerExit = 240;
 export const durPage = 250;
+export const durMove = 220;
+export const durConfirm = 320;
+export const durReveal = 400;
 export const stagger = 30;
+
+/** True when the reader asked the system for less motion. Safe to call on the server (returns false). */
+export function prefersReducedMotion(): boolean {
+  return typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+}

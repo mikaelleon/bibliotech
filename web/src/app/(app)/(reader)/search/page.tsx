@@ -5,6 +5,7 @@ import { BookGrid } from "@/components/book-grid";
 import { CatalogToolbar } from "@/components/catalog-toolbar";
 import { EmptyState } from "@/components/empty-state";
 import { PageHeader } from "@/components/page-header";
+import { SuggestedBooks } from "@/components/suggested-books";
 import { Pagination } from "@/components/pagination";
 import { Button } from "@/components/ui/button";
 import { filterBooks, getBooks, sortBooks, type BookSort } from "@/lib/books";
@@ -46,21 +47,22 @@ export default async function SearchPage({
         options={sortOptions}
       />
       {matches.length === 0 ? (
-        <EmptyState
-          icon={<SearchX size={24} strokeWidth={1.5} aria-hidden className="text-muted-foreground" />}
-          title="No books match that search"
-          action={
-            <Button asChild variant="outline">
-              <Link href={category ? `/search?q=${encodeURIComponent(query)}` : "/browse"}>
-                {category ? "Search all categories" : "Clear search"}
-              </Link>
-            </Button>
-          }
-        >
-          {category
-            ? "Nothing in this category matches. Search the rest of the catalog, or try another title or author."
-            : "Check the spelling, or try the author’s last name."}
-        </EmptyState>
+        <>
+          <EmptyState
+            icon={<SearchX size={24} strokeWidth={1.5} aria-hidden className="text-muted-foreground" />}
+            title={query ? `No matches for “${query}”` : `No books in ${category ?? "this category"}`}
+            action={
+              <Button asChild variant="outline">
+                <Link href={category && query ? `/search?q=${encodeURIComponent(query)}` : "/browse"}>
+                  {category && query ? "Search all categories" : "Clear search"}
+                </Link>
+              </Button>
+            }
+          >
+            {query ? "Check the spelling or search by author." : "Try another category."}
+          </EmptyState>
+          <SuggestedBooks />
+        </>
       ) : (
         <>
           <BookGrid books={visible} />

@@ -9,7 +9,7 @@ export function AdminDownloadsTable({ rows }: { rows: DownloadRow[] }) {
   return (
     <DataTable
       caption="Downloads"
-      empty="No downloads have been recorded yet."
+      empty="No downloads yet"
       rows={rows}
       columns={[
         { key: "who", header: "User", cell: (row) => row.who },

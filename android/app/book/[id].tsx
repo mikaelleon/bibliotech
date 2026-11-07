@@ -8,8 +8,10 @@ import { BookCover } from "@/components/BookCover";
 import { Button } from "@/components/Button";
 import { FavoriteButton } from "@/components/FavoriteButton";
 import { EmptyState } from "@/components/EmptyState";
+import { FadeIn } from "@/components/FadeIn";
 import { TabBar } from "@/components/TabBar";
 import { getBook } from "@/lib/books";
+import { leftLabel, quotaFor } from "@/lib/quota";
 import { useSession } from "@/lib/session";
 import { colors, font } from "@/theme/tokens";
 import * as Linking from "expo-linking";
@@ -44,12 +46,17 @@ function BookBody({ id }: { id: string }) {
           <Text style={styles.backLabel}>Back to Browse</Text>
         </Pressable>
       </Link>
-      <View style={styles.cover}>
+      <FadeIn style={styles.cover}>
         <BookCover book={book} />
-      </View>
-      <Text style={styles.title}>{book.title}</Text>
-      <Text style={styles.author}>{book.author}</Text>
-      <View style={styles.meta}>
+      </FadeIn>
+      {/* The details settle in order once the cover is in: 80ms, then 30ms apart. */}
+      <FadeIn start={settle} index={0}>
+        <Text style={styles.title}>{book.title}</Text>
+      </FadeIn>
+      <FadeIn start={settle} index={1}>
+        <Text style={styles.author}>{book.author}</Text>
+      </FadeIn>
+      <FadeIn start={settle} index={2} style={styles.meta}>
         <Meta term="Category" value={book.category} />
         <Meta term="Language" value={book.language} />
         <Meta term="License" value={book.license} />
@@ -63,23 +70,25 @@ function BookBody({ id }: { id: string }) {
             {book.sourceName}
           </Text>
         </View>
-      </View>
-      <Text style={styles.summary}>{summary}</Text>
+      </FadeIn>
+      <FadeIn start={settle} index={3}>
+        <Text style={styles.summary}>{summary}</Text>
+      </FadeIn>
       {session.kind === "guest" ? (
         <View style={styles.banner}>
           <Banner icon={<Info color={colors.ink} size={20} strokeWidth={1.5} />}>
-            5 of 5 downloads left. Create a free account for 10.
+            5 of 5 guest downloads left. A free account gets 10.
           </Banner>
         </View>
       ) : null}
       {session.kind === "user" ? (
         <View style={styles.banner}>
           <Banner icon={<Info color={colors.ink} size={20} strokeWidth={1.5} />}>
-            {session.downloadsUsed} of 10 downloads used.
+            {leftLabel(quotaFor(session)?.left ?? 0)} of 10.
           </Banner>
         </View>
       ) : null}
-      <View style={styles.actions}>
+      <FadeIn start={settle} index={4} style={styles.actions}>
         <Button
           label="Download"
           full
@@ -99,11 +108,14 @@ function BookBody({ id }: { id: string }) {
         {session.kind === "user" ? (
           <FavoriteButton active={saved} onPress={() => toggleFavorite(book.id)} />
         ) : null}
-      </View>
+      </FadeIn>
       <Text style={styles.note}>Downloads arrive in Phase 2.</Text>
     </ScrollView>
   );
 }
+
+/** Delay before the detail column starts, so it follows the cover. */
+const settle = 80;
 
 function Meta({ term, value }: { term: string; value: string }) {
   return (
@@ -119,10 +131,10 @@ function Missing() {
     <View style={styles.missing}>
       <EmptyState
         icon={<BookOpen color={colors.muted} size={24} strokeWidth={1.5} />}
-        title="This book is not in the library."
+        title="This book isn’t in the library"
         action={<Button label="Back to Browse" href="/browse" variant="outline" />}
       >
-        The link may be old. Browse the catalog to pick another title.
+        It may have been removed.
       </EmptyState>
     </View>
   );

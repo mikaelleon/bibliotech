@@ -1,7 +1,9 @@
 import { useRouter, type Href } from "expo-router";
 import { cloneElement, isValidElement, type ReactElement, type ReactNode } from "react";
+import { Animated } from "react-native";
 import { Pressable, StyleSheet, Text, type StyleProp, type ViewStyle } from "react-native";
 
+import { usePressScale } from "@/hooks/use-press-scale";
 import { colors, font, radius } from "@/theme/tokens";
 
 type IconProps = { color?: string; size?: number; strokeWidth?: number };
@@ -35,6 +37,7 @@ export function Button({
 }: ButtonProps) {
   const router = useRouter();
   const off = disabled || busy;
+  const press = usePressScale();
   const ink =
     variant === "primary" ? colors.onPrimary : variant === "link" ? colors.atext : colors.ink;
   const tinted = isValidElement(icon)
@@ -42,7 +45,14 @@ export function Button({
     : null;
 
   return (
+    <Animated.View
+      style={[
+        full && variant !== "link" ? styles.full : styles.fit,
+        variant !== "link" && !off && { transform: [{ scale: press.scale }] },
+      ]}
+    >
     <Pressable
+      {...press.handlers}
       accessibilityRole={variant === "link" ? "link" : "button"}
       accessibilityLabel={accessibilityLabel ?? label}
       accessibilityState={{ disabled: off, busy }}
@@ -59,7 +69,6 @@ export function Button({
         variant === "link" && styles.link,
         full && variant !== "link" && styles.full,
         pressed && !off && variant === "primary" && styles.primaryPressed,
-        pressed && !off && variant !== "link" && { transform: [{ scale: 0.97 }] },
         pressed && !off && variant === "outline" && styles.outlinePressed,
         off && styles.off,
         style,
@@ -77,6 +86,7 @@ export function Button({
       </Text>
       {iconPosition === "end" ? tinted : null}
     </Pressable>
+    </Animated.View>
   );
 }
 
@@ -99,6 +109,9 @@ const styles = StyleSheet.create({
   },
   full: {
     width: "100%",
+  },
+  fit: {
+    alignSelf: "flex-start",
   },
   primary: {
     backgroundColor: colors.primary,

@@ -8,7 +8,7 @@ import { Suspense, type ReactNode } from "react";
 import { AccountMenu } from "@/components/account-menu";
 import { AIAssistant } from "@/components/ai-assistant";
 import { OfflineBanner } from "@/components/offline-banner";
-import { QuotaMeter } from "@/components/quota-strip";
+import { QuotaMeter } from "@/components/quota-meter";
 import { SearchBar } from "@/components/search-bar";
 import { ShellSearch } from "@/components/shell-search";
 import { SideRail } from "@/components/side-rail";
@@ -48,14 +48,18 @@ export function AppShell({ session, children }: { session: Session; children: Re
                   </>
                 )}
                 <div className="ml-auto flex items-center gap-2 md:gap-3">
-                  {admin ? null : <QuotaMeter session={session} />}
-                  <ThemeToggle compact />
+                  <QuotaMeter session={session} />
+                  {/* On phones the toggle lives on Profile, so search keeps its width. */}
+                  <div className="hidden md:block">
+                    <ThemeToggle compact />
+                  </div>
                   <AccountMenu session={session} upgrade={!lockedPage} />
                 </div>
               </header>
               <OfflineBanner />
             </div>
-            <div key={path} className="page-enter">
+            {/* Book pages skip the page fade: the cover flies in from the card, and the details stagger. */}
+            <div key={path} className={onBook ? undefined : "page-enter"}>
               {children}
             </div>
           </div>

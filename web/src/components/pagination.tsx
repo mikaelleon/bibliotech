@@ -80,7 +80,7 @@ function PageLink({
       href={href}
       aria-label={label}
       className={cn(
-        "inline-flex size-11 items-center justify-center rounded-full border border-border bg-card text-foreground no-underline hover:bg-background",
+        "press inline-flex size-11 items-center justify-center rounded-full border border-border bg-card text-foreground no-underline hover:bg-background",
       )}
     >
       {children}

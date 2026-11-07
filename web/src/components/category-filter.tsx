@@ -1,6 +1,9 @@
+"use client";
+
 import Link from "next/link";
 
 import { CATEGORIES } from "@/lib/types";
+import { useIndicator } from "@/lib/use-indicator";
 import { cn } from "@/lib/utils";
 
 function hrefFor(base: string, category: string | null, query: string, sort: string): string {
@@ -12,7 +15,10 @@ function hrefFor(base: string, category: string | null, query: string, sort: str
   return value ? `${base}?${value}` : base;
 }
 
-/** Shareable category chips. The selected chip is charcoal, not coral. */
+/**
+ * Shareable category chips. The selected fill is one charcoal indicator that slides between chips.
+ * Unselected chip fills sit under the indicator, so it stays visible while it moves.
+ */
 export function CategoryFilter({
   selected,
   query,
@@ -26,10 +32,15 @@ export function CategoryFilter({
 }) {
   const current = selected && CATEGORIES.includes(selected as (typeof CATEGORIES)[number]) ? selected : "All";
   const chips = ["All", ...CATEGORIES];
+  const { containerRef, indicatorRef } = useIndicator<HTMLUListElement>(current);
 
   return (
     <nav aria-label="Filter by category" className="-mx-4 md:mx-0">
-      <ul className="flex gap-2 overflow-x-auto px-4 md:flex-wrap md:overflow-visible md:px-0">
+      <ul
+        ref={containerRef}
+        className="scrollbar-none relative isolate flex gap-2 overflow-x-auto px-4 md:flex-wrap md:overflow-visible md:px-0"
+      >
+        <span ref={indicatorRef} aria-hidden className="nav-indicator -z-10 rounded-xl bg-primary opacity-0" />
         {chips.map((chip) => {
           const on = chip === current;
           return (
@@ -37,9 +48,12 @@ export function CategoryFilter({
               <Link
                 href={hrefFor(base, chip === "All" ? null : chip, query ?? "", sort)}
                 aria-current={on ? "true" : undefined}
+                data-indicator-target={on}
                 className={cn(
-                  "press inline-flex min-h-11 items-center rounded-xl px-4 text-sm leading-5 no-underline",
-                  on ? "bg-primary text-primary-foreground" : "bg-card text-foreground",
+                  "press relative inline-flex min-h-11 items-center rounded-xl px-4 text-sm leading-5 no-underline",
+                  on
+                    ? "text-primary-foreground"
+                    : "text-foreground before:absolute before:inset-0 before:-z-20 before:rounded-xl before:bg-card before:transition-colors before:duration-[var(--dur-hover)] hover:before:bg-border",
                 )}
               >
                 {chip}

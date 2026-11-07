@@ -32,7 +32,7 @@ export function CardFavorite({
           event.stopPropagation();
           setOpen(true);
         }}
-        className="relative inline-flex size-11 items-center justify-center rounded-full bg-card"
+        className="press relative inline-flex size-11 items-center justify-center rounded-full bg-card"
       >
         <Heart size={20} strokeWidth={1.5} aria-hidden />
         <Lock size={12} strokeWidth={1.5} aria-hidden className="absolute top-0 right-0 text-muted-foreground" />

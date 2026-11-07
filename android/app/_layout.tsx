@@ -26,13 +26,25 @@ export function ErrorBoundary({ retry }: { error: Error; retry: () => void }) {
       <EmptyState
         alert
         icon={<CircleAlert color={colors.atext} size={24} strokeWidth={1.5} />}
-        title="We couldn’t load this page."
+        title="We couldn’t load this page"
         action={<Button label="Try again" variant="outline" onPress={() => void retry()} />}
       >
         The library server did not answer. Check your connection and try again.
       </EmptyState>
     </View>
   );
+}
+
+/** Holds the splash screen until fonts are in and the saved session has been read. */
+function ReadyGate({ fontsDone, children }: { fontsDone: boolean; children: ReactNode }) {
+  const { ready } = useSession();
+  const done = fontsDone && ready;
+
+  useEffect(() => {
+    if (done) void SplashScreen.hideAsync();
+  }, [done]);
+
+  return done ? children : null;
 }
 
 function RoleGate({ children }: { children: ReactNode }) {
@@ -57,26 +69,22 @@ export default function RootLayout() {
     Newsreader_400Regular,
   });
 
-  useEffect(() => {
-    if (loaded || error) SplashScreen.hideAsync();
-  }, [loaded, error]);
-
-  if (!loaded && !error) return null;
-
   return (
     <SafeAreaProvider style={styles.root}>
       <SessionProvider>
         <StatusBar style="dark" />
-        <RoleGate>
-          <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: colors.bg } }}>
-            <Stack.Screen name="index" />
-            <Stack.Screen name="(auth)" />
-            <Stack.Screen name="(tabs)" />
-            <Stack.Screen name="book/[id]" />
-            <Stack.Screen name="search" />
-            <Stack.Screen name="admin-notice" />
-          </Stack>
-        </RoleGate>
+        <ReadyGate fontsDone={loaded || Boolean(error)}>
+          <RoleGate>
+            <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: colors.bg } }}>
+              <Stack.Screen name="index" />
+              <Stack.Screen name="(auth)" />
+              <Stack.Screen name="(tabs)" />
+              <Stack.Screen name="book/[id]" />
+              <Stack.Screen name="search" />
+              <Stack.Screen name="admin-notice" />
+            </Stack>
+          </RoleGate>
+        </ReadyGate>
       </SessionProvider>
     </SafeAreaProvider>
   );

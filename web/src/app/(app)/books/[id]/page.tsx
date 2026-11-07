@@ -1,7 +1,9 @@
 import { notFound } from "next/navigation";
+import type { CSSProperties } from "react";
 
 import { BackLink } from "@/components/back-link";
 import { BookGrid } from "@/components/book-grid";
+import { BookSummary } from "@/components/book-summary";
 import { BookCover } from "@/components/book-cover";
 import { CardFavorite } from "@/components/card-favorite";
 import { DefinitionList } from "@/components/definition-list";
@@ -32,7 +34,10 @@ export default async function BookPage({ params }: { params: Promise<{ id: strin
         <div className="w-48 shrink-0 md:w-[280px]">
           <BookCover book={book} transitionName={`book-${book.id}`} />
         </div>
-        <div className="min-w-0 flex-1">
+        <div
+          className="stagger min-w-0 flex-1"
+          style={{ "--stagger-start": "80ms" } as CSSProperties}
+        >
           <h1 className="serif text-[32px] leading-10 font-normal md:text-[40px] md:leading-[46px]">{book.title}</h1>
           <p className="mt-1 text-muted-foreground md:text-xl md:leading-7">{book.author}</p>
           <DefinitionList
@@ -56,16 +61,7 @@ export default async function BookPage({ params }: { params: Promise<{ id: strin
               },
             ]}
           />
-          <p className="mt-4 max-w-[640px] text-sm leading-5 md:mt-8 md:text-base md:leading-6">
-            {book.summaryShort ? (
-              <>
-                <span className="md:hidden">{book.summaryShort}</span>
-                <span className="hidden md:inline">{book.summary}</span>
-              </>
-            ) : (
-              book.summary
-            )}
-          </p>
+          <BookSummary summary={book.summary} long={Boolean(book.summaryShort)} />
           <div className="mt-6 md:mt-8">
             <CardFavorite bookId={book.id} active={saved} signedIn={session.kind === "user"} />
           </div>

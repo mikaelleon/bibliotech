@@ -2,6 +2,7 @@ import { Library } from "lucide-react-native";
 import { FlatList, StyleSheet, View } from "react-native";
 
 import { BookCard } from "@/components/BookCard";
+import { FadeIn, useFreshList } from "@/components/FadeIn";
 import { Button } from "@/components/Button";
 import { EmptyState } from "@/components/EmptyState";
 import { LockedPanel } from "@/components/LockedPanel";
@@ -12,6 +13,7 @@ import { colors } from "@/theme/tokens";
 
 export default function LibraryScreen() {
   const { session, libraryIds } = useSession();
+  const fresh = useFreshList();
   if (session.kind !== "user") return <LockedPanel title="My Library" />;
 
   const books = libraryIds.map((id) => getBook(id)).filter((book) => book !== undefined);
@@ -31,17 +33,17 @@ export default function LibraryScreen() {
       ListEmptyComponent={
         <EmptyState
           icon={<Library color={colors.muted} size={24} strokeWidth={1.5} />}
-          title="Your library is empty."
+          title="Your library is empty"
           action={<Button label="Browse books" href="/browse" variant="outline" />}
         >
-          Books you download will appear here, so you can find them again.
+          Books you save show up here.
         </EmptyState>
       }
       columnWrapperStyle={books.length > 0 ? styles.row : undefined}
-      renderItem={({ item }) => (
-        <View style={styles.cell}>
+      renderItem={({ item, index }) => (
+        <FadeIn index={index} skip={!fresh} style={styles.cell}>
           <BookCard book={item} />
-        </View>
+        </FadeIn>
       )}
     />
   );

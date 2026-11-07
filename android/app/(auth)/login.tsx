@@ -12,10 +12,10 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { Button } from "@/components/Button";
+import { Checkbox } from "@/components/Checkbox";
 import { Field } from "@/components/Field";
 import { Wordmark } from "@/components/Wordmark";
 import { useSession } from "@/lib/session";
-import { findUser } from "@/lib/users";
 import { colors, font } from "@/theme/tokens";
 
 export default function LoginScreen() {
@@ -25,17 +25,17 @@ export default function LoginScreen() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
+  const [remember, setRemember] = useState(true);
 
   function onSubmit() {
     setBusy(true);
-    const message = login(email, password);
-    if (message) {
-      setError(message);
+    const result = login(email, password, remember);
+    if ("error" in result) {
+      setError(result.error);
       setBusy(false);
       return;
     }
-    const signedIn = findUser(email, password);
-    router.replace(signedIn?.role === "admin" ? "/admin-notice" : "/browse");
+    router.replace(result.role === "admin" ? "/admin-notice" : "/browse");
   }
 
   return (
@@ -62,6 +62,12 @@ export default function LoginScreen() {
               onChangeText={setPassword}
               secure
               autoComplete="current-password"
+            />
+            <Checkbox
+              label="Keep me signed in"
+              hint="For 30 days on this device."
+              checked={remember}
+              onChange={setRemember}
             />
             {error ? (
               <View accessibilityRole="alert" style={styles.errorRow}>

@@ -2,6 +2,7 @@ import Link from "next/link";
 
 import { AdminBooksFilters } from "@/components/admin-books-filters";
 import { AdminBooksTable } from "@/components/admin-books-table";
+import { EmptyRow } from "@/components/empty-row";
 import { PageHeader } from "@/components/page-header";
 import { Pagination } from "@/components/pagination";
 import { Button } from "@/components/ui/button";
@@ -54,7 +55,20 @@ export default async function AdminBooksPage({
       />
       <AdminBooksFilters query={query} category={category} missing={missing} />
       <div>
-        <AdminBooksTable books={visible} />
+        <AdminBooksTable
+          books={visible}
+          empty={
+            missing ? (
+              "Nothing to fix"
+            ) : query ? (
+              <EmptyRow title={`No books match “${query}”`} clearHref="/admin/books" />
+            ) : category ? (
+              <EmptyRow title={`No books in ${category}`} clearHref="/admin/books" clearLabel="Show all books" />
+            ) : (
+              "No books yet"
+            )
+          }
+        />
         <div className="overflow-hidden rounded-b-xl border border-t-0 border-border bg-card">
           <Pagination
             page={page}

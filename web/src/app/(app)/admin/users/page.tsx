@@ -2,6 +2,7 @@ import Link from "next/link";
 
 import { AdminUsersFilters } from "@/components/admin-users-filters";
 import { AdminUsersTable } from "@/components/admin-users-table";
+import { EmptyRow } from "@/components/empty-row";
 import { PageHeader } from "@/components/page-header";
 import { Pagination } from "@/components/pagination";
 import { Button } from "@/components/ui/button";
@@ -42,7 +43,17 @@ export default async function AdminUsersPage({
       <div>
         <AdminUsersTable
           rows={result.rows}
-          empty={type === "guest" ? "Guest sessions are not stored as accounts." : "No users match that search."}
+          empty={
+            type === "guest" ? (
+              "Guest sessions are not stored as accounts"
+            ) : query ? (
+              <EmptyRow title={`No users match “${query}”`} clearHref="/admin/users" />
+            ) : role ? (
+              <EmptyRow title="No users with that role" clearHref="/admin/users" clearLabel="Show all users" />
+            ) : (
+              "No users yet"
+            )
+          }
         />
         <div className="overflow-hidden rounded-b-xl border border-t-0 border-border bg-card">
           <Pagination

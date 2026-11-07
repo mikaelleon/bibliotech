@@ -1,8 +1,9 @@
 import { Link } from "expo-router";
 import type { ReactNode } from "react";
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { Animated, Pressable, StyleSheet, Text, View } from "react-native";
 
 import { BookCover } from "@/components/BookCover";
+import { usePressScale } from "@/hooks/use-press-scale";
 import type { Book } from "@/lib/types";
 import { colors, font } from "@/theme/tokens";
 
@@ -16,11 +17,13 @@ export function BookCard({ book, showCategory = false, corner }: BookCardProps) 
   const label = showCategory
     ? `${book.title} by ${book.author}, ${book.category}`
     : `${book.title} by ${book.author}`;
+  const press = usePressScale(0.98);
 
   return (
     <View>
+      <Animated.View style={{ transform: [{ scale: press.scale }] }}>
       <Link href={{ pathname: "/book/[id]", params: { id: book.id } }} asChild>
-        <Pressable accessibilityRole="link" accessibilityLabel={label} style={({ pressed }) => pressed && styles.pressed}>
+        <Pressable {...press.handlers} accessibilityRole="link" accessibilityLabel={label}>
           <BookCover book={book} decorative />
           <Text numberOfLines={2} style={styles.title}>
             {book.title}
@@ -31,15 +34,13 @@ export function BookCard({ book, showCategory = false, corner }: BookCardProps) 
           {showCategory ? <Text style={styles.category}>{book.category}</Text> : null}
         </Pressable>
       </Link>
+      </Animated.View>
       {corner ? <View style={styles.corner}>{corner}</View> : null}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  pressed: {
-    opacity: 0.85,
-  },
   corner: {
     position: "absolute",
     top: 8,

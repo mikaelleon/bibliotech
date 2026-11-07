@@ -3,6 +3,7 @@
 import { CircleAlert, Eye, EyeOff } from "lucide-react";
 import { useId, useState, type FocusEvent, type ReactNode } from "react";
 
+import { Swap } from "@/components/swap";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
@@ -80,7 +81,14 @@ export function Field({
             aria-label={visible ? "Hide password" : "Show password"}
             onClick={() => setVisible((current) => !current)}
           >
-            {visible ? <EyeOff size={20} strokeWidth={1.5} /> : <Eye size={20} strokeWidth={1.5} />}
+            <Swap
+              blur
+              index={visible ? 1 : 0}
+              items={[
+                <Eye key="show" size={20} strokeWidth={1.5} aria-hidden />,
+                <EyeOff key="hide" size={20} strokeWidth={1.5} aria-hidden />,
+              ]}
+            />
           </button>
         ) : null}
       </div>

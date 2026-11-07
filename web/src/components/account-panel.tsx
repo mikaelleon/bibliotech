@@ -3,12 +3,14 @@
 import { useState } from "react";
 
 import { Field } from "@/components/field";
+import { SaveLabel, useSavedFlash } from "@/components/save-label";
 import { useToast } from "@/components/toast";
 import { Button } from "@/components/ui/button";
 import { updateNameAction } from "@/lib/actions";
 
 export function AccountPanel({ name, email }: { name: string; email: string }) {
   const { toast } = useToast();
+  const { saved, flash } = useSavedFlash();
   const [value, setValue] = useState(name);
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
@@ -23,6 +25,7 @@ export function AccountPanel({ name, email }: { name: string; email: string }) {
     }
     setError(null);
     toast("Display name saved.");
+    flash();
   }
 
   return (
@@ -35,7 +38,7 @@ export function AccountPanel({ name, email }: { name: string; email: string }) {
         <Field label="Email" name="email" value={email} readOnly />
       </div>
       <Button type="button" className="mt-4" onClick={() => void save()} disabled={pending}>
-        {pending ? "Saving" : "Save"}
+        <SaveLabel pending={pending} saved={saved} idle="Save" busy="Saving" done="Saved" />
       </Button>
     </section>
   );

@@ -4,6 +4,7 @@ import { FlatList, Pressable, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { BookCard } from "@/components/BookCard";
+import { FadeIn, useFreshList } from "@/components/FadeIn";
 import { CategoryFilter } from "@/components/CategoryFilter";
 import { EmptyState } from "@/components/EmptyState";
 import { SearchBar } from "@/components/SearchBar";
@@ -16,6 +17,7 @@ const pageSize = 24;
 
 export default function SearchScreen() {
   const { session } = useSession();
+  const fresh = useFreshList();
   const params = useLocalSearchParams<{ q?: string; category?: string }>();
   const initial = typeof params.q === "string" ? params.q : "";
   const category = typeof params.category === "string" ? params.category : "";
@@ -58,9 +60,9 @@ export default function SearchScreen() {
         ListEmptyComponent={
           <EmptyState
             icon={<SearchX color={colors.muted} size={24} strokeWidth={1.5} />}
-            title="No books match that search."
+            title={query.trim() ? `No matches for “${query.trim()}”` : "No books match that search"}
           >
-            Try a different title, author, or category.
+            Check the spelling or search by author.
           </EmptyState>
         }
         ListFooterComponent={
@@ -75,10 +77,10 @@ export default function SearchScreen() {
             </Pressable>
           ) : undefined
         }
-        renderItem={({ item }) => (
-          <View style={styles.cell}>
+        renderItem={({ item, index }) => (
+          <FadeIn index={index} skip={!fresh} style={styles.cell}>
             <BookCard book={item} />
-          </View>
+          </FadeIn>
         )}
       />
     </SafeAreaView>

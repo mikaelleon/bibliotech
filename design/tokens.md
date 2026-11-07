@@ -60,3 +60,25 @@ Dark grounds, white text: `#8C3B3F`, `#2F4A43`, `#1F3A57`, `#A24A34`, `#56704F`,
 Light grounds, ink text: `#D9C58A`, `#CFC9B8`, `#C9D3D6`, `#E4D3B4`.
 
 Pick by a stable hash of the book id.
+
+## Motion
+
+Web: CSS custom properties in `globals.css` and numbers in `lib/motion.ts`. Android: `theme/motion.ts`.
+
+| Token | Value | Use |
+|---|---|---|
+| `ease-out` | `cubic-bezier(0.22, 1, 0.36, 1)` | Entering, responding |
+| `ease-in` | `cubic-bezier(0.4, 0, 1, 1)` | Leaving |
+| `ease-in-out` | `cubic-bezier(0.65, 0, 0.35, 1)` | Moving from A to B |
+| press | 100ms | Scale to 0.97 (cards 0.98) |
+| hover | 150ms | Hover, icon crossfades |
+| menu / exit | 180 / 145ms | Menus, popovers, tooltips |
+| panel / exit | 250 / 200ms | Dialogs, toasts, bottom sheet |
+| drawer / exit | 300 / 240ms | Side drawer |
+| page | 250ms | Page and list entrances |
+| move | 220ms | Sliding indicators |
+| confirm | 320ms | One-shot success pulse |
+| reveal | 400ms | Mask reveals |
+| stagger | 30ms per item, capped at 12 | Lists and grids |
+
+Full rules: `docs/prompts/motion-and-empty-states.md`.

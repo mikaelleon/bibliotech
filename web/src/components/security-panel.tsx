@@ -3,12 +3,14 @@
 import { useState } from "react";
 
 import { Field } from "@/components/field";
+import { SaveLabel, useSavedFlash } from "@/components/save-label";
 import { useToast } from "@/components/toast";
 import { Button } from "@/components/ui/button";
 import { updatePasswordAction } from "@/lib/actions";
 
 export function SecurityPanel() {
   const { toast } = useToast();
+  const { saved, flash } = useSavedFlash();
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -34,6 +36,7 @@ export function SecurityPanel() {
     setConfirm("");
     setError(null);
     toast("Password updated.");
+    flash();
   }
 
   return (
@@ -62,7 +65,7 @@ export function SecurityPanel() {
         />
       </div>
       <Button type="button" className="mt-4" onClick={() => void save()} disabled={pending}>
-        {pending ? "Updating" : "Update password"}
+        <SaveLabel pending={pending} saved={saved} idle="Update password" busy="Updating" done="Updated" />
       </Button>
     </section>
   );

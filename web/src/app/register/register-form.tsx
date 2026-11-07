@@ -1,15 +1,15 @@
 "use client";
 
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, CircleAlert } from "lucide-react";
 import { useActionState, useState } from "react";
 
 import { Field } from "@/components/field";
+import { Swap } from "@/components/swap";
 import { Button } from "@/components/ui/button";
 import { registerAction, type RegisterState } from "@/lib/actions";
+import { emailPattern, passwordProblem } from "@/lib/auth-rules";
 
-const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-export function RegisterForm() {
+export function RegisterForm({ next }: { next: string | null }) {
   const [state, action, pending] = useActionState<RegisterState, FormData>(registerAction, null);
   const [name, setName] = useState(state?.values?.name ?? "");
   const [email, setEmail] = useState(state?.values?.email ?? "");
@@ -32,7 +32,7 @@ export function RegisterForm() {
   const emailError =
     emailStillRejected ??
     (showEmail && !emailPattern.test(email.trim()) ? "Enter a valid email, like name@example.com." : undefined);
-  const passwordError = showPassword && password.length < 8 ? "Use at least 8 characters." : undefined;
+  const passwordError = showPassword ? (passwordProblem(password) ?? undefined) : undefined;
 
   return (
     <form
@@ -40,6 +40,7 @@ export function RegisterForm() {
       className="mt-6 grid gap-4"
       onSubmit={() => setSubmitted(true)}
     >
+      {next ? <input type="hidden" name="next" value={next} /> : null}
       <Field
         label="Display name"
         name="name"
@@ -70,9 +71,23 @@ export function RegisterForm() {
         hint="At least 8 characters."
         error={passwordError}
       />
+      {state?.errors?.form ? (
+        <p className="flex items-center gap-1 text-sm leading-5 text-brand-text" role="alert">
+          <CircleAlert size={16} strokeWidth={1.5} aria-hidden />
+          {state.errors.form}
+        </p>
+      ) : null}
       <Button type="submit" className="w-full" disabled={pending} aria-busy={pending}>
-        {pending ? "Creating account" : "Create account"}
-        {pending ? null : <ArrowRight strokeWidth={1.5} />}
+        <Swap
+          index={pending ? 1 : 0}
+          items={[
+            <>
+              Create account
+              <ArrowRight strokeWidth={1.5} />
+            </>,
+            "Creating account",
+          ]}
+        />
       </Button>
     </form>
   );

@@ -1,5 +1,7 @@
 "use client";
 
+import type { ReactNode } from "react";
+
 import { Ellipsis } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
@@ -16,7 +18,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import type { Book } from "@/lib/types";
 
-export function AdminBooksTable({ books }: { books: Book[] }) {
+export function AdminBooksTable({ books, empty = "No books yet" }: { books: Book[]; empty?: ReactNode }) {
   const columns: DataColumn<Book>[] = [
     {
       key: "cover",
@@ -71,7 +73,7 @@ export function AdminBooksTable({ books }: { books: Book[] }) {
     <DataTable
       columns={columns}
       rows={books}
-      empty="No books match that search."
+      empty={empty}
       caption="Books"
       hrefFor={(book) => `/admin/books/${book.id}/edit`}
     />
@@ -86,7 +88,7 @@ function BookRowMenu({ book }: { book: Book }) {
       <DropdownMenu>
         <DropdownMenuTrigger
           aria-label={`Actions for ${book.title}`}
-          className="inline-flex size-11 items-center justify-center rounded-full hover:bg-background"
+          className="press inline-flex size-11 items-center justify-center rounded-full hover:bg-background"
         >
           <Ellipsis size={20} strokeWidth={1.5} aria-hidden />
         </DropdownMenuTrigger>

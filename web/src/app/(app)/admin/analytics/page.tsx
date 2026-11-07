@@ -1,12 +1,10 @@
-import Link from "next/link";
-
 import { AdminDownloadsTable } from "@/components/admin-downloads-table";
 import { BarList } from "@/components/bar-list";
 import { DownloadChart } from "@/components/download-chart";
 import { PageHeader } from "@/components/page-header";
+import { RangeTabs } from "@/components/range-tabs";
 import { adminListDownloads, adminStats, isAdminSession } from "@/lib/admin";
 import { getSession } from "@/lib/session";
-import { cn } from "@/lib/utils";
 
 export const metadata = { title: "Analytics" };
 
@@ -29,24 +27,7 @@ export default async function AnalyticsPage({
   return (
     <main className="mx-auto flex w-full max-w-[1200px] flex-col gap-10 px-4 py-6 md:px-8 md:py-8">
       <PageHeader title="Analytics" />
-      <nav aria-label="Date range" className="flex gap-2">
-        {ranges.map((value) => {
-          const current = value === days;
-          return (
-            <Link
-              key={value}
-              href={value === 30 ? "/admin/analytics" : `/admin/analytics?range=${value}`}
-              aria-current={current ? "page" : undefined}
-              className={cn(
-                "press inline-flex h-11 items-center rounded-xl px-4 text-sm leading-5 font-medium no-underline",
-                current ? "bg-primary text-primary-foreground" : "bg-card text-foreground",
-              )}
-            >
-              {value} days
-            </Link>
-          );
-        })}
-      </nav>
+      <RangeTabs ranges={ranges} days={days} />
       <DownloadChart points={stats.downloadsPerDay} days={days} />
       <div className="grid gap-6 md:grid-cols-2 md:gap-12">
         <section aria-labelledby="by-category">

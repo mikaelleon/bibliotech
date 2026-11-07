@@ -1,6 +1,7 @@
 import { useRouter } from "expo-router";
-import { Pressable, ScrollView, StyleSheet, Text } from "react-native";
+import { Animated, Pressable, ScrollView, StyleSheet, Text } from "react-native";
 
+import { usePressScale } from "@/hooks/use-press-scale";
 import { CATEGORIES, type Category } from "@/lib/types";
 import { colors, font, radius } from "@/theme/tokens";
 
@@ -24,19 +25,33 @@ export function CategoryFilter({ selected }: CategoryFilterProps) {
       {options.map((option) => {
         const on = option === current;
         return (
-          <Pressable
+          <Chip
             key={option}
-            accessibilityRole="tab"
-            accessibilityLabel={option}
-            accessibilityState={{ selected: on }}
+            label={option}
+            on={on}
             onPress={() => router.setParams({ category: option === "All" ? "" : option })}
-            style={[styles.chip, on && styles.chipOn]}
-          >
-            <Text style={[styles.label, on && styles.labelOn]}>{option}</Text>
-          </Pressable>
+          />
         );
       })}
     </ScrollView>
+  );
+}
+
+function Chip({ label, on, onPress }: { label: string; on: boolean; onPress: () => void }) {
+  const press = usePressScale();
+  return (
+    <Animated.View style={{ transform: [{ scale: press.scale }] }}>
+      <Pressable
+        {...press.handlers}
+        accessibilityRole="tab"
+        accessibilityLabel={label}
+        accessibilityState={{ selected: on }}
+        onPress={onPress}
+        style={[styles.chip, on && styles.chipOn]}
+      >
+        <Text style={[styles.label, on && styles.labelOn]}>{label}</Text>
+      </Pressable>
+    </Animated.View>
   );
 }
 

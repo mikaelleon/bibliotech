@@ -7,6 +7,7 @@ import { EmptyState } from "@/components/empty-state";
 import { FavoritesGrid } from "@/components/favorites-grid";
 import { LockedPanel } from "@/components/locked-panel";
 import { PageHeader } from "@/components/page-header";
+import { SuggestedBooks } from "@/components/suggested-books";
 import { Button } from "@/components/ui/button";
 import { sortBooks, type BookSort } from "@/lib/books";
 import { listFavorites } from "@/lib/records";
@@ -45,21 +46,25 @@ export default async function FavoritesPage({
           </Suspense>
         }
       />
-      {books.length === 0 ? (
-        <EmptyState
-          icon={<Heart size={24} strokeWidth={1.5} aria-hidden className="text-muted-foreground" />}
-          title="No favorites yet"
-          action={
-            <Button asChild variant="outline">
-              <Link href="/books/pride-and-prejudice">Start with Pride and Prejudice</Link>
-            </Button>
-          }
-        >
-          Open a book and choose Favorite to add it here.
-        </EmptyState>
-      ) : (
-        <FavoritesGrid books={books} />
-      )}
+      <FavoritesGrid
+        books={books}
+        empty={
+          <>
+            <EmptyState
+              icon={<Heart size={24} strokeWidth={1.5} aria-hidden className="text-muted-foreground" />}
+              title="No favorites yet"
+              action={
+                <Button asChild variant="outline">
+                  <Link href="/browse">Browse books</Link>
+                </Button>
+              }
+            >
+              Tap the heart on any book to keep it here.
+            </EmptyState>
+            <SuggestedBooks />
+          </>
+        }
+      />
     </main>
   );
 }

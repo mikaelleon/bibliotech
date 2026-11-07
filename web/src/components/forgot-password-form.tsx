@@ -5,18 +5,26 @@ import { useState } from "react";
 
 import { Field } from "@/components/field";
 import { Button } from "@/components/ui/button";
-
-const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+import { requestPasswordResetAction } from "@/lib/actions";
+import { emailPattern } from "@/lib/auth-rules";
 
 export function ForgotPasswordForm() {
   const [email, setEmail] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [sent, setSent] = useState<string | null>(null);
   const [cooldown, setCooldown] = useState(0);
+  const [pending, setPending] = useState(false);
 
-  function send(address: string) {
+  async function send(address: string) {
     if (!emailPattern.test(address)) {
       setError("Enter a valid email, like name@example.com.");
+      return;
+    }
+    setPending(true);
+    const result = await requestPasswordResetAction(address);
+    setPending(false);
+    if (result.error) {
+      setError(result.error);
       return;
     }
     setError(null);
@@ -44,7 +52,7 @@ export function ForgotPasswordForm() {
           {cooldown > 0 ? (
             <span className="text-muted-foreground">Resend email in {cooldown}s</span>
           ) : (
-            <Button type="button" variant="outline" onClick={() => send(sent)}>
+            <Button type="button" variant="outline" disabled={pending} onClick={() => void send(sent)}>
               Resend email
             </Button>
           )}
@@ -68,11 +76,13 @@ export function ForgotPasswordForm() {
       className="mt-6 grid gap-4"
       onSubmit={(event) => {
         event.preventDefault();
-        send(email.trim());
+        void send(email.trim());
       }}
     >
       <Field label="Email" name="email" type="email" autoComplete="email" value={email} onChange={setEmail} error={error ?? undefined} />
-      <Button type="submit">Send reset link</Button>
+      <Button type="submit" disabled={pending} aria-busy={pending}>
+        {pending ? "Sending" : "Send reset link"}
+      </Button>
       <p className="text-sm leading-5">
         <Link href="/login" className="text-brand-text underline">
           Back to login

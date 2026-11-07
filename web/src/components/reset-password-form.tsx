@@ -6,14 +6,18 @@ import { useState } from "react";
 import { ErrorPanel } from "@/components/error-panel";
 import { Field } from "@/components/field";
 import { Button } from "@/components/ui/button";
+import { resetPasswordAction } from "@/lib/actions";
+import { passwordProblem } from "@/lib/auth-rules";
 
-export function ResetPasswordForm({ valid }: { valid: boolean }) {
+export function ResetPasswordForm({ token }: { token: string | null }) {
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [done, setDone] = useState(false);
+  const [pending, setPending] = useState(false);
+  const [expired, setExpired] = useState(false);
 
-  if (!valid) {
+  if (!token || expired) {
     return (
       <ErrorPanel
         title="This reset link has expired"
@@ -46,14 +50,26 @@ export function ResetPasswordForm({ valid }: { valid: boolean }) {
   return (
     <form
       className="mt-6 grid gap-4"
-      onSubmit={(event) => {
+      onSubmit={async (event) => {
         event.preventDefault();
-        if (password.length < 8) {
-          setError("Use at least 8 characters.");
+        const problem = passwordProblem(password);
+        if (problem) {
+          setError(problem);
           return;
         }
         if (password !== confirm) {
           setError("Those passwords don't match.");
+          return;
+        }
+        setPending(true);
+        const message = await resetPasswordAction(token, password, confirm);
+        setPending(false);
+        if (message?.includes("expired")) {
+          setExpired(true);
+          return;
+        }
+        if (message) {
+          setError(message);
           return;
         }
         setError(null);
@@ -78,7 +94,9 @@ export function ResetPasswordForm({ valid }: { valid: boolean }) {
         onChange={setConfirm}
         error={error ?? undefined}
       />
-      <Button type="submit">Update password</Button>
+      <Button type="submit" disabled={pending} aria-busy={pending}>
+        {pending ? "Updating" : "Update password"}
+      </Button>
     </form>
   );
 }

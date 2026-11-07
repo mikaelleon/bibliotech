@@ -22,6 +22,7 @@
   --brand-text: #c23b3e;
   --shadow-cover: 0 4px 12px rgba(31, 35, 48, 0.2);
   --shadow-overlay: 0 8px 32px rgba(31, 35, 48, 0.2);
+  --shadow-cover-hover: 0 10px 24px rgba(31, 35, 48, 0.22);
 }
 
 [data-theme="dark"] {
@@ -45,6 +46,7 @@
   --brand-text: #f0807f;
   --shadow-cover: 0 4px 12px rgba(0, 0, 0, 0.5);
   --shadow-overlay: 0 8px 32px rgba(0, 0, 0, 0.6);
+  --shadow-cover-hover: 0 10px 24px rgba(0, 0, 0, 0.6);
 }
 
 @theme inline {
@@ -80,7 +82,7 @@ body {
 
 .serif {
   font-family: var(--font-newsreader), Georgia, serif;
-  font-weight: 300;
+  font-weight: 400;
   letter-spacing: 0;
 }
 
@@ -125,6 +127,15 @@ p {
   clip: rect(0, 0, 0, 0);
   white-space: nowrap;
   border: 0;
+}
+
+/* Swipe strips: still scroll by touch or trackpad, but draw no scrollbar. */
+.scrollbar-none {
+  scrollbar-width: none;
+}
+
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
 }
 
 /* Typographic cover. Sizes are a percent of the cover width. */
@@ -201,6 +212,9 @@ p {
   --dur-drawer: 300ms;
   --dur-drawer-exit: 240ms;
   --dur-page: 250ms;
+  --dur-move: 220ms;
+  --dur-confirm: 320ms;
+  --dur-reveal: 400ms;
 }
 
 .press {
@@ -222,6 +236,66 @@ p {
   transition: none;
 }
 
+/* Book cards: on devices that hover, the cover lifts 2px and its shadow deepens. Keyboard focus does the same. */
+.press-card .cv,
+.press-card img {
+  transition: translate var(--dur-hover) var(--ease-out), box-shadow var(--dur-hover) var(--ease-out);
+}
+
+@media (hover: hover) {
+  .press-card:hover .cv,
+  .press-card:hover img {
+    translate: 0 -2px;
+    box-shadow: var(--shadow-cover-hover);
+  }
+}
+
+.press-card:focus-visible .cv,
+.press-card:focus-visible img {
+  translate: 0 -2px;
+  box-shadow: var(--shadow-cover-hover);
+}
+
+/* Dark covers keep their 1px hairline while lifted. */
+@media (hover: hover) {
+  [data-theme="dark"] .press-card:hover .cv {
+    box-shadow: 0 0 0 1px rgba(236, 236, 234, 0.12), var(--shadow-cover-hover);
+  }
+}
+
+[data-theme="dark"] .press-card:focus-visible .cv {
+  box-shadow: 0 0 0 1px rgba(236, 236, 234, 0.12), var(--shadow-cover-hover);
+}
+
+/* Hover fills ease in instead of snapping. Menu items stay instant so keyboard moves feel immediate. */
+/* Content that swaps in place (the featured preview): a short fade, no rise, so quick changes don't jitter. */
+.swap-in {
+  animation: elib-fade var(--dur-hover) var(--ease-out);
+}
+
+/* Page-change progress (components/nav-progress.tsx). Waits 120ms, so fast changes never show it. */
+.nav-progress {
+  position: fixed;
+  inset: 0 0 auto 0;
+  z-index: 60;
+  height: 2px;
+  background: var(--brand);
+  transform-origin: left center;
+  pointer-events: none;
+}
+
+.nav-progress[data-state="loading"] {
+  animation: nav-progress 2400ms var(--ease-out) 120ms both;
+}
+
+.nav-progress[data-state="done"] {
+  animation: nav-done 300ms var(--ease-out) both;
+}
+
+.hover-fill {
+  transition: background-color var(--dur-hover) var(--ease-out);
+}
+
 .page-enter {
   animation: page-enter var(--dur-page) var(--ease-out);
 }
@@ -230,19 +304,19 @@ p {
   animation: page-enter var(--dur-page) var(--ease-out) both;
 }
 
-.stagger > *:nth-child(1) { animation-delay: 0ms; }
-.stagger > *:nth-child(2) { animation-delay: 30ms; }
-.stagger > *:nth-child(3) { animation-delay: 60ms; }
-.stagger > *:nth-child(4) { animation-delay: 90ms; }
-.stagger > *:nth-child(5) { animation-delay: 120ms; }
-.stagger > *:nth-child(6) { animation-delay: 150ms; }
-.stagger > *:nth-child(7) { animation-delay: 180ms; }
-.stagger > *:nth-child(8) { animation-delay: 210ms; }
-.stagger > *:nth-child(9) { animation-delay: 240ms; }
-.stagger > *:nth-child(10) { animation-delay: 270ms; }
-.stagger > *:nth-child(11) { animation-delay: 300ms; }
-.stagger > *:nth-child(12) { animation-delay: 330ms; }
-.stagger > *:nth-child(n + 13) { animation-delay: 360ms; }
+.stagger > *:nth-child(1) { animation-delay: calc(var(--stagger-start, 0ms) + 0ms); }
+.stagger > *:nth-child(2) { animation-delay: calc(var(--stagger-start, 0ms) + 30ms); }
+.stagger > *:nth-child(3) { animation-delay: calc(var(--stagger-start, 0ms) + 60ms); }
+.stagger > *:nth-child(4) { animation-delay: calc(var(--stagger-start, 0ms) + 90ms); }
+.stagger > *:nth-child(5) { animation-delay: calc(var(--stagger-start, 0ms) + 120ms); }
+.stagger > *:nth-child(6) { animation-delay: calc(var(--stagger-start, 0ms) + 150ms); }
+.stagger > *:nth-child(7) { animation-delay: calc(var(--stagger-start, 0ms) + 180ms); }
+.stagger > *:nth-child(8) { animation-delay: calc(var(--stagger-start, 0ms) + 210ms); }
+.stagger > *:nth-child(9) { animation-delay: calc(var(--stagger-start, 0ms) + 240ms); }
+.stagger > *:nth-child(10) { animation-delay: calc(var(--stagger-start, 0ms) + 270ms); }
+.stagger > *:nth-child(11) { animation-delay: calc(var(--stagger-start, 0ms) + 300ms); }
+.stagger > *:nth-child(12) { animation-delay: calc(var(--stagger-start, 0ms) + 330ms); }
+.stagger > *:nth-child(n + 13) { animation-delay: calc(var(--stagger-start, 0ms) + 360ms); }
 
 .menu-pop[data-state="open"] {
   transform-origin: var(--radix-dropdown-menu-content-transform-origin);
@@ -252,6 +326,10 @@ p {
 .menu-pop[data-state="closed"] {
   transform-origin: var(--radix-dropdown-menu-content-transform-origin);
   animation: pop-out var(--dur-menu-exit) var(--ease-in);
+}
+
+.dialog-pop {
+  transform-origin: calc(50% + var(--dialog-ox, 0px)) calc(50% + var(--dialog-oy, 0px));
 }
 
 .dialog-pop[data-state="open"] {
@@ -271,6 +349,79 @@ p {
 
 .toast-pop {
   animation: toast-in var(--dur-panel) var(--ease-out);
+}
+
+/* A list item on its way out, e.g. a removed favorite. */
+.item-leave {
+  animation: item-leave var(--dur-panel-exit) var(--ease-in) forwards;
+  pointer-events: none;
+}
+
+.toast-leave {
+  animation: toast-out var(--dur-panel-exit) var(--ease-in) forwards;
+  pointer-events: none;
+}
+
+.tip-pop[data-state="delayed-open"],
+.tip-pop[data-state="instant-open"] {
+  transform-origin: var(--radix-tooltip-content-transform-origin);
+  animation: pop-in var(--dur-menu) var(--ease-out);
+}
+
+.tip-pop[data-state="closed"] {
+  transform-origin: var(--radix-tooltip-content-transform-origin);
+  animation: pop-out var(--dur-menu-exit) var(--ease-in);
+}
+
+/* Two or more states stacked in one cell. The box keeps the size of the largest, so nothing shifts. */
+.swap {
+  display: inline-grid;
+  place-items: center;
+}
+
+.swap > * {
+  grid-area: 1 / 1;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: opacity var(--dur-hover) var(--ease-out), scale var(--dur-hover) var(--ease-out),
+    filter var(--dur-hover) var(--ease-out);
+}
+
+.swap > [data-shown="false"] {
+  opacity: 0;
+  scale: 0.8;
+}
+
+.swap-blur > [data-shown="false"] {
+  filter: blur(2px);
+}
+
+/* One indicator per nav group. It moves to the active item instead of each item painting its own fill. */
+.nav-indicator {
+  position: absolute;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+  transition: translate var(--dur-move) var(--ease-in-out), width var(--dur-move) var(--ease-in-out),
+    height var(--dur-move) var(--ease-in-out), opacity var(--dur-hover) var(--ease-out);
+}
+
+/* Book summary on phones: four lines with a fade, then a mask sweeps down to reveal the rest. */
+@media (max-width: 767.98px) {
+  .summary-clamped {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 4;
+    overflow: hidden;
+    mask-image: linear-gradient(to bottom, #000 60%, transparent 100%);
+  }
+
+  .summary-open {
+    mask-image: linear-gradient(to bottom, #000 50%, transparent 100%);
+    mask-size: 100% 200%;
+    animation: mask-reveal var(--dur-reveal) var(--ease-in-out) both;
+  }
 }
 
 .bar-grow {
@@ -321,7 +472,7 @@ p {
 @keyframes dialog-in {
   from {
     opacity: 0;
-    transform: translate(-50%, -50%) scale(0.96);
+    transform: translate(-50%, -50%) scale(0.95);
   }
   to {
     opacity: 1;
@@ -336,7 +487,63 @@ p {
   }
   to {
     opacity: 0;
-    transform: translate(-50%, -50%) scale(0.96);
+    transform: translate(-50%, -50%) scale(0.95);
+  }
+}
+
+@keyframes toast-out {
+  from {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+  to {
+    opacity: 0;
+    transform: translate(-50%, 8px);
+  }
+}
+
+@keyframes nav-progress {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(0.85);
+  }
+}
+
+@keyframes nav-done {
+  0% {
+    transform: scaleX(1);
+    opacity: 1;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    transform: scaleX(1);
+    opacity: 0;
+  }
+}
+
+@keyframes item-leave {
+  to {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+}
+
+@keyframes mask-reveal {
+  from {
+    mask-position: 0 60%;
+  }
+  to {
+    mask-position: 0 0;
+  }
+}
+
+@keyframes vt-fade-out {
+  to {
+    opacity: 0;
   }
 }
 
@@ -418,6 +625,22 @@ p {
   animation-timing-function: var(--ease-in-out);
 }
 
+/* Page changes: the old page fades out while the new one runs its own entrance on top. */
+::view-transition-old(root) {
+  animation: vt-fade-out 150ms var(--ease-in) both;
+}
+
+::view-transition-new(root) {
+  animation: none;
+}
+
+/* Theme switch: the new theme is revealed by a circle that grows from the toggle (set in theme-toggle.tsx). */
+html.theme-reveal::view-transition-old(root),
+html.theme-reveal::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+
 @media (prefers-reduced-motion: reduce) {
   ::view-transition-group(*),
   ::view-transition-old(*),
@@ -438,13 +661,41 @@ p {
   .bar-grow,
   .bar-rise,
   .press,
-  .press-card {
+  .press-card,
+  .press-card .cv,
+  .press-card img,
+  .hover-fill,
+  .swap-in,
+  .toast-leave,
+  .item-leave,
+  .tip-pop,
+  .summary-open,
+  .nav-indicator,
+  .swap > * {
     animation: none;
     transition: opacity 100ms linear;
+  }
+
+  .swap > [data-shown="false"] {
+    scale: 1;
+    filter: none;
   }
 
   .press:active,
   .press-card:active {
     transform: none;
+  }
+
+  .nav-progress[data-state="loading"] {
+    animation: none;
+    transform: scaleX(0.85);
+    opacity: 0.6;
+  }
+
+  .press-card:hover .cv,
+  .press-card:hover img,
+  .press-card:focus-visible .cv,
+  .press-card:focus-visible img {
+    translate: none;
   }
 }

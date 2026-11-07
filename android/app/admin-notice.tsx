@@ -20,7 +20,7 @@ export default function AdminNoticeScreen() {
       <View style={styles.panel}>
         <EmptyState
           icon={<Shield color={colors.ink} size={24} strokeWidth={1.5} />}
-          title="Administrator accounts manage the library on the website."
+          title="Admin tools are on the website"
           action={
             <Button
               label="Log out"

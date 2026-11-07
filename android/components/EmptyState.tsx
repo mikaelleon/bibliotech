@@ -1,7 +1,8 @@
 import type { ReactNode } from "react";
 import { StyleSheet, Text, View } from "react-native";
 
-import { colors, font, radius } from "@/theme/tokens";
+import { FadeIn } from "@/components/FadeIn";
+import { colors, font } from "@/theme/tokens";
 
 type EmptyStateProps = {
   icon: ReactNode;
@@ -13,20 +14,21 @@ type EmptyStateProps = {
 
 export function EmptyState({ icon, title, children, action, alert = false }: EmptyStateProps) {
   return (
+    <FadeIn>
     <View accessibilityRole={alert ? "alert" : undefined} style={styles.panel}>
       {icon}
       <Text style={styles.title}>{title}</Text>
       <Text style={styles.body}>{children}</Text>
       {action ? <View style={styles.action}>{action}</View> : null}
     </View>
+    </FadeIn>
   );
 }
 
 const styles = StyleSheet.create({
   panel: {
-    backgroundColor: colors.surface,
-    borderRadius: radius.panel,
-    padding: 32,
+    maxWidth: 560,
+    paddingVertical: 32,
   },
   title: {
     marginTop: 16,

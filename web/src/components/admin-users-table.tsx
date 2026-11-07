@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import type { ReactNode } from "react";
 
 import { DataTable } from "@/components/data-table";
 
@@ -16,10 +17,10 @@ export type UserRow = {
 /** Column renderers stay in this client component so the server page only passes data. */
 export function AdminUsersTable({
   rows,
-  empty = "No users match that search.",
+  empty = "No users yet",
 }: {
   rows: UserRow[];
-  empty?: string;
+  empty?: ReactNode;
 }) {
   return (
     <DataTable
