@@ -1,8 +1,11 @@
 import { useLocalSearchParams, useRouter } from "expo-router";
+import { useState } from "react";
 import { SearchX } from "lucide-react-native";
 import { FlatList, StyleSheet, Text, useWindowDimensions, View } from "react-native";
 
 import { BookCard } from "@/components/BookCard";
+import { CardFavorite } from "@/components/CardFavorite";
+import { SignUpPrompt, type ShelfKind } from "@/components/SignUpPrompt";
 import { FadeIn, useFreshList } from "@/components/FadeIn";
 import { Button } from "@/components/Button";
 import { CategoryFilter } from "@/components/CategoryFilter";
@@ -14,6 +17,7 @@ import { colors, font } from "@/theme/tokens";
 
 export default function BrowseScreen() {
   const fresh = useFreshList();
+  const [asking, setAsking] = useState<ShelfKind | null>(null);
   const router = useRouter();
   const params = useLocalSearchParams<{ q?: string; category?: string }>();
   const query = typeof params.q === "string" ? params.q.trim() : "";
@@ -25,6 +29,7 @@ export default function BrowseScreen() {
   const cellWidth = (width - 32 - 16) / 2;
 
   return (
+    <>
     <FlatList
       data={books}
       keyExtractor={(item) => item.id}
@@ -58,10 +63,12 @@ export default function BrowseScreen() {
       }
       renderItem={({ item, index }) => (
         <FadeIn index={index} skip={!fresh} style={[styles.cell, { width: cellWidth }]}>
-          <BookCard book={item} showCategory />
+          <BookCard book={item} showCategory corner={<CardFavorite book={item} onLocked={setAsking} />} />
         </FadeIn>
       )}
     />
+    <SignUpPrompt kind={asking} onClose={() => setAsking(null)} />
+    </>
   );
 }
 

@@ -1,7 +1,10 @@
 import { Library } from "lucide-react-native";
+import { useCallback, useState } from "react";
 import { FlatList, StyleSheet, View } from "react-native";
 
 import { BookCard } from "@/components/BookCard";
+import { LibraryButton } from "@/components/LibraryButton";
+import { Toast, type ToastItem } from "@/components/Toast";
 import { FadeIn, useFreshList } from "@/components/FadeIn";
 import { Button } from "@/components/Button";
 import { EmptyState } from "@/components/EmptyState";
@@ -12,14 +15,30 @@ import { useSession } from "@/lib/session";
 import { colors } from "@/theme/tokens";
 
 export default function LibraryScreen() {
-  const { session, libraryIds } = useSession();
+  const { session, libraryIds, setInLibrary } = useSession();
   const fresh = useFreshList();
-  if (session.kind !== "user") return <LockedPanel title="My Library" />;
+  const [notice, setNotice] = useState<ToastItem | null>(null);
+  const [nextId, setNextId] = useState(1);
+  const dismiss = useCallback(() => setNotice(null), []);
+  if (session.kind !== "user") return <LockedPanel title="Library" />;
 
   const books = libraryIds.map((id) => getBook(id)).filter((book) => book !== undefined);
-  const count = books.length === 1 ? "1 book you've saved." : `${books.length} books you've saved.`;
+  const count = books.length === 1 ? "1 book in your Library" : `${books.length} books in your Library`;
+
+  function remove(bookId: string) {
+    const at = libraryIds.indexOf(bookId);
+    setInLibrary(bookId, false);
+    setNotice({
+      id: nextId,
+      message: "Removed from Library",
+      actionLabel: "Undo",
+      onAction: () => setInLibrary(bookId, true, at),
+    });
+    setNextId((id) => id + 1);
+  }
 
   return (
+    <View style={styles.wrap}>
     <FlatList
       data={books}
       keyExtractor={(item) => item.id}
@@ -27,29 +46,32 @@ export default function LibraryScreen() {
       contentContainerStyle={styles.page}
       ListHeaderComponent={
         <View style={styles.header}>
-          <PageHeader title="My Library" lede={count} />
+          <PageHeader title="Library" lede={count} />
         </View>
       }
       ListEmptyComponent={
         <EmptyState
           icon={<Library color={colors.muted} size={24} strokeWidth={1.5} />}
-          title="Your library is empty"
+          title="Your Library is empty"
           action={<Button label="Browse books" href="/browse" variant="outline" />}
         >
-          Books you save show up here.
+          Open a book and choose Add to Library. It doesn’t use a download.
         </EmptyState>
       }
       columnWrapperStyle={books.length > 0 ? styles.row : undefined}
       renderItem={({ item, index }) => (
         <FadeIn index={index} skip={!fresh} style={styles.cell}>
-          <BookCard book={item} />
+          <BookCard book={item} corner={<LibraryButton title={item.title} active onPress={() => remove(item.id)} />} />
         </FadeIn>
       )}
     />
+    <Toast item={notice} onDone={dismiss} />
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
+  wrap: { flex: 1 },
   page: {
     paddingHorizontal: 16,
     paddingTop: 24,

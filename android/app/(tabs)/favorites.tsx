@@ -16,7 +16,7 @@ import type { Book } from "@/lib/types";
 import { colors } from "@/theme/tokens";
 
 export default function FavoritesScreen() {
-  const { session, favoriteIds, toggleFavorite } = useSession();
+  const { session, favoriteIds, setFavorite } = useSession();
   const [notice, setNotice] = useState<ToastItem | null>(null);
   const [nextId, setNextId] = useState(1);
   const fresh = useFreshList();
@@ -24,7 +24,7 @@ export default function FavoritesScreen() {
   if (session.kind !== "user") return <LockedPanel title="Favorites" />;
 
   const books = favoriteIds.map((id) => getBook(id)).filter((book): book is Book => Boolean(book));
-  const count = books.length === 1 ? "1 book you've saved." : `${books.length} books you've saved.`;
+  const count = books.length === 1 ? "1 favorite" : `${books.length} favorites`;
 
   return (
     <View style={styles.wrap}>
@@ -54,14 +54,16 @@ export default function FavoritesScreen() {
               book={item}
               corner={
                 <FavoriteButton
+                  title={item.title}
                   active
                   onPress={() => {
-                    toggleFavorite(item.id);
+                    const at = favoriteIds.indexOf(item.id);
+                    setFavorite(item.id, false);
                     setNotice({
                       id: nextId,
                       message: "Removed from favorites",
                       actionLabel: "Undo",
-                      onAction: () => toggleFavorite(item.id),
+                      onAction: () => setFavorite(item.id, true, at),
                     });
                     setNextId((id) => id + 1);
                   }}

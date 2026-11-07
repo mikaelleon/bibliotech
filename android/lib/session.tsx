@@ -48,6 +48,47 @@ async function load(): Promise<Saved | null> {
   }
 }
 
+/** Favorites and Library per reader, so they survive a restart. Keys allow only [A-Za-z0-9._-]. */
+type Shelves = { favorites: string[]; library: string[] };
+
+function shelfKey(email: string): string {
+  return `elib.shelves.${email.toLowerCase().replace(/[^a-z0-9._-]/g, "_")}`;
+}
+
+async function loadShelves(email: string): Promise<Shelves> {
+  const seed = { favorites: favoriteSeed[email] ?? [], library: librarySeed[email] ?? [] };
+  try {
+    const raw = await SecureStore.getItemAsync(shelfKey(email));
+    if (!raw) return seed;
+    const parsed = JSON.parse(raw) as Partial<Shelves>;
+    return {
+      favorites: Array.isArray(parsed.favorites) ? parsed.favorites : seed.favorites,
+      library: Array.isArray(parsed.library) ? parsed.library : seed.library,
+    };
+  } catch {
+    return seed;
+  }
+}
+
+async function saveShelves(email: string, shelves: Shelves) {
+  try {
+    await SecureStore.setItemAsync(shelfKey(email), JSON.stringify(shelves));
+  } catch {
+    // A failed write keeps this session's shelves in memory; they reset on the next launch.
+  }
+}
+
+/** Adds or removes `id` so the list matches `on`. Idempotent; `at` puts it back where it was. */
+function setIn(list: string[], id: string, on: boolean, at?: number): string[] {
+  const has = list.includes(id);
+  if (on === has) return list;
+  if (!on) return list.filter((item) => item !== id);
+  if (at === undefined) return [id, ...list];
+  const next = [...list];
+  next.splice(Math.min(at, next.length), 0, id);
+  return next;
+}
+
 function waitMessage(ms: number): string {
   const minutes = Math.max(1, Math.ceil(ms / 60_000));
   return `Too many attempts. Try again in ${minutes} minute${minutes === 1 ? "" : "s"}.`;
@@ -67,7 +108,10 @@ type SessionContextValue = {
   register: (name: string, email: string, password: string) => string | null;
   continueAsGuest: () => void;
   logout: () => void;
-  toggleFavorite: (bookId: string) => boolean;
+  /** Sets the favorite to exactly `on`. `at` restores its old position (Undo). */
+  setFavorite: (bookId: string, on: boolean, at?: number) => void;
+  /** Adds the book to, or removes it from, Library. Never uses a download. */
+  setInLibrary: (bookId: string, on: boolean, at?: number) => void;
   rename: (name: string) => string | null;
   changePassword: (password: string, confirm: string) => string | null;
 };
@@ -89,6 +133,23 @@ export function SessionProvider({ children }: { children: ReactNode }) {
   const [libraryIds, setLibraryIds] = useState<string[]>([]);
   const [favoriteIds, setFavoriteIds] = useState<string[]>([]);
   const [ready, setReady] = useState(false);
+  // Which reader the shelves in memory belong to, once they've been read from the device.
+  const [shelfOwner, setShelfOwner] = useState<string | null>(null);
+
+  function restoreShelves(email: string) {
+    setShelfOwner(null);
+    void loadShelves(email).then((shelves) => {
+      setFavoriteIds(shelves.favorites);
+      setLibraryIds(shelves.library);
+      setShelfOwner(email);
+    });
+  }
+
+  // Write the reader's shelves back whenever they change (after they've been loaded).
+  useEffect(() => {
+    if (session.kind !== "user" || shelfOwner !== session.email) return;
+    void saveShelves(session.email, { favorites: favoriteIds, library: libraryIds });
+  }, [favoriteIds, libraryIds, session, shelfOwner]);
 
   useEffect(() => {
     let live = true;
@@ -99,8 +160,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
         const user = userByEmail(saved.email);
         if (user) {
           setSession(userSession(user));
-          setLibraryIds(librarySeed[user.email] ?? []);
-          setFavoriteIds(favoriteSeed[user.email] ?? []);
+          restoreShelves(user.email);
         } else {
           // The in-memory account store forgets new accounts on restart.
           void save(null);
@@ -130,8 +190,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
         }
         clearFailures(email);
         setSession(userSession(user));
-        setLibraryIds(librarySeed[user.email] ?? []);
-        setFavoriteIds(favoriteSeed[user.email] ?? []);
+        restoreShelves(user.email);
         void save(remember ? { kind: "user", email: user.email, exp: Date.now() + REMEMBER_MS } : null);
         return { role: user.role };
       },
@@ -155,6 +214,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
         setSession(userSession(stored));
         setLibraryIds([]);
         setFavoriteIds([]);
+        setShelfOwner(stored.email);
         void save({ kind: "user", email: stored.email, exp: Date.now() + REMEMBER_MS });
         return null;
       },
@@ -166,18 +226,18 @@ export function SessionProvider({ children }: { children: ReactNode }) {
       },
       logout() {
         setSession({ kind: "none" });
+        setShelfOwner(null);
         setLibraryIds([]);
         setFavoriteIds([]);
         void save(null);
       },
-      toggleFavorite(bookId: string) {
-        let added = false;
-        setFavoriteIds((current) => {
-          if (current.includes(bookId)) return current.filter((id) => id !== bookId);
-          added = true;
-          return [bookId, ...current];
-        });
-        return added;
+      setFavorite(bookId: string, on: boolean, at?: number) {
+        if (session.kind !== "user") return;
+        setFavoriteIds((current) => setIn(current, bookId, on, at));
+      },
+      setInLibrary(bookId: string, on: boolean, at?: number) {
+        if (session.kind !== "user") return;
+        setLibraryIds((current) => setIn(current, bookId, on, at));
       },
       rename(name: string) {
         const trimmed = name.trim();

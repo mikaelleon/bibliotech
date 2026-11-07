@@ -7,7 +7,7 @@ import { EmptyState } from "@/components/empty-state";
 import { FeaturedShelf } from "@/components/featured-shelf";
 import { Button } from "@/components/ui/button";
 import { filterBooks, getBooks, sortBooks, type BookSort } from "@/lib/books";
-import { listFavoriteIds, listLibrary } from "@/lib/records";
+import { listLibrary } from "@/lib/records";
 import { getSession } from "@/lib/session";
 import { CATEGORIES, type Category } from "@/lib/types";
 import { SearchX } from "lucide-react";
@@ -41,11 +41,10 @@ export default async function BrowsePage({
 
   const session = await getSession();
   const library = session.kind === "user" ? await listLibrary(session.email) : [];
-  const favoriteIds = session.kind === "user" ? await listFavoriteIds(session.email) : [];
 
   return (
     <main className="mx-auto flex w-full max-w-[1200px] flex-col gap-8 px-4 py-6 md:px-8 md:py-8">
-      <FeaturedShelf books={getBooks()} signedIn={session.kind === "user"} favoriteIds={favoriteIds} />
+      <FeaturedShelf books={getBooks()} />
       {library.length > 0 ? (
         <section aria-label="In your library">
           <h2 className="section-title">In your library</h2>

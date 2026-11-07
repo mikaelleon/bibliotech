@@ -4,7 +4,7 @@ import { Suspense } from "react";
 
 import { CatalogSort } from "@/components/catalog-sort";
 import { EmptyState } from "@/components/empty-state";
-import { FavoritesGrid } from "@/components/favorites-grid";
+import { ShelfCount, ShelfGrid } from "@/components/shelf-grid";
 import { LockedPanel } from "@/components/locked-panel";
 import { PageHeader } from "@/components/page-header";
 import { SuggestedBooks } from "@/components/suggested-books";
@@ -33,20 +33,20 @@ export default async function FavoritesPage({
   const sort: BookSort | "saved" = params.sort === "title" || params.sort === "author" ? params.sort : "saved";
   const saved = await listFavorites(session.email);
   const books = sort === "saved" ? saved : sortBooks(saved, sort);
-  const count = books.length === 1 ? "1 favorite." : `${books.length} favorites.`;
 
   return (
     <main className="mx-auto flex w-full max-w-[1200px] flex-col gap-8 px-4 py-6 md:px-8 md:py-8">
       <PageHeader
         title="Favorites"
-        lede={count}
+        lede={<ShelfCount shelf="favorites" />}
         action={
           <Suspense>
             <CatalogSort value={sort} options={sortOptions} />
           </Suspense>
         }
       />
-      <FavoritesGrid
+      <ShelfGrid
+        shelf="favorites"
         books={books}
         empty={
           <>

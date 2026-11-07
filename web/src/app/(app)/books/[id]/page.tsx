@@ -5,11 +5,9 @@ import { BackLink } from "@/components/back-link";
 import { BookGrid } from "@/components/book-grid";
 import { BookSummary } from "@/components/book-summary";
 import { BookCover } from "@/components/book-cover";
-import { CardFavorite } from "@/components/card-favorite";
+import { BookActions } from "@/components/book-actions";
 import { DefinitionList } from "@/components/definition-list";
 import { getBook, relatedBooks } from "@/lib/books";
-import { isFavorite } from "@/lib/records";
-import { getSession } from "@/lib/session";
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -22,9 +20,7 @@ export default async function BookPage({ params }: { params: Promise<{ id: strin
   const book = getBook(id);
   if (!book) notFound();
 
-  const session = await getSession();
   const more = relatedBooks(book);
-  const saved = session.kind === "user" ? await isFavorite(session.email, book.id) : false;
 
   return (
     <main className="mx-auto w-full max-w-[1200px] px-4 pt-2 pb-6 md:px-8 md:py-8">
@@ -63,7 +59,7 @@ export default async function BookPage({ params }: { params: Promise<{ id: strin
           />
           <BookSummary summary={book.summary} long={Boolean(book.summaryShort)} />
           <div className="mt-6 md:mt-8">
-            <CardFavorite bookId={book.id} active={saved} signedIn={session.kind === "user"} />
+            <BookActions bookId={book.id} />
           </div>
         </div>
       </div>

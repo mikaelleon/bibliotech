@@ -1,17 +1,17 @@
-import { ArrowLeft, BookOpen, Bookmark, Download, Info } from "lucide-react-native";
+import { ArrowLeft, BookOpen } from "lucide-react-native";
 import { Link, Redirect, useLocalSearchParams } from "expo-router";
+import { useState } from "react";
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-import { Banner } from "@/components/Banner";
 import { BookCover } from "@/components/BookCover";
 import { Button } from "@/components/Button";
-import { FavoriteButton } from "@/components/FavoriteButton";
 import { EmptyState } from "@/components/EmptyState";
+import { ShelfButtons } from "@/components/ShelfButtons";
+import { SignUpPrompt, type ShelfKind } from "@/components/SignUpPrompt";
 import { FadeIn } from "@/components/FadeIn";
 import { TabBar } from "@/components/TabBar";
 import { getBook } from "@/lib/books";
-import { leftLabel, quotaFor } from "@/lib/quota";
 import { useSession } from "@/lib/session";
 import { colors, font } from "@/theme/tokens";
 import * as Linking from "expo-linking";
@@ -32,11 +32,14 @@ export default function BookScreen() {
 }
 
 function BookBody({ id }: { id: string }) {
-  const { session, favoriteIds, toggleFavorite } = useSession();
+  const { session, favoriteIds, libraryIds, setFavorite, setInLibrary } = useSession();
+  const [asking, setAsking] = useState<ShelfKind | null>(null);
   const book = getBook(id);
   if (!book) return null;
   const summary = book.summaryShort ?? book.summary;
-  const saved = favoriteIds.includes(book.id);
+  const signedIn = session.kind === "user";
+  const favorite = signedIn && favoriteIds.includes(book.id);
+  const inLibrary = signedIn && libraryIds.includes(book.id);
 
   return (
     <ScrollView contentContainerStyle={styles.content}>
@@ -74,42 +77,17 @@ function BookBody({ id }: { id: string }) {
       <FadeIn start={settle} index={3}>
         <Text style={styles.summary}>{summary}</Text>
       </FadeIn>
-      {session.kind === "guest" ? (
-        <View style={styles.banner}>
-          <Banner icon={<Info color={colors.ink} size={20} strokeWidth={1.5} />}>
-            5 of 5 guest downloads left. A free account gets 10.
-          </Banner>
-        </View>
-      ) : null}
-      {session.kind === "user" ? (
-        <View style={styles.banner}>
-          <Banner icon={<Info color={colors.ink} size={20} strokeWidth={1.5} />}>
-            {leftLabel(quotaFor(session)?.left ?? 0)} of 10.
-          </Banner>
-        </View>
-      ) : null}
       <FadeIn start={settle} index={4} style={styles.actions}>
-        <Button
-          label="Download"
-          full
-          disabled
-          icon={<Download />}
-          iconPosition="start"
-          accessibilityLabel="Download"
+        <ShelfButtons
+          signedIn={signedIn}
+          inLibrary={inLibrary}
+          favorite={favorite}
+          onLibrary={() => setInLibrary(book.id, !inLibrary)}
+          onFavorite={() => setFavorite(book.id, !favorite)}
+          onLocked={setAsking}
         />
-        <Button
-          label="Save to Library"
-          variant="outline"
-          full
-          disabled
-          icon={<Bookmark />}
-          iconPosition="start"
-        />
-        {session.kind === "user" ? (
-          <FavoriteButton active={saved} onPress={() => toggleFavorite(book.id)} />
-        ) : null}
       </FadeIn>
-      <Text style={styles.note}>Downloads arrive in Phase 2.</Text>
+      <SignUpPrompt kind={asking} onClose={() => setAsking(null)} />
     </ScrollView>
   );
 }
@@ -217,19 +195,9 @@ const styles = StyleSheet.create({
     lineHeight: 20,
     color: colors.ink,
   },
-  banner: {
-    marginTop: 24,
-  },
   actions: {
     marginTop: 16,
     gap: 8,
-  },
-  note: {
-    marginTop: 8,
-    fontFamily: font.sans,
-    fontSize: 14,
-    lineHeight: 20,
-    color: colors.muted,
   },
   missing: {
     flex: 1,

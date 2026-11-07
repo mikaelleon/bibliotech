@@ -4,6 +4,8 @@ import { FlatList, Pressable, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { BookCard } from "@/components/BookCard";
+import { CardFavorite } from "@/components/CardFavorite";
+import { SignUpPrompt, type ShelfKind } from "@/components/SignUpPrompt";
 import { FadeIn, useFreshList } from "@/components/FadeIn";
 import { CategoryFilter } from "@/components/CategoryFilter";
 import { EmptyState } from "@/components/EmptyState";
@@ -18,6 +20,7 @@ const pageSize = 24;
 export default function SearchScreen() {
   const { session } = useSession();
   const fresh = useFreshList();
+  const [asking, setAsking] = useState<ShelfKind | null>(null);
   const params = useLocalSearchParams<{ q?: string; category?: string }>();
   const initial = typeof params.q === "string" ? params.q : "";
   const category = typeof params.category === "string" ? params.category : "";
@@ -79,10 +82,11 @@ export default function SearchScreen() {
         }
         renderItem={({ item, index }) => (
           <FadeIn index={index} skip={!fresh} style={styles.cell}>
-            <BookCard book={item} />
+            <BookCard book={item} corner={<CardFavorite book={item} onLocked={setAsking} />} />
           </FadeIn>
         )}
       />
+      <SignUpPrompt kind={asking} onClose={() => setAsking(null)} />
     </SafeAreaView>
   );
 }

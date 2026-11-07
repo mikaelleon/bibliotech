@@ -10,13 +10,16 @@ import { colors } from "@/theme/tokens";
 
 /** Heart toggle. Outline and filled hearts crossfade. Adding a favorite pulses once; removing does not. */
 export function FavoriteButton({
+  title,
   active,
   onPress,
 }: {
+  title: string;
   active: boolean;
   onPress: () => void;
 }) {
-  const label = active ? "Remove from favorites" : "Add to favorites";
+  // A fixed label; the selected state carries on/off, so it's announced once.
+  const label = `Favorite ${title}`;
   const reduce = useReduceMotion();
   const press = usePressScale();
   const [pulse] = useState(() => new Animated.Value(1));

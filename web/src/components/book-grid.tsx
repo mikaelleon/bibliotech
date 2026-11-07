@@ -1,27 +1,29 @@
 import { BookCard } from "@/components/book-card";
-import { CardFavorite } from "@/components/card-favorite";
+import { FavoriteButton } from "@/components/favorite-button";
+import { LibraryButton } from "@/components/library-button";
 import { bookGridClass } from "@/lib/book-grid-class";
-import { listFavoriteIds } from "@/lib/records";
-import { getSession } from "@/lib/session";
 import type { Book } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
 export { bookGridClass };
 
-/** One card style: cover, title, author, category, and a heart. */
-export async function BookGrid({
+/**
+ * One card style: cover, title, author, category, and one corner control.
+ * `control="favorite"` (default) is the heart; `control="library"` is the Library bookmark, used on
+ * the Library page so the card's control acts on Library. Both read the shared shelf, so this
+ * component no longer reads favorites on the server for every grid.
+ */
+export function BookGrid({
   books,
   showCategory = true,
   className,
+  control = "favorite",
 }: {
   books: Book[];
   showCategory?: boolean;
   className?: string;
+  control?: "favorite" | "library";
 }) {
-  const session = await getSession();
-  const signedIn = session.kind === "user";
-  const favoriteIds = signedIn ? await listFavoriteIds(session.email) : [];
-
   return (
     <ul className={cn(bookGridClass, "stagger", className)}>
       {books.map((book) => (
@@ -29,7 +31,13 @@ export async function BookGrid({
           <BookCard
             book={book}
             showCategory={showCategory}
-            corner={<CardFavorite bookId={book.id} active={favoriteIds.includes(book.id)} signedIn={signedIn} />}
+            corner={
+              control === "library" ? (
+                <LibraryButton bookId={book.id} title={book.title} />
+              ) : (
+                <FavoriteButton bookId={book.id} title={book.title} />
+              )
+            }
           />
         </li>
       ))}

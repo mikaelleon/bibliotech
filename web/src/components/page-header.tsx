@@ -7,7 +7,7 @@ export function PageHeader({
   action,
 }: {
   title: string;
-  lede?: string;
+  lede?: ReactNode;
   action?: ReactNode;
 }) {
   return (

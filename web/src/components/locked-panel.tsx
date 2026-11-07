@@ -4,7 +4,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 
 const copy: Record<string, string> = {
-  Library: "Library keeps the books you download in one place.",
+  Library: "Library keeps the books you want to come back to. Adding one doesn’t use a download.",
   Favorites: "Favorites keeps the books you mark with a heart.",
   Profile: "An account holds your name, password, and theme.",
 };

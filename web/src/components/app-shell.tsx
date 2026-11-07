@@ -10,6 +10,7 @@ import { AIAssistant } from "@/components/ai-assistant";
 import { OfflineBanner } from "@/components/offline-banner";
 import { QuotaMeter } from "@/components/quota-meter";
 import { SearchBar } from "@/components/search-bar";
+import { ShelfProvider } from "@/components/shelf-provider";
 import { ShellSearch } from "@/components/shell-search";
 import { SideRail } from "@/components/side-rail";
 import { TabBar } from "@/components/tab-bar";
@@ -19,7 +20,19 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { Wordmark } from "@/components/wordmark";
 import type { Session } from "@/lib/types";
 
-export function AppShell({ session, children }: { session: Session; children: ReactNode }) {
+type Shelves = { favoriteIds: string[]; libraryIds: string[]; libraryAddedAt: Record<string, string> };
+
+const noShelves: Shelves = { favoriteIds: [], libraryIds: [], libraryAddedAt: {} };
+
+export function AppShell({
+  session,
+  shelves = noShelves,
+  children,
+}: {
+  session: Session;
+  shelves?: Shelves;
+  children: ReactNode;
+}) {
   const path = usePathname();
   const onBook = path.startsWith("/books/");
   const admin = session.kind === "user" && session.role === "admin";
@@ -29,6 +42,12 @@ export function AppShell({ session, children }: { session: Session; children: Re
   return (
     <TooltipProvider>
       <ToastProvider>
+      <ShelfProvider
+        signedIn={session.kind === "user" && session.role !== "admin"}
+        favoriteIds={shelves.favoriteIds}
+        libraryIds={shelves.libraryIds}
+        libraryAddedAt={shelves.libraryAddedAt}
+      >
       <div className="min-h-screen bg-background">
         <div className="flex min-h-screen">
           <SideRail session={session} />
@@ -67,6 +86,7 @@ export function AppShell({ session, children }: { session: Session; children: Re
         <TabBar session={session} />
         {reader ? <AIAssistant /> : null}
       </div>
+      </ShelfProvider>
       </ToastProvider>
     </TooltipProvider>
   );

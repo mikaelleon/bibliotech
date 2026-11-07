@@ -4,6 +4,13 @@ import { StyleSheet, Text, View } from "react-native";
 import { Button } from "@/components/Button";
 import { colors, font } from "@/theme/tokens";
 
+const copy: Record<string, string> = {
+  Library: "Library keeps the books you want to come back to. Adding one doesn’t use a download.",
+  Favorites: "Favorites keeps the books you mark with a heart.",
+  Profile: "An account holds your name, password, and theme.",
+};
+
+/** Guest view for Library, Favorites, and Profile. Same copy as the web panel. */
 export function LockedPanel({ title }: { title: string }) {
   return (
     <View style={styles.page}>
@@ -12,7 +19,7 @@ export function LockedPanel({ title }: { title: string }) {
         <Lock color={colors.muted} size={24} strokeWidth={1.5} />
         <Text style={styles.h2}>Create a free account to unlock this</Text>
         <Text style={styles.body}>
-          My Library keeps every book you download in one place. An account also adds Favorites and raises your limit from 5 to 10 downloads.
+          {copy[title] ?? "Create a free account to use this page."} An account also raises your download limit from 5 to 10.
         </Text>
         <Button label="Register" href="/register" full icon={<ArrowRight />} style={styles.register} />
         <Button label="I already have an account" href="/login" variant="link" style={styles.login} />

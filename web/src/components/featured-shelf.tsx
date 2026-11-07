@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useRef, useState } from "react";
 import { flushSync } from "react-dom";
 
-import { CardFavorite } from "@/components/card-favorite";
+import { FavoriteButton } from "@/components/favorite-button";
 import { BookCard } from "@/components/book-card";
 import { DefinitionList } from "@/components/definition-list";
 import { Button } from "@/components/ui/button";
@@ -18,15 +18,7 @@ import type { Book } from "@/lib/types";
  * When the section is wide enough, a preview panel fills the right side: it shows the hovered or
  * focused cover, and falls back to the focal book when the pointer leaves the shelf.
  */
-export function FeaturedShelf({
-  books,
-  signedIn = false,
-  favoriteIds = [],
-}: {
-  books: Book[];
-  signedIn?: boolean;
-  favoriteIds?: string[];
-}) {
+export function FeaturedShelf({ books }: { books: Book[] }) {
   const [index, setIndex] = useState(0);
   const [previewId, setPreviewId] = useState<string | null>(null);
   const shelfRef = useRef<HTMLUListElement>(null);
@@ -127,7 +119,7 @@ export function FeaturedShelf({
               <li key={focal.id} className="min-w-0 flex-[10_1_0%] md:w-48 md:flex-none" {...previewProps(focal)}>
                 <BookCard
                   book={focal}
-                  corner={<CardFavorite bookId={focal.id} active={favoriteIds.includes(focal.id)} signedIn={signedIn} />}
+                  corner={<FavoriteButton bookId={focal.id} title={focal.title} />}
                 />
               </li>
               {neighbors.map((book, neighborIndex) => (
@@ -144,7 +136,7 @@ export function FeaturedShelf({
                 >
                   <BookCard
                     book={book}
-                    corner={<CardFavorite bookId={book.id} active={favoriteIds.includes(book.id)} signedIn={signedIn} />}
+                    corner={<FavoriteButton bookId={book.id} title={book.title} />}
                   />
                 </li>
               ))}

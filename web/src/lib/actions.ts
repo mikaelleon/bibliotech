@@ -5,7 +5,7 @@ import { redirect } from "next/navigation";
 
 import { revalidatePath } from "next/cache";
 
-import { toggleFavorite } from "@/lib/records";
+import { setFavorite, setInLibrary } from "@/lib/records";
 import { clearSession, getSession, setGuestSession, setUserSession } from "@/lib/session";
 import { emailPattern, landingFor, passwordProblem, safeNext } from "@/lib/auth-rules";
 import { blockedFor, clear, clientIp, hit, limits, waitMessage } from "@/lib/rate-limit";
@@ -141,13 +141,32 @@ export async function landingSearchAction(formData: FormData) {
   redirect(query ? `/search?q=${encodeURIComponent(query)}` : "/search");
 }
 
-export async function toggleFavoriteAction(bookId: string): Promise<{ ok: true; active: boolean } | { ok: false }> {
+export type ShelfResult = { ok: true; on: boolean } | { ok: false };
+
+/** Readers only: guests have no shelves, and administrators don't read. */
+async function readerEmail(): Promise<string | null> {
   const session = await getSession();
-  if (session.kind !== "user" || session.role === "admin") return { ok: false };
-  const active = await toggleFavorite(session.email, bookId);
-  revalidatePath("/favorites");
-  revalidatePath(`/books/${bookId}`);
-  return { ok: true, active };
+  if (session.kind !== "user" || session.role === "admin") return null;
+  return session.email;
+}
+
+/** Sets the favorite to exactly `on`. `at` restores its old position on Undo. */
+export async function setFavoriteAction(bookId: string, on: boolean, at?: number): Promise<ShelfResult> {
+  const email = await readerEmail();
+  if (!email) return { ok: false };
+  await setFavorite(email, bookId, on, at);
+  // Every reader page can show this book's heart or shelf state.
+  revalidatePath("/", "layout");
+  return { ok: true, on };
+}
+
+/** Adds the book to, or removes it from, Library. Never uses a download. */
+export async function setLibraryAction(bookId: string, on: boolean, addedAt?: string): Promise<ShelfResult> {
+  const email = await readerEmail();
+  if (!email) return { ok: false };
+  await setInLibrary(email, bookId, on, addedAt);
+  revalidatePath("/", "layout");
+  return { ok: true, on };
 }
 
 export async function updateNameAction(name: string): Promise<string | null> {
