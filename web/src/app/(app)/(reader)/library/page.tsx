@@ -46,7 +46,7 @@ export default async function LibraryPage({
       {books.length === 0 ? (
         <EmptyState
           icon={<Library size={24} strokeWidth={1.5} aria-hidden className="text-muted-foreground" />}
-          title="Your library is empty."
+          title="Your library is empty"
           action={
             <Button asChild variant="outline">
               <Link href="/books/pride-and-prejudice">Start with Pride and Prejudice</Link>

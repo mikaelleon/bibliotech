@@ -1,7 +1,7 @@
-import { Inter_400Regular, Inter_500Medium } from "@expo-google-fonts/inter";
-import { Newsreader_300Light, Newsreader_400Regular } from "@expo-google-fonts/newsreader";
+import { Inter_400Regular, Inter_500Medium, Inter_600SemiBold } from "@expo-google-fonts/inter";
+import { Newsreader_400Regular } from "@expo-google-fonts/newsreader";
 import { useFonts } from "expo-font";
-import { Redirect, Stack, usePathname } from "expo-router";
+import { Stack, usePathname, useRouter } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import * as SplashScreen from "expo-splash-screen";
 import { CircleAlert } from "lucide-react-native";
@@ -38,9 +38,14 @@ export function ErrorBoundary({ retry }: { error: Error; retry: () => void }) {
 function RoleGate({ children }: { children: ReactNode }) {
   const { session } = useSession();
   const path = usePathname();
-  if (session.kind === "user" && session.role === "admin" && path !== "/admin-notice") {
-    return <Redirect href="/admin-notice" />;
-  }
+  const router = useRouter();
+
+  useEffect(() => {
+    if (session.kind === "user" && session.role === "admin" && path !== "/admin-notice") {
+      router.replace("/admin-notice");
+    }
+  }, [path, router, session]);
+
   return children;
 }
 
@@ -48,7 +53,7 @@ export default function RootLayout() {
   const [loaded, error] = useFonts({
     Inter_400Regular,
     Inter_500Medium,
-    Newsreader_300Light,
+    Inter_600SemiBold,
     Newsreader_400Regular,
   });
 

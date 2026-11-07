@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 export default function AdminError({ reset }: { error: Error & { digest?: string }; reset: () => void }) {
   return (
     <ErrorPanel
-      title="We couldn't load this page."
+      title="We couldn't load this page"
       action={
         <Button type="button" onClick={reset}>
           Try again

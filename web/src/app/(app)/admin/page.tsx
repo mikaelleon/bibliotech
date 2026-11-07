@@ -19,22 +19,21 @@ export default async function AdminPage() {
   const clear = stats.missingCovers === 0 && stats.missingLicenses === 0;
 
   return (
-    <main className="mx-auto flex w-full max-w-[1200px] flex-col gap-16 px-4 py-6 md:px-8 md:py-8">
-      <PageHeader title="Dashboard" lede="Key figures for the library. Trends live under Analytics." />
+    <main className="mx-auto flex w-full max-w-[1200px] flex-col gap-10 px-4 py-6 md:px-8 md:py-8">
+      <PageHeader title="Dashboard" />
       <StatRow
         items={[
           { label: "Books", value: String(stats.books), context: "In the catalog" },
           { label: "Registered users", value: String(stats.registeredUsers), context: "Accounts with a password" },
-          { label: "Guest sessions", value: String(stats.guestSessions), context: "Anonymous sessions are not stored yet" },
           { label: "Downloads", value: String(stats.downloads), context: `${stats.downloadsLast30Days} in the last 30 days` },
         ]}
       />
-      <section className="rounded-xl bg-card p-8" aria-labelledby="needs-attention">
+      <section aria-labelledby="needs-attention">
         <h2 id="needs-attention" className="text-xl leading-7 font-medium">
           Needs attention
         </h2>
         {clear ? (
-          <p className="mt-4 text-sm leading-5 text-muted-foreground">Nothing needs attention.</p>
+          <p className="mt-4 text-sm leading-5 text-muted-foreground">Nothing to fix</p>
         ) : (
           <ul className="mt-4 grid gap-2">
             {stats.missingCovers > 0 ? (
@@ -66,13 +65,12 @@ export default async function AdminPage() {
               <li key={user.id}>
                 <Link
                   href={`/admin/users/${encodeURIComponent(user.id)}`}
-                  className="flex flex-col gap-1 px-4 py-3 no-underline hover:bg-background md:flex-row md:items-center md:justify-between"
+                  className="block px-4 py-3 no-underline hover:bg-background"
                 >
                   <span>
                     <span className="block text-sm leading-5">{user.name}</span>
                     <span className="block text-sm leading-5 text-muted-foreground">{user.email}</span>
                   </span>
-                  <span className="text-sm leading-5 text-muted-foreground">Joined date not recorded</span>
                 </Link>
               </li>
             ))}

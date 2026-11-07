@@ -48,7 +48,7 @@ export default async function FavoritesPage({
       {books.length === 0 ? (
         <EmptyState
           icon={<Heart size={24} strokeWidth={1.5} aria-hidden className="text-muted-foreground" />}
-          title="No favorites yet."
+          title="No favorites yet"
           action={
             <Button asChild variant="outline">
               <Link href="/books/pride-and-prejudice">Start with Pride and Prejudice</Link>

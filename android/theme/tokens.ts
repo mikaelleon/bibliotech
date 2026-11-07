@@ -1,10 +1,10 @@
-/** Light is the shipped theme. Dark values are here for a later toggle. No toggle is built. */
+/** Light is the shipped theme. Dark values are here for a later toggle. Matches design/tokens.md. */
 export const light = {
-  bg: "#F2F0E6",
-  surface: "#FBFAF5",
+  bg: "#F6F6F5",
+  surface: "#FFFFFF",
   ink: "#1F2330",
-  muted: "#6F6E66",
-  line: "#E2DFD2",
+  muted: "#63646B",
+  line: "#E4E4E2",
   primary: "#20232F",
   primaryHover: "#343848",
   onPrimary: "#FFFFFF",
@@ -18,10 +18,10 @@ export const light = {
 export const dark = {
   bg: "#14161D",
   surface: "#1C1F28",
-  ink: "#ECE9DD",
-  muted: "#A3A299",
+  ink: "#ECECEA",
+  muted: "#A3A3A0",
   line: "#2E313C",
-  primary: "#ECE9DD",
+  primary: "#ECECEA",
   primaryHover: "#FFFFFF",
   onPrimary: "#14161D",
   accent: "#E2504F",
@@ -53,6 +53,8 @@ export const radius = {
 export const font = {
   sans: "Inter_400Regular",
   medium: "Inter_500Medium",
-  serif: "Newsreader_300Light",
-  serifText: "Newsreader_400Regular",
+  /** Page titles. */
+  title: "Inter_600SemiBold",
+  /** Books only: cover titles, the book detail title, and the wordmark. */
+  serif: "Newsreader_400Regular",
 } as const;

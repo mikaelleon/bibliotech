@@ -41,7 +41,7 @@ export default async function ProfilePage() {
 
   return (
     <main className="mx-auto w-full max-w-[1200px] px-4 py-6 md:px-8 md:py-8">
-      <PageHeader title="Profile" lede="Your account and session." />
+      <PageHeader title="Profile" />
       <div className="mt-6 grid max-w-xl gap-6">
         <AccountPanel name={session.name} email={session.email} />
         <SecurityPanel />

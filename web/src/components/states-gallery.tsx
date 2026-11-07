@@ -25,7 +25,7 @@ export function StatesGallery() {
       <PageHeader title="State gallery" lede="Every state used for the Phase 1 screenshots. This route is off in production." />
 
       <section className="grid gap-4">
-        <h2 className="serif text-2xl leading-8 font-light">Dialogs and toasts</h2>
+        <h2 className="section-title">Dialogs and toasts</h2>
         <div className="flex flex-wrap gap-2">
           <Button type="button" onClick={() => setGuestLimit(true)}>
             Guest download limit
@@ -42,10 +42,10 @@ export function StatesGallery() {
       </section>
 
       <section className="grid gap-8">
-        <h2 className="serif text-2xl leading-8 font-light">Empty, error, and loading</h2>
+        <h2 className="section-title">Empty, error, and loading</h2>
         <EmptyState
           icon={<SearchX size={24} strokeWidth={1.5} aria-hidden className="text-muted-foreground" />}
-          title="No books match that search."
+          title="No books match that search"
           action={<Button type="button" variant="outline">Clear search</Button>}
         >
           Try a different title, author, or category.
@@ -65,7 +65,7 @@ export function StatesGallery() {
       </section>
 
       <section className="grid gap-6">
-        <h2 className="serif text-2xl leading-8 font-light">Admin</h2>
+        <h2 className="section-title">Admin</h2>
         <DownloadChart points={[{ date: "2026-10-09", count: 0 }, { date: "2026-11-07", count: 0 }]} />
         <p className="text-sm leading-5 text-muted-foreground">No downloads have been recorded yet.</p>
         <div className="flex flex-wrap items-center gap-3">

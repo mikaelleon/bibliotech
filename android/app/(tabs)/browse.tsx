@@ -78,9 +78,9 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   results: {
-    fontFamily: font.serif,
-    fontSize: 32,
-    lineHeight: 40,
+    fontFamily: font.title,
+    fontSize: 28,
+    lineHeight: 36,
     color: colors.ink,
   },
 });

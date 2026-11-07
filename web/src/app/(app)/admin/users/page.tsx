@@ -29,10 +29,9 @@ export default async function AdminUsersPage({
   const result = await adminListUsers(session, query, pageSize, (page - 1) * pageSize, { role, type });
 
   return (
-    <main className="mx-auto flex w-full max-w-[1200px] flex-col gap-16 px-4 py-6 md:px-8 md:py-8">
+    <main className="mx-auto flex w-full max-w-[1200px] flex-col gap-10 px-4 py-6 md:px-8 md:py-8">
       <PageHeader
         title="Users"
-        lede="Search and review accounts. Creating and changing them arrives in Phase 2."
         action={
           <Button asChild>
             <Link href="/admin/users/new">Create user</Link>

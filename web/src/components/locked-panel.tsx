@@ -13,8 +13,8 @@ const copy: Record<string, string> = {
 export function LockedPanel({ title }: { title: string }) {
   return (
     <main className="mx-auto w-full max-w-[1200px] px-4 py-6 md:px-8 md:py-8">
-      <h1 className="serif text-[32px] leading-10">{title}</h1>
-      <div className="mt-6 max-w-[720px] rounded-xl bg-card p-8">
+      <h1 className="page-title">{title}</h1>
+      <div className="mt-6 max-w-[560px]">
         <Lock size={24} strokeWidth={1.5} aria-hidden className="text-muted-foreground" />
         <h2 className="section-title mt-4">Create a free account to unlock this</h2>
         <p className="mt-2 max-w-[560px] text-sm leading-5 text-muted-foreground md:text-base md:leading-normal">

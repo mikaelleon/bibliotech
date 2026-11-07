@@ -13,7 +13,7 @@
     "android": {
       "package": "app.elibrary",
       "adaptiveIcon": {
-        "backgroundColor": "#F2F0E6",
+        "backgroundColor": "#F6F6F5",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
@@ -31,7 +31,7 @@
         {
           "image": "./assets/images/splash-icon.png",
           "resizeMode": "contain",
-          "backgroundColor": "#F2F0E6"
+          "backgroundColor": "#F6F6F5"
         }
       ]
     ],

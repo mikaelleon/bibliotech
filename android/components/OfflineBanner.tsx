@@ -1,24 +1,14 @@
+import { useNetworkState } from "expo-network";
 import { WifiOff } from "lucide-react-native";
-import { useEffect, useState } from "react";
 import { View } from "react-native";
 
 import { Banner } from "@/components/Banner";
 import { colors } from "@/theme/tokens";
 
+/** Native network state. The web `online` event is not a function in React Native. */
 export function OfflineBanner() {
-  const [offline, setOffline] = useState(false);
-
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    const sync = () => setOffline(window.navigator.onLine === false);
-    sync();
-    window.addEventListener("online", sync);
-    window.addEventListener("offline", sync);
-    return () => {
-      window.removeEventListener("online", sync);
-      window.removeEventListener("offline", sync);
-    };
-  }, []);
+  const network = useNetworkState();
+  const offline = network.isConnected === false || network.isInternetReachable === false;
 
   if (!offline) return null;
 

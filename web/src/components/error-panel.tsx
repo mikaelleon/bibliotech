@@ -14,7 +14,7 @@ export function ErrorPanel({
 }) {
   return (
     <div className="mx-auto flex w-full max-w-[720px] flex-col items-start px-4 py-16 md:px-8">
-      <h1 className="serif text-[32px] leading-10 font-light">{title}</h1>
+      <h1 className="page-title">{title}</h1>
       <p className="mt-2 max-w-[560px] text-base leading-6 text-muted-foreground">{children}</p>
       {action ? <div className="mt-6">{action}</div> : null}
     </div>

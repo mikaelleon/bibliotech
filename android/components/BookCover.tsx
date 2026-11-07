@@ -52,7 +52,7 @@ export function BookCover({ book, decorative = false }: BookCoverProps) {
             <Text
               style={{
                 color: palette.color,
-                fontFamily: font.serifText,
+                fontFamily: font.serif,
                 fontSize: width * 0.12,
                 lineHeight: width * 0.12 * 1.1,
               }}

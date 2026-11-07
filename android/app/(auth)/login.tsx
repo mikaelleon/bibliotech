@@ -111,9 +111,9 @@ const styles = StyleSheet.create({
   },
   title: {
     marginTop: 32,
-    fontFamily: font.serif,
-    fontSize: 32,
-    lineHeight: 40,
+    fontFamily: font.title,
+    fontSize: 28,
+    lineHeight: 36,
     color: colors.ink,
   },
   lede: {

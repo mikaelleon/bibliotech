@@ -36,7 +36,7 @@ export function ForgotPasswordForm() {
   if (sent) {
     return (
       <div className="mt-8">
-        <h1 className="serif text-[32px] leading-10 font-light">Check your email</h1>
+        <h1 className="page-title">Check your email</h1>
         <p className="mt-2 text-base leading-6 text-muted-foreground">
           If an account exists for {sent}, a reset link is on its way.
         </p>
@@ -60,7 +60,7 @@ export function ForgotPasswordForm() {
 
   return (
     <>
-    <h1 className="serif mt-8 text-[32px] leading-10 font-light">Reset your password</h1>
+    <h1 className="page-title mt-8">Reset your password</h1>
     <p className="mt-2 text-base leading-6 text-muted-foreground">
       {"Enter the email on your account. You'll get the same message either way."}
     </p>

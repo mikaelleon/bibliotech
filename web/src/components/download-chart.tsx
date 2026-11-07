@@ -30,13 +30,13 @@ export function DownloadChart({
   const last = points[points.length - 1];
 
   return (
-    <section className="rounded-xl bg-card p-8" aria-labelledby="downloads-30">
+    <section aria-labelledby="downloads-30">
       <h2 id="downloads-30" className="text-xl leading-7 font-medium">
         Downloads in the last {days} days
       </h2>
       {max === 0 ? (
         <p className="mt-6 text-sm leading-5 text-muted-foreground">
-          No downloads yet. They will appear here as readers download books.
+          No downloads yet
         </p>
       ) : (
         <div className="mt-6">

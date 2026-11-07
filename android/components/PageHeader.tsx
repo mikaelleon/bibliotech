@@ -23,9 +23,9 @@ const styles = StyleSheet.create({
     gap: space[8],
   },
   title: {
-    fontFamily: font.serif,
-    fontSize: 32,
-    lineHeight: 40,
+    fontFamily: font.title,
+    fontSize: 28,
+    lineHeight: 36,
     color: colors.ink,
   },
   lede: {

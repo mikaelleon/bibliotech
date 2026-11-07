@@ -11,7 +11,7 @@ export default async function RegisterPage() {
   return (
     <main className="mx-auto max-w-sm px-4 pt-12 pb-16 md:pt-16">
       <Wordmark />
-      <h1 className="serif mt-8 text-[32px] leading-10">Create an account</h1>
+      <h1 className="page-title mt-8">Create an account</h1>
       <p className="mt-2 text-muted-foreground">Free. Get 10 downloads, a library and favorites.</p>
       <RegisterForm />
       <p className="mt-6 text-sm leading-5 text-muted-foreground">

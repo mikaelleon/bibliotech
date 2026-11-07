@@ -1,17 +1,17 @@
 # E-Library AI tokens
 
-Shared values. Web maps these to CSS variables. Android maps them in `theme/tokens.ts`. Light is the shipped theme. Dark values exist so a later toggle can switch them. No toggle is built.
+Shared values. Web maps these to CSS variables. Android maps them in `theme/tokens.ts`. Light is the default. The theme toggle switches to dark.
 
 ## Color
 
 | Token | Light | Dark | Use |
 |---|---|---|---|
-| `bg` | `#F2F0E6` | `#14161D` | Page background |
-| `surface` | `#FBFAF5` | `#1C1F28` | Panels, cards, inputs, drawer, tab bar |
-| `ink` | `#1F2330` | `#ECE9DD` | Headings and body |
-| `muted` | `#6F6E66` | `#A3A299` | Captions, metadata, placeholders |
-| `line` | `#E2DFD2` | `#2E313C` | 1px borders and dividers |
-| `primary` | `#20232F` | `#ECE9DD` | Main buttons, selected chip, avatar |
+| `bg` | `#F6F6F5` | `#14161D` | Page background |
+| `surface` | `#FFFFFF` | `#1C1F28` | Panels, cards, inputs, drawer, tab bar |
+| `ink` | `#1F2330` | `#ECECEA` | Headings and body |
+| `muted` | `#63646B` | `#A3A3A0` | Captions, metadata, placeholders |
+| `line` | `#E4E4E2` | `#2E313C` | 1px borders and dividers |
+| `primary` | `#20232F` | `#ECECEA` | Main buttons, selected chip, avatar |
 | `primary` hover / pressed | `#343848` | `#FFFFFF` | Primary pressed or hovered |
 | `on-primary` | `#FFFFFF` | `#14161D` | Text and icons on primary |
 | `accent` | `#E2504F` | `#E2504F` | Active rail or tab item, progress bars |
@@ -24,11 +24,11 @@ Shared values. Web maps these to CSS variables. Android maps them in `theme/toke
 | Cover | `0 4px 12px rgba(31,35,48,.2)` | `0 4px 12px rgba(0,0,0,.5)` |
 | Overlay | `0 8px 32px rgba(31,35,48,.2)` | `0 8px 32px rgba(0,0,0,.6)` |
 
-Dark covers also draw a 1px hairline: `0 0 0 1px rgba(236,233,221,.12)`.
+Dark covers also draw a 1px hairline: `0 0 0 1px rgba(236,236,234,.12)`.
 
 ## Type
 
-Inter 400 and 500 for UI. Newsreader 300 and 400 for headings and cover titles. Headings: Newsreader 300, letter-spacing `-0.01em`.
+Inter 400 and 500 for UI. Page titles: Inter 600, 28 / 36. Newsreader is for books only: cover titles and the book detail title. No negative letter-spacing.
 
 | Role | Size / line-height |
 |---|---|

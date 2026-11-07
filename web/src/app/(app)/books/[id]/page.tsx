@@ -33,7 +33,7 @@ export default async function BookPage({ params }: { params: Promise<{ id: strin
           <BookCover book={book} transitionName={`book-${book.id}`} />
         </div>
         <div className="min-w-0 flex-1">
-          <h1 className="serif text-[32px] leading-10 font-light md:text-[40px] md:leading-[46px]">{book.title}</h1>
+          <h1 className="serif text-[32px] leading-10 font-normal md:text-[40px] md:leading-[46px]">{book.title}</h1>
           <p className="mt-1 text-muted-foreground md:text-xl md:leading-7">{book.author}</p>
           <DefinitionList
             className="mt-4 md:mt-6"

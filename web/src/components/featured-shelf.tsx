@@ -26,9 +26,9 @@ export function FeaturedShelf({
   const neighbors = books.slice(index + 1, index + 4);
 
   return (
-    <section className="rounded-xl bg-card p-8" aria-labelledby="featured-heading">
+    <section aria-labelledby="featured-heading">
       <div className="max-w-xl">
-        <h1 id="featured-heading" className="serif text-[32px] leading-10 md:text-[40px] md:leading-[46px]">
+        <h1 id="featured-heading" className="page-title">
           Featured books
         </h1>
         <Button asChild className="mt-4 md:mt-6">
@@ -59,8 +59,8 @@ export function FeaturedShelf({
         ))}
       </ul>
 
-      <div className="mt-4 flex items-center gap-4 md:mt-6">
-        <div className="hidden gap-2 md:flex">
+      <div className="mt-6 hidden items-center gap-4 md:flex">
+        <div className="flex gap-2">
           <Button
             type="button"
             variant="outline"
@@ -82,9 +82,6 @@ export function FeaturedShelf({
             <ChevronRight size={20} strokeWidth={1.5} />
           </Button>
         </div>
-        <p className="text-sm leading-5 text-brand-text">
-          {index + 1} / {books.length} books
-        </p>
       </div>
     </section>
   );

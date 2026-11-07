@@ -3,7 +3,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 export default function AdminLoading() {
   return (
     <main
-      className="mx-auto flex w-full max-w-[1200px] flex-col gap-16 px-4 py-6 md:px-8 md:py-8"
+      className="mx-auto flex w-full max-w-[1200px] flex-col gap-10 px-4 py-6 md:px-8 md:py-8"
       role="status"
       aria-label="Loading admin"
     >
@@ -17,9 +17,9 @@ export default function AdminLoading() {
           <Skeleton className="h-11 w-24" />
         </div>
       </div>
-      <div className="grid grid-cols-2 overflow-hidden rounded-xl border border-border md:grid-cols-4">
-        {Array.from({ length: 4 }, (_, index) => (
-          <div key={index} className="px-6 py-6">
+      <div className="grid grid-cols-2 gap-x-12 gap-y-8 md:grid-cols-3">
+        {Array.from({ length: 3 }, (_, index) => (
+          <div key={index}>
             <Skeleton className="h-4 w-24" />
             <Skeleton className="mt-3 h-10 w-16" />
             <Skeleton className="mt-2 h-3 w-28" />

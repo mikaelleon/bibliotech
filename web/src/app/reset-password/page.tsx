@@ -16,7 +16,7 @@ export default async function ResetPasswordPage({
       <Wordmark />
       {valid ? (
         <>
-          <h1 className="serif mt-8 text-[32px] leading-10 font-light">Choose a new password</h1>
+          <h1 className="page-title mt-8">Choose a new password</h1>
           <p className="mt-2 text-base leading-6 text-muted-foreground">
             Use 8 or more characters. This page does not email a link in Phase 1.
           </p>

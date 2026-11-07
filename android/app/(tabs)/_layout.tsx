@@ -16,21 +16,23 @@ export const unstable_settings = {
 export default function TabLayout() {
   const { session } = useSession();
   const path = usePathname();
-
-  if (session.kind === "none") return <Redirect href="/login" />;
-  if (session.kind === "user" && session.role === "admin") return <Redirect href="/admin-notice" />;
-
-  const showAssistant = path === "/browse";
+  const blocked = session.kind === "none" || (session.kind === "user" && session.role === "admin");
+  const showAssistant = !blocked && path === "/browse";
 
   return (
     <View style={styles.root}>
-      <SafeAreaView edges={["top"]} style={styles.chrome}>
-        <ShellHeader />
-        <OfflineBanner />
-      </SafeAreaView>
+      {session.kind === "none" ? <Redirect href="/login" /> : null}
+      {session.kind === "user" && session.role === "admin" ? <Redirect href="/admin-notice" /> : null}
+      {blocked ? null : (
+        <SafeAreaView edges={["top"]} style={styles.chrome}>
+          <ShellHeader />
+          <OfflineBanner />
+        </SafeAreaView>
+      )}
       <View style={styles.body}>
         <Tabs
-          tabBar={() => <TabBar />}
+          backBehavior="initialRoute"
+          tabBar={() => (blocked ? null : <TabBar />)}
           screenOptions={{ headerShown: false }}
         >
           <Tabs.Screen name="browse" options={{ title: "Browse" }} />

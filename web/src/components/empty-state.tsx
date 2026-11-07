@@ -18,10 +18,10 @@ export function EmptyState({
   role?: "alert";
 }) {
   return (
-    <div role={role} className={cn("max-w-[720px] rounded-xl bg-card p-8", className)}>
+    <div role={role} className={cn("max-w-[560px] py-8", className)}>
       {icon}
       <h2 className="section-title mt-4">{title}</h2>
-      <p className="mt-2 max-w-[560px] text-muted-foreground">{children}</p>
+      <p className="mt-2 text-muted-foreground">{children}</p>
       {action ? <div className="mt-6">{action}</div> : null}
     </div>
   );

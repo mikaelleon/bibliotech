@@ -36,7 +36,7 @@ export default async function AdminBooksPage({
   const visible = matches.slice((page - 1) * pageSize, page * pageSize);
 
   return (
-    <main className="mx-auto flex w-full max-w-[1200px] flex-col gap-16 px-4 py-6 md:px-8 md:py-8">
+    <main className="mx-auto flex w-full max-w-[1200px] flex-col gap-10 px-4 py-6 md:px-8 md:py-8">
       <PageHeader
         title="Books"
         lede={
@@ -44,7 +44,7 @@ export default async function AdminBooksPage({
             ? "Books missing a cover."
             : missing === "license"
               ? "Books missing a license."
-              : "The catalog. Saving a book arrives in Phase 2."
+              : undefined
         }
         action={
           <Button asChild>

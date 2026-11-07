@@ -27,11 +27,8 @@ export default async function AnalyticsPage({
   const downloads = await adminListDownloads(session, 25, 0);
 
   return (
-    <main className="mx-auto flex w-full max-w-[1200px] flex-col gap-16 px-4 py-6 md:px-8 md:py-8">
-      <PageHeader
-        title="Analytics"
-        lede="Downloads over time are live. User growth and ratings arrive in Phase 2."
-      />
+    <main className="mx-auto flex w-full max-w-[1200px] flex-col gap-10 px-4 py-6 md:px-8 md:py-8">
+      <PageHeader title="Analytics" />
       <nav aria-label="Date range" className="flex gap-2">
         {ranges.map((value) => {
           const current = value === days;
@@ -51,8 +48,8 @@ export default async function AnalyticsPage({
         })}
       </nav>
       <DownloadChart points={stats.downloadsPerDay} days={days} />
-      <div className="grid gap-6 md:grid-cols-2">
-        <section className="rounded-xl bg-card p-8" aria-labelledby="by-category">
+      <div className="grid gap-6 md:grid-cols-2 md:gap-12">
+        <section aria-labelledby="by-category">
           <h2 id="by-category" className="text-xl leading-7 font-medium">
             Books by category
           </h2>
@@ -60,12 +57,12 @@ export default async function AnalyticsPage({
             <BarList items={stats.booksByCategory} />
           </div>
         </section>
-        <section className="rounded-xl bg-card p-8" aria-labelledby="most-downloaded">
+        <section aria-labelledby="most-downloaded">
           <h2 id="most-downloaded" className="text-xl leading-7 font-medium">
             Top downloaded books
           </h2>
           {stats.mostDownloaded.length === 0 ? (
-            <p className="mt-6 text-sm leading-5 text-muted-foreground">No downloads yet.</p>
+            <p className="mt-6 text-sm leading-5 text-muted-foreground">No downloads yet</p>
           ) : (
             <ol className="mt-6 grid gap-3">
               {stats.mostDownloaded.map((item, index) => (
@@ -80,21 +77,6 @@ export default async function AnalyticsPage({
           )}
         </section>
       </div>
-      <section className="rounded-xl bg-card p-8" aria-labelledby="audience">
-        <h2 id="audience" className="text-xl leading-7 font-medium">
-          Guests and registered users
-        </h2>
-        <p className="mt-4 text-sm leading-5 text-muted-foreground">
-          {stats.registeredUsers} registered accounts. {stats.guestSessions} guest sessions stored.
-          Anonymous sessions are not stored yet.
-        </p>
-      </section>
-      <section className="rounded-xl bg-card p-8" aria-labelledby="later">
-        <h2 id="later" className="text-xl leading-7 font-medium">
-          New users and ratings
-        </h2>
-        <p className="mt-4 text-sm leading-5 text-muted-foreground">Arrives in Phase 2.</p>
-      </section>
       <section aria-labelledby="download-activity" className="grid gap-6">
         <h2 id="download-activity" className="text-xl leading-7 font-medium">
           Download activity
