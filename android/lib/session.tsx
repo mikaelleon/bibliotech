@@ -1,80 +1,42 @@
+import type { Session as AuthSession } from "@supabase/supabase-js";
 import * as SecureStore from "expo-secure-store";
-import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { AppState, Platform } from "react-native";
 
+import { disposableMessage, isDisposableEmail } from "@/lib/disposable-domains";
+import { GUEST_LIMIT, USER_LIMIT } from "@/lib/quota";
+import { supabase } from "@/lib/supabase";
 import type { Session } from "@/lib/types";
-import {
-  clearFailures,
-  emailTaken,
-  findUser,
-  lockedFor,
-  passwordProblem,
-  recordFailure,
-  userByEmail,
-  users,
-} from "@/lib/users";
+import { clearFailures, lockedFor, PASSWORD_MAX, passwordProblem, recordFailure } from "@/lib/users";
 
-const librarySeed: Record<string, string[]> = {
-  "dane@elibrary.local": ["pride-and-prejudice", "frankenstein", "meditations"],
-};
+/**
+ * Small flags kept next to the Supabase session (which lib/supabase.ts stores encrypted).
+ * - visitor: "Continue as guest" without an account.
+ * - short: signed in without "Keep me signed in"; the next cold start signs out.
+ */
+const VISITOR_KEY = "elib.visitor";
+const SHORT_KEY = "elib.short";
 
-const favoriteSeed: Record<string, string[]> = {
-  "dane@elibrary.local": ["dracula", "walden"],
-};
-
-/** Stored in the device keystore. Only "keep me signed in" sessions and guests are written. */
-const STORE_KEY = "elib.session";
-const REMEMBER_MS = 30 * 24 * 60 * 60 * 1000;
-
-type Saved = { kind: "guest" | "user"; email?: string; exp: number };
-
-async function save(value: Saved | null) {
+async function readFlag(key: string): Promise<boolean> {
   try {
-    if (value) await SecureStore.setItemAsync(STORE_KEY, JSON.stringify(value));
-    else await SecureStore.deleteItemAsync(STORE_KEY);
+    if (Platform.OS === "web") return globalThis.localStorage?.getItem(key) === "1";
+    return (await SecureStore.getItemAsync(key)) === "1";
   } catch {
-    // Storage is a convenience. A failed write only means signing in again next launch.
+    return false;
   }
 }
 
-async function load(): Promise<Saved | null> {
+async function writeFlag(key: string, on: boolean): Promise<void> {
   try {
-    const raw = await SecureStore.getItemAsync(STORE_KEY);
-    if (!raw) return null;
-    const parsed = JSON.parse(raw) as Saved;
-    if (typeof parsed.exp !== "number" || parsed.exp <= Date.now()) return null;
-    return parsed;
+    if (Platform.OS === "web") {
+      if (on) globalThis.localStorage?.setItem(key, "1");
+      else globalThis.localStorage?.removeItem(key);
+      return;
+    }
+    if (on) await SecureStore.setItemAsync(key, "1");
+    else await SecureStore.deleteItemAsync(key);
   } catch {
-    return null;
-  }
-}
-
-/** Favorites and Library per reader, so they survive a restart. Keys allow only [A-Za-z0-9._-]. */
-type Shelves = { favorites: string[]; library: string[] };
-
-function shelfKey(email: string): string {
-  return `elib.shelves.${email.toLowerCase().replace(/[^a-z0-9._-]/g, "_")}`;
-}
-
-async function loadShelves(email: string): Promise<Shelves> {
-  const seed = { favorites: favoriteSeed[email] ?? [], library: librarySeed[email] ?? [] };
-  try {
-    const raw = await SecureStore.getItemAsync(shelfKey(email));
-    if (!raw) return seed;
-    const parsed = JSON.parse(raw) as Partial<Shelves>;
-    return {
-      favorites: Array.isArray(parsed.favorites) ? parsed.favorites : seed.favorites,
-      library: Array.isArray(parsed.library) ? parsed.library : seed.library,
-    };
-  } catch {
-    return seed;
-  }
-}
-
-async function saveShelves(email: string, shelves: Shelves) {
-  try {
-    await SecureStore.setItemAsync(shelfKey(email), JSON.stringify(shelves));
-  } catch {
-    // A failed write keeps this session's shelves in memory; they reset on the next launch.
+    // A failed write only changes what happens on the next launch.
   }
 }
 
@@ -94,84 +56,193 @@ function waitMessage(ms: number): string {
   return `Too many attempts. Try again in ${minutes} minute${minutes === 1 ? "" : "s"}.`;
 }
 
+type ShelfTable = "favorites" | "library_items";
+type SlugRow = { created_at: string; books: { slug: string } | { slug: string }[] | null };
+
+function slugOf(row: SlugRow): string | null {
+  const book = Array.isArray(row.books) ? row.books[0] : row.books;
+  return book?.slug ?? null;
+}
+
+/** Shelf rows, newest first for Library and oldest first for Favorites (same order as the web app). */
+async function loadShelf(table: ShelfTable, userId: string): Promise<SlugRow[]> {
+  const { data, error } = await supabase
+    .from(table)
+    .select("created_at, books!inner(slug)")
+    .eq("user_id", userId)
+    .order("created_at", { ascending: table === "favorites" });
+  if (error) throw error;
+  return (data ?? []) as SlugRow[];
+}
+
+async function bookIdForSlug(slug: string): Promise<string | null> {
+  const { data } = await supabase.from("books").select("id").eq("slug", slug).maybeSingle();
+  return data?.id ?? null;
+}
+
+/** Profile row plus the download count. RLS limits both to the signed-in user. */
+async function sessionFor(auth: AuthSession): Promise<Session | null> {
+  const id = auth.user.id;
+  const [{ data: profile }, { data: quota }] = await Promise.all([
+    supabase.from("profiles").select("display_name, role, email_verified_at").eq("id", id).maybeSingle(),
+    supabase.rpc("my_quota"),
+  ]);
+  if (!profile) return null;
+  const q = readQuota(quota, Boolean(profile.email_verified_at));
+  const email = auth.user.email ?? "";
+  return {
+    kind: "user",
+    id,
+    name: profile.display_name || email.split("@")[0] || "Reader",
+    email,
+    role: profile.role === "admin" ? "admin" : "user",
+    verified: Boolean(profile.email_verified_at),
+    downloadsUsed: q.used,
+    downloadLimit: q.limit,
+    resetsAt: q.resetsAt,
+  };
+}
+
+type QuotaRow = { used?: number; limit?: number; resetsAt?: string };
+
+/** my_quota() result, or the tier limit with nothing used when it can't be read. */
+function readQuota(value: unknown, verified: boolean): { used: number; limit: number; resetsAt: string | null } {
+  const row = (value ?? {}) as QuotaRow;
+  return {
+    used: typeof row.used === "number" ? row.used : 0,
+    limit: typeof row.limit === "number" ? row.limit : verified ? USER_LIMIT : GUEST_LIMIT,
+    resetsAt: typeof row.resetsAt === "string" ? row.resetsAt : null,
+  };
+}
+
 type SessionContextValue = {
   /** False until the saved session has been read on launch. */
   ready: boolean;
   session: Session;
   libraryIds: string[];
   favoriteIds: string[];
-  login: (
-    email: string,
-    password: string,
-    remember: boolean,
-  ) => { error: string } | { role: "user" | "admin" };
-  register: (name: string, email: string, password: string) => string | null;
+  login: (email: string, password: string, remember: boolean) => Promise<{ error: string } | { role: "user" | "admin" }>;
+  register: (name: string, email: string, password: string) => Promise<string | null>;
   continueAsGuest: () => void;
-  logout: () => void;
+  logout: () => Promise<void>;
   /** Sets the favorite to exactly `on`. `at` restores its old position (Undo). */
   setFavorite: (bookId: string, on: boolean, at?: number) => void;
   /** Adds the book to, or removes it from, Library. Never uses a download. */
   setInLibrary: (bookId: string, on: boolean, at?: number) => void;
-  rename: (name: string) => string | null;
-  changePassword: (password: string, confirm: string) => string | null;
+  rename: (name: string) => Promise<string | null>;
+  changePassword: (password: string, confirm: string) => Promise<string | null>;
 };
 
 const SessionContext = createContext<SessionContextValue | null>(null);
-
-function userSession(user: { name: string; email: string; role: "user" | "admin"; downloadsUsed: number }): Session {
-  return {
-    kind: "user",
-    name: user.name,
-    email: user.email,
-    role: user.role,
-    downloadsUsed: user.downloadsUsed,
-  };
-}
 
 export function SessionProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session>({ kind: "none" });
   const [libraryIds, setLibraryIds] = useState<string[]>([]);
   const [favoriteIds, setFavoriteIds] = useState<string[]>([]);
+  const [favoriteDates, setFavoriteDates] = useState<Record<string, string>>({});
   const [ready, setReady] = useState(false);
-  // Which reader the shelves in memory belong to, once they've been read from the device.
-  const [shelfOwner, setShelfOwner] = useState<string | null>(null);
+  // The account whose data is on screen, so a slow load for a previous account is ignored.
+  const owner = useRef<string | null>(null);
 
-  function restoreShelves(email: string) {
-    setShelfOwner(null);
-    void loadShelves(email).then((shelves) => {
-      setFavoriteIds(shelves.favorites);
-      setLibraryIds(shelves.library);
-      setShelfOwner(email);
-    });
-  }
+  const clearShelves = useCallback(() => {
+    setLibraryIds([]);
+    setFavoriteIds([]);
+    setFavoriteDates({});
+  }, []);
 
-  // Write the reader's shelves back whenever they change (after they've been loaded).
-  useEffect(() => {
-    if (session.kind !== "user" || shelfOwner !== session.email) return;
-    void saveShelves(session.email, { favorites: favoriteIds, library: libraryIds });
-  }, [favoriteIds, libraryIds, session, shelfOwner]);
+  const adopt = useCallback(
+    async (auth: AuthSession | null) => {
+      if (!auth) {
+        owner.current = null;
+        setSession((await readFlag(VISITOR_KEY)) ? { kind: "guest" } : { kind: "none" });
+        clearShelves();
+        return;
+      }
+      owner.current = auth.user.id;
+      const next = await sessionFor(auth);
+      if (owner.current !== auth.user.id) return;
+      if (!next) {
+        // Auth user without a profile row: treat as signed out rather than half signed in.
+        setSession({ kind: "none" });
+        clearShelves();
+        return;
+      }
+      setSession(next);
+      if (next.kind !== "user" || next.role === "admin") {
+        clearShelves();
+        return;
+      }
+      try {
+        const [library, favorites] = await Promise.all([
+          loadShelf("library_items", auth.user.id),
+          loadShelf("favorites", auth.user.id),
+        ]);
+        if (owner.current !== auth.user.id) return;
+        setLibraryIds(library.map(slugOf).filter((slug): slug is string => Boolean(slug)));
+        const favoriteSlugs = favorites.map((row) => [slugOf(row), row.created_at] as const);
+        setFavoriteIds(favoriteSlugs.map(([slug]) => slug).filter((slug): slug is string => Boolean(slug)));
+        setFavoriteDates(Object.fromEntries(favoriteSlugs.filter(([slug]) => slug)));
+      } catch {
+        // Shelves stay empty until the next sign-in or app start; reading still works.
+      }
+    },
+    [clearShelves],
+  );
 
   useEffect(() => {
     let live = true;
-    void load().then((saved) => {
-      if (!live) return;
-      if (saved?.kind === "guest") setSession({ kind: "guest" });
-      if (saved?.kind === "user" && saved.email) {
-        const user = userByEmail(saved.email);
-        if (user) {
-          setSession(userSession(user));
-          restoreShelves(user.email);
-        } else {
-          // The in-memory account store forgets new accounts on restart.
-          void save(null);
-        }
+    void (async () => {
+      // A short session (no "Keep me signed in") ends on the next cold start.
+      if (await readFlag(SHORT_KEY)) {
+        await supabase.auth.signOut({ scope: "local" });
+        await writeFlag(SHORT_KEY, false);
       }
-      setReady(true);
+      const { data } = await supabase.auth.getSession();
+      if (!live) return;
+      await adopt(data.session);
+      if (live) setReady(true);
+    })();
+
+    const { data: listener } = supabase.auth.onAuthStateChange((event, auth) => {
+      // Token refreshes keep the same account; only sign-in and sign-out change what's on screen.
+      if (event === "SIGNED_IN" || event === "SIGNED_OUT" || event === "USER_UPDATED") {
+        if (event === "SIGNED_IN" && auth?.user.id === owner.current) return;
+        // Run outside the auth callback: supabase-js warns against awaiting its calls inside it.
+        setTimeout(() => void adopt(auth), 0);
+      }
     });
+
+    // Coming back to the app (for example after opening the verification link in the browser)
+    // reloads the account, so the verified state and quota are current.
+    const foreground = AppState.addEventListener("change", (state) => {
+      if (state !== "active") return;
+      void supabase.auth.getSession().then(({ data }) => {
+        if (live && data.session) void adopt(data.session);
+      });
+    });
+
     return () => {
       live = false;
+      listener.subscription.unsubscribe();
+      foreground.remove();
     };
-  }, []);
+  }, [adopt]);
+
+  const persistShelf = useCallback(
+    async (table: ShelfTable, bookId: string, on: boolean, createdAt?: string): Promise<boolean> => {
+      if (session.kind !== "user") return false;
+      const id = await bookIdForSlug(bookId);
+      if (!id) return false;
+      if (on) {
+        const row = { user_id: session.id, book_id: id, ...(createdAt ? { created_at: createdAt } : {}) };
+        const { error } = await supabase.from(table).upsert(row, { onConflict: "user_id,book_id", ignoreDuplicates: true });
+        return !error;
+      }
+      const { error } = await supabase.from(table).delete().eq("user_id", session.id).eq("book_id", id);
+      return !error;
+    },
+    [session],
+  );
 
   const value = useMemo<SessionContextValue>(
     () => ({
@@ -179,89 +250,119 @@ export function SessionProvider({ children }: { children: ReactNode }) {
       session,
       libraryIds,
       favoriteIds,
-      login(email, password, remember) {
+      async login(email, password, remember) {
         if (!email.trim() || !password) return { error: "Enter your email and password." };
         const wait = lockedFor(email);
         if (wait) return { error: waitMessage(wait) };
-        const user = findUser(email, password);
-        if (!user) {
+        if (password.length > PASSWORD_MAX) return { error: "Incorrect email or password." };
+        const { data, error } = await supabase.auth.signInWithPassword({ email: email.trim(), password });
+        if (error || !data.session) {
           recordFailure(email);
+          if (error?.status === 429) return { error: "Too many attempts. Try again in a few minutes." };
+          if (error && !error.status) return { error: "Couldn't reach the server. Check your connection." };
           return { error: "Incorrect email or password." };
         }
         clearFailures(email);
-        setSession(userSession(user));
-        restoreShelves(user.email);
-        void save(remember ? { kind: "user", email: user.email, exp: Date.now() + REMEMBER_MS } : null);
-        return { role: user.role };
+        await writeFlag(VISITOR_KEY, false);
+        await writeFlag(SHORT_KEY, !remember);
+        const next = await sessionFor(data.session);
+        if (!next || next.kind !== "user") return { error: "Couldn't load your account. Try again." };
+        return { role: next.role };
       },
-      register(name, email, password) {
+      async register(name, email, password) {
         const displayName = name.trim();
         if (!displayName) return "Enter a display name.";
         if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
           return "Enter a valid email, like name@example.com.";
         }
+        if (isDisposableEmail(email)) return disposableMessage;
         const problem = passwordProblem(password);
         if (problem) return problem;
-        if (emailTaken(email)) return "An account with that email already exists.";
-        const stored = {
-          name: displayName,
+        const { data, error } = await supabase.auth.signUp({
           email: email.trim(),
           password,
-          role: "user" as const,
-          downloadsUsed: 0,
-        };
-        users.push(stored);
-        setSession(userSession(stored));
-        setLibraryIds([]);
-        setFavoriteIds([]);
-        setShelfOwner(stored.email);
-        void save({ kind: "user", email: stored.email, exp: Date.now() + REMEMBER_MS });
+          options: { data: { display_name: displayName } },
+        });
+        if (error) {
+          if (error.code === "user_already_exists" || error.code === "email_exists") {
+            return "An account with that email already exists.";
+          }
+          if (error.code === "weak_password") return error.message;
+          if (!error.status) return "Couldn't reach the server. Check your connection.";
+          return "We couldn't create your account. Try again in a moment.";
+        }
+        // Confirm email is off on the project, so sign-up returns a session straight away.
+        if (!data.session) return "Your account was created. Log in to continue.";
+        await writeFlag(VISITOR_KEY, false);
+        await writeFlag(SHORT_KEY, false);
         return null;
       },
       continueAsGuest() {
+        void (async () => {
+          await supabase.auth.signOut({ scope: "local" });
+          await writeFlag(VISITOR_KEY, true);
+          setSession({ kind: "guest" });
+          clearShelves();
+        })();
         setSession({ kind: "guest" });
-        setLibraryIds([]);
-        setFavoriteIds([]);
-        void save({ kind: "guest", exp: Date.now() + REMEMBER_MS });
       },
-      logout() {
+      async logout() {
+        await writeFlag(VISITOR_KEY, false);
+        await writeFlag(SHORT_KEY, false);
+        await supabase.auth.signOut({ scope: "local" });
+        owner.current = null;
         setSession({ kind: "none" });
-        setShelfOwner(null);
-        setLibraryIds([]);
-        setFavoriteIds([]);
-        void save(null);
+        clearShelves();
       },
-      setFavorite(bookId: string, on: boolean, at?: number) {
+      setFavorite(bookId, on, at) {
         if (session.kind !== "user") return;
+        const before = favoriteIds;
+        // Undo puts the row back at its old position: favorites sort by created_at.
+        let createdAt: string | undefined;
+        if (on && at !== undefined && at < favoriteIds.length) {
+          const after = Date.parse(favoriteDates[favoriteIds[at]] ?? "");
+          const prior = at > 0 ? Date.parse(favoriteDates[favoriteIds[at - 1]] ?? "") : after - 2;
+          if (Number.isFinite(after) && Number.isFinite(prior)) {
+            createdAt = new Date(Math.floor((prior + after) / 2)).toISOString();
+          }
+        }
         setFavoriteIds((current) => setIn(current, bookId, on, at));
+        const stamp = createdAt ?? new Date().toISOString();
+        if (on) setFavoriteDates((current) => ({ ...current, [bookId]: stamp }));
+        void persistShelf("favorites", bookId, on, createdAt).then((ok) => {
+          if (!ok) setFavoriteIds(before);
+        });
       },
-      setInLibrary(bookId: string, on: boolean, at?: number) {
+      setInLibrary(bookId, on, at) {
         if (session.kind !== "user") return;
+        const before = libraryIds;
         setLibraryIds((current) => setIn(current, bookId, on, at));
+        void persistShelf("library_items", bookId, on).then((ok) => {
+          if (!ok) setLibraryIds(before);
+        });
       },
-      rename(name: string) {
+      async rename(name) {
         const trimmed = name.trim();
         if (!trimmed) return "Enter a display name.";
-        setSession((current) => {
-          if (current.kind !== "user") return current;
-          const stored = users.find((item) => item.email === current.email);
-          if (stored) stored.name = trimmed;
-          return { ...current, name: trimmed };
-        });
+        if (session.kind !== "user") return "Log in to change your name.";
+        // Column grants allow display_name only; role can't be written from the app.
+        const { error } = await supabase.from("profiles").update({ display_name: trimmed }).eq("id", session.id);
+        if (error) return "We couldn't save your name. Try again.";
+        setSession((current) => (current.kind === "user" ? { ...current, name: trimmed } : current));
         return null;
       },
-      changePassword(password: string, confirm: string) {
+      async changePassword(password, confirm) {
         const problem = passwordProblem(password);
         if (problem) return problem;
         if (password !== confirm) return "Those passwords don't match.";
-        if (session.kind === "user") {
-          const stored = users.find((item) => item.email === session.email);
-          if (stored) stored.password = password;
-        }
-        return null;
+        const { error } = await supabase.auth.updateUser({ password });
+        if (!error) return null;
+        if (error.code === "same_password") return "Choose a password you haven't used here before.";
+        if (error.code === "weak_password") return error.message;
+        return "We couldn't change your password. Try again.";
       },
     }),
-    [ready, session, libraryIds, favoriteIds],
+    [ready, session, libraryIds, favoriteIds, favoriteDates, clearShelves, persistShelf],
   );
 
   return <SessionContext.Provider value={value}>{children}</SessionContext.Provider>;

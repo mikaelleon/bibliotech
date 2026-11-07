@@ -42,3 +42,27 @@ Known follow-ups for the Phase 2 migration: `library_items` (from `002`) keeps t
 - Execute on all three is revoked from `anon` and `public` and granted to `authenticated`. Each function still raises `not allowed` when `is_admin()` is false.
 
 The role revoke and the restrictive update policy stay in `002`. `003` does not weaken them.
+
+`supabase/migrations/20261107140322_catalog_slugs.sql` adds `books.slug` (unique, lowercase words joined by hyphens, not null) and loads the 19 Phase 1 books. The apps address books by slug, so `library_items` and `favorites` rows join `books` to read it.
+
+`supabase/migrations/20261107141845_email_verified_at.sql` adds `profiles.email_verified_at`. Null means the Guest tier; set means Registered. Only the server writes it.
+
+`supabase/migrations/20261107142501_quota_and_verification.sql`:
+
+| Object | What it does | Who can call or read it |
+|---|---|---|
+| `quota_limits (tier, max_books)` | `guest = 5`, `registered = 10`. The only place the limits live | No client access |
+| `account_tier(uid)` | `admin`, `registered` (email verified) or `guest` | Server functions only |
+| `quota_period(anchor, now)` | Monthly window from the registration time, in UTC. Months are added to the anchor itself, so Jan 31 renews Feb 28 (or 29), then Mar 31 | `authenticated`, `service_role` |
+| `quota_status(uid)` | `{ tier, used, limit, periodStart, resetsAt }`. `used` = books first downloaded in the current period | `service_role` |
+| `my_quota()` | `quota_status` for the caller (`auth.uid()`); never takes an id | `authenticated` |
+| `downloads` | Reshaped: one row per (user, book) with `first_downloaded_at`, `last_downloaded_at`, `times_downloaded`, `last_device_label` | Select own rows (admins: all). No client writes |
+| `request_download(user, book, device, confirm_repeat)` | The only writer of `downloads`. Per-user advisory lock; statuses `forbidden`, `not_found`, `not_available`, `already_downloaded`, `repeat_ok`, `quota_exceeded`, `ok` | `service_role` |
+| `email_verifications` | One row per link: SHA-256 `token_hash`, `email`, `expires_at`, `used_at` | No client access |
+| `verify_email_token(hash)` | Checks and uses a token in one transaction; sets `email_verified_at`. Statuses `verified`, `already_verified`, `invalid`, `used`, `expired`, `email_changed` | `service_role` |
+| Trigger `on_auth_user_email_changed` | A changed email clears `email_verified_at` and voids open links | Runs on `auth.users` |
+| `admin_stats()` | Adds `guestUsers` and `repeatDownloads`; per-day counts use `first_downloaded_at` | `authenticated`, refuses non-admins |
+| `admin_list_users(search, lim, off)` | Adds `email_verified_at`, `tier`, `downloads_used` (this period), `download_limit`, `resets_at` | `authenticated`, refuses non-admins |
+| `admin_list_downloads(lim, off)` | One row per (user, book) with first and last dates and `times_downloaded` | `authenticated`, refuses non-admins |
+
+It also removes the `anon` grant on `library_items` and recreates `is_admin()` with `search_path = ''`. Every function in it uses `search_path = ''`.

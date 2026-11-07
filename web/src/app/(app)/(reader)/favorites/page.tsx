@@ -1,15 +1,12 @@
 import { Heart } from "lucide-react";
 import Link from "next/link";
-import { Suspense } from "react";
 
-import { CatalogSort } from "@/components/catalog-sort";
+import { SortedShelf } from "@/components/sorted-shelf";
 import { EmptyState } from "@/components/empty-state";
-import { ShelfCount, ShelfGrid } from "@/components/shelf-grid";
+import { ShelfCount } from "@/components/shelf-grid";
 import { LockedPanel } from "@/components/locked-panel";
-import { PageHeader } from "@/components/page-header";
 import { SuggestedBooks } from "@/components/suggested-books";
 import { Button } from "@/components/ui/button";
-import { sortBooks, type BookSort } from "@/lib/books";
 import { listFavorites } from "@/lib/records";
 import { getSession } from "@/lib/session";
 
@@ -30,24 +27,18 @@ export default async function FavoritesPage({
   if (session.kind !== "user") return <LockedPanel title="Favorites" />;
 
   const params = await searchParams;
-  const sort: BookSort | "saved" = params.sort === "title" || params.sort === "author" ? params.sort : "saved";
-  const saved = await listFavorites(session.email);
-  const books = sort === "saved" ? saved : sortBooks(saved, sort);
+  const sort = params.sort === "title" || params.sort === "author" ? params.sort : "saved";
+  const saved = await listFavorites(session.id);
 
   return (
     <main className="mx-auto flex w-full max-w-[1200px] flex-col gap-8 px-4 py-6 md:px-8 md:py-8">
-      <PageHeader
+      <SortedShelf
         title="Favorites"
         lede={<ShelfCount shelf="favorites" />}
-        action={
-          <Suspense>
-            <CatalogSort value={sort} options={sortOptions} />
-          </Suspense>
-        }
-      />
-      <ShelfGrid
+        books={saved}
+        sort={sort}
+        options={sortOptions}
         shelf="favorites"
-        books={books}
         empty={
           <>
             <EmptyState

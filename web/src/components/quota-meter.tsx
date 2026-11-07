@@ -9,7 +9,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { leftLabel, quotaFor } from "@/lib/quota";
+import { leftLabel, quotaFor, quotaNote } from "@/lib/quota";
 import type { Session } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
@@ -52,18 +52,14 @@ export function QuotaMeter({ session }: { session: Session }) {
           <i className="bar-grow block h-full bg-brand" style={{ width: percent }} />
         </div>
         <p className="mt-3 text-sm leading-5 text-muted-foreground">
-          {quota.guest
-            ? `A free account raises the limit to 10 and keeps a library and favorites.`
-            : quota.left === 0
-              ? "You've reached your limit."
-              : `Registered accounts include ${quota.limit} downloads.`}
+          {quota.guest ? "A free account keeps a library and favorites." : quotaNote(quota)}
         </p>
         <p className="mt-2 text-xs leading-4 text-muted-foreground">Downloading opens in a later update.</p>
         {quota.guest ? (
           // Menu items, so arrow keys reach them. Plain links inside a menu can't be tabbed to.
           <div className="-mx-2 mt-3 grid">
             <DropdownMenuItem asChild className="font-medium text-foreground">
-              <Link href="/register">Register for 10 downloads</Link>
+              <Link href="/register">Create a free account</Link>
             </DropdownMenuItem>
             <DropdownMenuItem asChild className="text-muted-foreground">
               <Link href="/login">Log in</Link>

@@ -1,17 +1,16 @@
 import { ResetPasswordForm } from "@/components/reset-password-form";
 import { Wordmark } from "@/components/wordmark";
-import { readResetToken } from "@/lib/reset-token";
+import { getSession } from "@/lib/session";
 
-// The token sits in the URL; keep it out of Referer headers sent to other sites.
 export const metadata = { title: "Choose a new password", referrer: "no-referrer" as const };
 
-export default async function ResetPasswordPage({
-  searchParams,
-}: {
-  searchParams: Promise<{ token?: string }>;
-}) {
-  const params = await searchParams;
-  const valid = Boolean(await readResetToken(params.token));
+/**
+ * The reset email links to /auth/callback, which signs the user in and sends them here.
+ * Without that session the link has expired or was already used.
+ */
+export default async function ResetPasswordPage() {
+  const session = await getSession();
+  const valid = session.kind === "user";
 
   return (
     <main className="mx-auto max-w-sm px-4 pt-12 pb-16 md:pt-16">
@@ -20,11 +19,11 @@ export default async function ResetPasswordPage({
         <>
           <h1 className="page-title mt-8">Choose a new password</h1>
           <p className="mt-2 text-base leading-6 text-muted-foreground">
-            Use 8 or more characters. This link works once and expires 30 minutes after it was sent.
+            Use 8 or more characters. The link in your email works once.
           </p>
         </>
       ) : null}
-      <ResetPasswordForm token={valid ? (params.token ?? null) : null} />
+      <ResetPasswordForm token={valid ? "session" : null} />
     </main>
   );
 }

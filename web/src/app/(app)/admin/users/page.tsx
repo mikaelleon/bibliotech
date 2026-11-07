@@ -1,15 +1,10 @@
 import Link from "next/link";
 
-import { AdminUsersFilters } from "@/components/admin-users-filters";
-import { AdminUsersTable } from "@/components/admin-users-table";
-import { EmptyRow } from "@/components/empty-row";
+import { AdminUsersBrowser } from "@/components/admin-users-browser";
 import { PageHeader } from "@/components/page-header";
-import { Pagination } from "@/components/pagination";
 import { Button } from "@/components/ui/button";
 import { adminListUsers, isAdminSession } from "@/lib/admin";
 import { getSession } from "@/lib/session";
-
-const pageSize = 25;
 
 export const metadata = { title: "Users" };
 
@@ -27,7 +22,7 @@ export default async function AdminUsersPage({
   const type = params.type === "registered" || params.type === "guest" ? params.type : undefined;
   const requested = Number(params.page ?? "1");
   const page = Number.isFinite(requested) && requested > 0 ? Math.floor(requested) : 1;
-  const result = await adminListUsers(session, query, pageSize, (page - 1) * pageSize, { role, type });
+  const result = await adminListUsers(session, "", 1000, 0);
 
   return (
     <main className="mx-auto flex w-full max-w-[1200px] flex-col gap-10 px-4 py-6 md:px-8 md:py-8">
@@ -39,32 +34,7 @@ export default async function AdminUsersPage({
           </Button>
         }
       />
-      <AdminUsersFilters query={query} role={role} type={type} />
-      <div>
-        <AdminUsersTable
-          rows={result.rows}
-          empty={
-            type === "guest" ? (
-              "Guest sessions are not stored as accounts"
-            ) : query ? (
-              <EmptyRow title={`No users match “${query}”`} clearHref="/admin/users" />
-            ) : role ? (
-              <EmptyRow title="No users with that role" clearHref="/admin/users" clearLabel="Show all users" />
-            ) : (
-              "No users yet"
-            )
-          }
-        />
-        <div className="overflow-hidden rounded-b-xl border border-t-0 border-border bg-card">
-          <Pagination
-            page={page}
-            pageSize={pageSize}
-            total={result.total}
-            pathname="/admin/users"
-            params={{ q: query || undefined, role, type }}
-          />
-        </div>
-      </div>
+      <AdminUsersBrowser rows={result.rows} query={query} role={role} type={type} page={page} />
     </main>
   );
 }

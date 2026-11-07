@@ -30,7 +30,7 @@ export default function RegisterScreen() {
   const [busy, setBusy] = useState(false);
   const [submitted, setSubmitted] = useState(false);
 
-  function onSubmit() {
+  async function onSubmit() {
     setSubmitted(true);
     setBusy(true);
     const displayName = name.trim();
@@ -47,7 +47,7 @@ export default function RegisterScreen() {
       setBusy(false);
       return;
     }
-    const message = register(name, email, password);
+    const message = await register(name, email, password);
     if (message) {
       setFormError(message);
       if (message.includes("email")) setEmailError(message);
@@ -66,7 +66,7 @@ export default function RegisterScreen() {
         <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={styles.content} style={styles.flex}>
           <Wordmark />
           <Text style={styles.title}>Create an account</Text>
-          <Text style={styles.lede}>Free. Get 10 downloads, a library and favorites.</Text>
+          <Text style={styles.lede}>Free. Start with 5 downloads, and 10 once you verify your email. Plus a library and favorites.</Text>
           <View style={styles.form}>
             <Field
               label="Display name"

@@ -1,14 +1,6 @@
-import Link from "next/link";
-import { SearchX } from "lucide-react";
-
-import { BookGrid } from "@/components/book-grid";
-import { CatalogToolbar } from "@/components/catalog-toolbar";
-import { EmptyState } from "@/components/empty-state";
+import { CatalogResults } from "@/components/catalog-results";
 import { PageHeader } from "@/components/page-header";
-import { SuggestedBooks } from "@/components/suggested-books";
-import { Pagination } from "@/components/pagination";
-import { Button } from "@/components/ui/button";
-import { filterBooks, getBooks, sortBooks, type BookSort } from "@/lib/books";
+import { getBooks, type BookSort } from "@/lib/books";
 import { CATEGORIES, type Category } from "@/lib/types";
 
 const pageSize = 24;
@@ -31,52 +23,21 @@ export default async function SearchPage({
   const sort: BookSort = params.sort === "title" || params.sort === "author" ? params.sort : "catalog";
   const requested = Number(params.page ?? "1");
   const page = Number.isFinite(requested) && requested > 0 ? Math.floor(requested) : 1;
-  const matches = sortBooks(filterBooks(getBooks(), query, category), sort);
-  const start = (page - 1) * pageSize;
-  const visible = matches.slice(start, start + pageSize);
 
   return (
     <main className="mx-auto flex w-full max-w-[1200px] flex-col gap-8 px-4 py-6 md:px-8 md:py-8">
       <PageHeader title={query ? `Results for “${query}”` : "Search"} />
-      <CatalogToolbar
-        count={matches.length}
-        category={category}
+      <CatalogResults
+        books={getBooks()}
         query={query}
+        category={category}
         sort={sort}
+        page={page}
+        pageSize={pageSize}
         base="/search"
         options={sortOptions}
+        suggest
       />
-      {matches.length === 0 ? (
-        <>
-          <EmptyState
-            icon={<SearchX size={24} strokeWidth={1.5} aria-hidden className="text-muted-foreground" />}
-            title={query ? `No matches for “${query}”` : `No books in ${category ?? "this category"}`}
-            action={
-              <Button asChild variant="outline">
-                <Link href={category && query ? `/search?q=${encodeURIComponent(query)}` : "/browse"}>
-                  {category && query ? "Search all categories" : "Clear search"}
-                </Link>
-              </Button>
-            }
-          >
-            {query ? "Check the spelling or search by author." : "Try another category."}
-          </EmptyState>
-          <SuggestedBooks />
-        </>
-      ) : (
-        <>
-          <BookGrid books={visible} />
-          <div className="overflow-hidden rounded-xl bg-card">
-            <Pagination
-              page={page}
-              pageSize={pageSize}
-              total={matches.length}
-              pathname="/search"
-              params={{ q: query || undefined, category, sort: sort === "catalog" ? undefined : sort }}
-            />
-          </div>
-        </>
-      )}
     </main>
   );
 }

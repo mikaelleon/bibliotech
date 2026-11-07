@@ -24,8 +24,8 @@ export default function AdminNoticeScreen() {
           action={
             <Button
               label="Log out"
-              onPress={() => {
-                logout();
+              onPress={async () => {
+                await logout();
                 router.replace("/login");
               }}
             />

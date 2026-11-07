@@ -24,7 +24,7 @@ export default async function AdminPage() {
       <StatRow
         items={[
           { label: "Books", value: String(stats.books), context: "In the catalog" },
-          { label: "Registered users", value: String(stats.registeredUsers), context: "Accounts with a password" },
+          { label: "Registered users", value: String(stats.registeredUsers), context: `Verified email. ${stats.guestUsers} unverified` },
           { label: "Downloads", value: String(stats.downloads), context: `${stats.downloadsLast30Days} in the last 30 days` },
         ]}
       />

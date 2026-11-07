@@ -27,9 +27,9 @@ export default function LoginScreen() {
   const [busy, setBusy] = useState(false);
   const [remember, setRemember] = useState(true);
 
-  function onSubmit() {
+  async function onSubmit() {
     setBusy(true);
-    const result = login(email, password, remember);
+    const result = await login(email, password, remember);
     if ("error" in result) {
       setError(result.error);
       setBusy(false);

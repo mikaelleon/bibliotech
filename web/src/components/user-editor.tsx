@@ -11,7 +11,11 @@ type UserEditorProps = {
   name: string;
   email: string;
   role: "user" | "admin";
+  tier: string;
+  verifiedAt: string | null;
   downloadsUsed: number;
+  downloadLimit: number;
+  resetsAt: string | null;
   favorites: number;
   libraryItems: number;
   self: boolean;
@@ -23,7 +27,11 @@ export function UserEditor({
   name,
   email,
   role,
+  tier,
+  verifiedAt,
   downloadsUsed,
+  downloadLimit,
+  resetsAt,
   favorites,
   libraryItems,
   self,
@@ -72,9 +80,23 @@ export function UserEditor({
         </h2>
         <dl className="mt-4 grid gap-3 text-sm leading-5">
           <div className="flex justify-between gap-4">
-            <dt className="text-muted-foreground">Downloads used</dt>
-            <dd>{role === "admin" ? "Not allowed" : `${downloadsUsed} of 10`}</dd>
+            <dt className="text-muted-foreground">Type</dt>
+            <dd>{tier}</dd>
           </div>
+          <div className="flex justify-between gap-4">
+            <dt className="text-muted-foreground">Email verified</dt>
+            <dd>{verifiedAt ? shortDate(verifiedAt) : "Not verified"}</dd>
+          </div>
+          <div className="flex justify-between gap-4">
+            <dt className="text-muted-foreground">Downloads this month</dt>
+            <dd>{role === "admin" ? "Not allowed" : `${downloadsUsed} of ${downloadLimit}`}</dd>
+          </div>
+          {role !== "admin" && resetsAt ? (
+            <div className="flex justify-between gap-4">
+              <dt className="text-muted-foreground">Resets on</dt>
+              <dd>{shortDate(resetsAt)}</dd>
+            </div>
+          ) : null}
           <div className="flex justify-between gap-4">
             <dt className="text-muted-foreground">Favorites</dt>
             <dd>{favorites}</dd>
@@ -128,4 +150,8 @@ export function UserEditor({
       </section>
     </div>
   );
+}
+
+function shortDate(iso: string): string {
+  return new Date(iso).toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric", timeZone: "UTC" });
 }

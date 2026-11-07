@@ -64,6 +64,9 @@ export function ShelfProvider({
   const [library, setLibrary] = useState(libraryIds);
   const [pending, setPending] = useState(0);
   const [asking, setAsking] = useState<Shelf | null>(null);
+  // What the prompt last showed. It stays while the dialog plays its exit, so the box doesn't empty out.
+  const [shown, setShown] = useState<Shelf>("favorites");
+  if (asking && asking !== shown) setShown(asking);
   const [dates, setDates] = useState(libraryAddedAt);
 
   // Adopt fresh server state after a revalidation, unless a change of ours is still in flight.
@@ -156,7 +159,7 @@ export function ShelfProvider({
         onOpenChange={(open) => {
           if (!open) setAsking(null);
         }}
-        title={asking ? prompt[asking].title : ""}
+        title={prompt[shown].title}
         footer={
           <>
             <Button asChild variant="outline">
@@ -168,7 +171,7 @@ export function ShelfProvider({
           </>
         }
       >
-        {asking ? prompt[asking].body : null}
+        {prompt[shown].body}
       </Dialog>
     </ShelfContext.Provider>
   );

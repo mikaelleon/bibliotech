@@ -42,6 +42,7 @@ export default function SearchScreen() {
         keyboardShouldPersistTaps="handled"
         contentContainerStyle={styles.page}
         columnWrapperStyle={visible.length > 0 ? styles.row : undefined}
+        maintainVisibleContentPosition={{ minIndexForVisible: 0 }}
         ListHeaderComponent={
           <View style={styles.header}>
             <Text style={styles.title}>{query ? `Results for “${query}”` : "Search"}</Text>

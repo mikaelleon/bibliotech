@@ -16,7 +16,7 @@ export default async function RegisterPage({ searchParams }: { searchParams: Pro
     <main className="mx-auto max-w-sm px-4 pt-12 pb-16 md:pt-16">
       <Wordmark />
       <h1 className="page-title mt-8">Create an account</h1>
-      <p className="mt-2 text-muted-foreground">Free. Get 10 downloads, a library and favorites.</p>
+      <p className="mt-2 text-muted-foreground">Free. Start with 5 downloads, and 10 once you verify your email. Plus a library and favorites.</p>
       <RegisterForm next={next} />
       <p className="mt-6 text-sm leading-5 text-muted-foreground">
         Already have an account?{" "}

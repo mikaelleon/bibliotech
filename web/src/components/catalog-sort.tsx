@@ -8,9 +8,12 @@ import { Select } from "@/components/ui/select";
 export function CatalogSort({
   value,
   options,
+  onValueChange,
 }: {
   value: string;
   options: { value: string; label: string }[];
+  /** When set, the choice updates the list in place instead of navigating. */
+  onValueChange?: (value: string) => void;
 }) {
   const router = useRouter();
   const pathname = usePathname();
@@ -23,12 +26,16 @@ export function CatalogSort({
       className="w-full md:w-44"
       onChange={(event) => {
         const next = event.target.value;
+        if (onValueChange) {
+          onValueChange(next);
+          return;
+        }
         const search = new URLSearchParams(params.toString());
         if (next === options[0]?.value) search.delete("sort");
         else search.set("sort", next);
         search.delete("page");
         const query = search.toString();
-        router.push(query ? `${pathname}?${query}` : pathname);
+        router.push(query ? `${pathname}?${query}` : pathname, { scroll: false });
       }}
     >
       {options.map((option) => (

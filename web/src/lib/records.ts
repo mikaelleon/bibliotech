@@ -1,116 +1,131 @@
-import { mkdir, readFile, writeFile } from "fs/promises";
-import path from "path";
+import "server-only";
+
+import type { SupabaseClient } from "@supabase/supabase-js";
 
 import { getBook, getBooks } from "@/lib/books";
+import { createClient } from "@/lib/supabase/server";
 import type { Book } from "@/lib/types";
 
 /**
- * Local stand-in for library_items and favorites.
- * There is no database in this repo. The SQL migration describes the real tables.
- * Rows here match the commented demo seed so the presentation can show a library.
+ * Library shelf (`library_items`) and favorites, stored in Supabase.
+ * Rows point at `books.id`; the app addresses books by `books.slug`, so every read joins it.
+ * The default client acts as the signed-in user, and RLS limits it to that user's rows.
+ * Admin screens pass the secret-key client after checking the caller is an admin.
  */
 
-type FavoriteRow = { userEmail: string; bookId: string };
-type LibraryRow = { userEmail: string; bookId: string; createdAt: string };
+type Client = SupabaseClient;
+type SlugRow = { created_at: string; books: { slug: string } | { slug: string }[] | null };
 
-const favoritesPath = path.join(process.cwd(), "data", "favorites.json");
-const libraryPath = path.join(process.cwd(), "data", "library.json");
-
-async function readJson<T>(file: string): Promise<T[]> {
-  try {
-    const raw = await readFile(file, "utf8");
-    const parsed = JSON.parse(raw) as T[];
-    return Array.isArray(parsed) ? parsed : [];
-  } catch {
-    return [];
-  }
+async function clientOr(client?: Client): Promise<Client> {
+  return client ?? (await createClient());
 }
 
-async function writeJson<T>(file: string, rows: T[]): Promise<void> {
-  await mkdir(path.dirname(file), { recursive: true });
-  await writeFile(file, `${JSON.stringify(rows, null, 2)}\n`, "utf8");
+function slugOf(row: SlugRow): string | null {
+  const book = Array.isArray(row.books) ? row.books[0] : row.books;
+  return book?.slug ?? null;
 }
 
 function booksFor(ids: string[]): Book[] {
   return ids.map((id) => getBook(id)).filter((book): book is Book => Boolean(book));
 }
 
-export async function listFavoriteIds(email: string): Promise<string[]> {
-  const rows = await readJson<FavoriteRow>(favoritesPath);
-  return rows.filter((row) => row.userEmail === email).map((row) => row.bookId);
+async function bookIdForSlug(supabase: Client, slug: string): Promise<string | null> {
+  if (!getBook(slug)) return null;
+  const { data } = await supabase.from("books").select("id").eq("slug", slug).maybeSingle();
+  return data?.id ?? null;
 }
 
-export async function listFavorites(email: string): Promise<Book[]> {
-  return booksFor(await listFavoriteIds(email));
+async function rows(table: "favorites" | "library_items", userId: string, client?: Client): Promise<SlugRow[]> {
+  const supabase = await clientOr(client);
+  const { data, error } = await supabase
+    .from(table)
+    .select("created_at, books!inner(slug)")
+    .eq("user_id", userId)
+    .order("created_at", { ascending: table === "favorites" });
+  if (error) throw new Error(`Could not load ${table}: ${error.message}`);
+  return (data ?? []) as SlugRow[];
+}
+
+export async function listFavoriteIds(userId: string, client?: Client): Promise<string[]> {
+  return (await rows("favorites", userId, client)).map(slugOf).filter((slug): slug is string => Boolean(slug));
+}
+
+export async function listFavorites(userId: string): Promise<Book[]> {
+  return booksFor(await listFavoriteIds(userId));
 }
 
 /**
- * Sets the favorite to exactly `on`. Idempotent: calling it twice with the same value changes
- * nothing, so a double tap or a stale button can't flip the state the wrong way.
- * `at` restores a removed favorite to its old position (Undo).
+ * Sets the favorite to exactly `on`; false when the book is unknown. Idempotent, so a double tap or a stale button can't flip
+ * the state the wrong way. `at` puts an Undo back at its old position: favorites sort by
+ * `created_at`, so the restored row gets a time between its new neighbours.
  */
-export async function setFavorite(email: string, bookId: string, on: boolean, at?: number): Promise<boolean> {
-  if (!getBook(bookId)) return false;
-  const rows = await readJson<FavoriteRow>(favoritesPath);
-  const index = rows.findIndex((row) => row.userEmail === email && row.bookId === bookId);
-  if (on && index < 0) {
-    const row = { userEmail: email, bookId };
-    if (at === undefined) rows.push(row);
-    else {
-      // `at` counts this user's rows only. Map it onto the shared file.
-      const own = rows.map((item, position) => ({ item, position })).filter(({ item }) => item.userEmail === email);
-      const before = own[at]?.position ?? rows.length;
-      rows.splice(before, 0, row);
-    }
-    await writeJson(favoritesPath, rows);
+export async function setFavorite(userId: string, slug: string, on: boolean, at?: number): Promise<boolean> {
+  const supabase = await createClient();
+  const bookId = await bookIdForSlug(supabase, slug);
+  if (!bookId) return false;
+  if (on) {
+    const createdAt = at === undefined ? undefined : await timeForPosition(userId, at);
+    const row = { user_id: userId, book_id: bookId, ...(createdAt ? { created_at: createdAt } : {}) };
+    const { error } = await supabase.from("favorites").upsert(row, { onConflict: "user_id,book_id", ignoreDuplicates: true });
+    if (error) throw new Error(`Could not save the favorite: ${error.message}`);
+  } else {
+    const { error } = await supabase.from("favorites").delete().eq("user_id", userId).eq("book_id", bookId);
+    if (error) throw new Error(`Could not remove the favorite: ${error.message}`);
   }
-  if (!on && index >= 0) {
-    rows.splice(index, 1);
-    await writeJson(favoritesPath, rows);
-  }
-  return on;
+  return true;
 }
 
-export async function listLibraryIds(email: string): Promise<string[]> {
-  const rows = (await readJson<LibraryRow>(libraryPath))
-    .filter((row) => row.userEmail === email)
-    .sort((a, b) => b.createdAt.localeCompare(a.createdAt));
-  return rows.map((row) => row.bookId);
+/** A created_at that sorts at index `at` among the user's current favorites. */
+async function timeForPosition(userId: string, at: number): Promise<string | undefined> {
+  const list = await rows("favorites", userId);
+  if (at >= list.length) return undefined;
+  const after = Date.parse(list[at].created_at);
+  const before = at > 0 ? Date.parse(list[at - 1].created_at) : after - 2;
+  return new Date(Math.floor((before + after) / 2)).toISOString();
+}
+
+export async function listLibraryIds(userId: string): Promise<string[]> {
+  return (await rows("library_items", userId)).map(slugOf).filter((slug): slug is string => Boolean(slug));
 }
 
 /**
- * Puts the book on, or takes it off, the user's Library shelf. Idempotent. Adding never uses a
+ * Puts the book on, or takes it off, the user's Library shelf; false when the book is unknown. Idempotent. Adding never uses a
  * download: Library is a shelf, and `downloads` is a separate record (see docs/database.md).
  * `addedAt` keeps the original date when Undo puts a book back, so "Recently added" stays true.
  */
-export async function setInLibrary(email: string, bookId: string, on: boolean, addedAt?: string): Promise<boolean> {
-  if (!getBook(bookId)) return false;
-  const rows = await readJson<LibraryRow>(libraryPath);
-  const index = rows.findIndex((row) => row.userEmail === email && row.bookId === bookId);
-  if (on && index < 0) {
-    rows.push({ userEmail: email, bookId, createdAt: addedAt ?? new Date().toISOString() });
-    await writeJson(libraryPath, rows);
+export async function setInLibrary(userId: string, slug: string, on: boolean, addedAt?: string): Promise<boolean> {
+  const supabase = await createClient();
+  const bookId = await bookIdForSlug(supabase, slug);
+  if (!bookId) return false;
+  if (on) {
+    const row = { user_id: userId, book_id: bookId, ...(addedAt ? { created_at: addedAt } : {}) };
+    const { error } = await supabase
+      .from("library_items")
+      .upsert(row, { onConflict: "user_id,book_id", ignoreDuplicates: true });
+    if (error) throw new Error(`Could not add to Library: ${error.message}`);
+  } else {
+    const { error } = await supabase.from("library_items").delete().eq("user_id", userId).eq("book_id", bookId);
+    if (error) throw new Error(`Could not remove from Library: ${error.message}`);
   }
-  if (!on && index >= 0) {
-    rows.splice(index, 1);
-    await writeJson(libraryPath, rows);
-  }
-  return on;
+  return true;
+}
+
+function addedAtMap(list: SlugRow[]): Record<string, string> {
+  const entries = list
+    .map((row) => [slugOf(row), row.created_at] as const)
+    .filter((entry): entry is readonly [string, string] => Boolean(entry[0]));
+  return Object.fromEntries(entries);
 }
 
 /** When each book was added, for Undo. */
-export async function libraryAddedAt(email: string): Promise<Record<string, string>> {
-  const rows = (await readJson<LibraryRow>(libraryPath)).filter((row) => row.userEmail === email);
-  return Object.fromEntries(rows.map((row) => [row.bookId, row.createdAt]));
+export async function libraryAddedAt(userId: string): Promise<Record<string, string>> {
+  return addedAtMap(await rows("library_items", userId));
 }
 
 export type LibrarySort = "added" | "title" | "author";
 
-export async function listLibrary(email: string, sort: LibrarySort = "added"): Promise<Book[]> {
-  const rows = (await readJson<LibraryRow>(libraryPath))
-    .filter((row) => row.userEmail === email)
-    .sort((a, b) => b.createdAt.localeCompare(a.createdAt));
-  const books = booksFor(rows.map((row) => row.bookId));
+export async function listLibrary(userId: string, sort: LibrarySort = "added", client?: Client): Promise<Book[]> {
+  const books = booksFor((await rows("library_items", userId, client)).map(slugOf).filter((slug): slug is string => Boolean(slug)));
   if (sort === "title") books.sort((a, b) => a.title.localeCompare(b.title));
   if (sort === "author") books.sort((a, b) => a.author.localeCompare(b.author));
   return books;

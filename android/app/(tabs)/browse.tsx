@@ -11,6 +11,7 @@ import { Button } from "@/components/Button";
 import { CategoryFilter } from "@/components/CategoryFilter";
 import { EmptyState } from "@/components/EmptyState";
 import { FeaturedShelf } from "@/components/FeaturedShelf";
+import { VerifyEmailBanner } from "@/components/VerifyEmailBanner";
 import { filterBooks, getBooks } from "@/lib/books";
 import { CATEGORIES, type Category } from "@/lib/types";
 import { colors, font } from "@/theme/tokens";
@@ -36,8 +37,10 @@ export default function BrowseScreen() {
       numColumns={2}
       columnWrapperStyle={books.length > 0 ? styles.columns : undefined}
       contentContainerStyle={styles.content}
+      maintainVisibleContentPosition={{ minIndexForVisible: 0 }}
       ListHeaderComponent={
         <View>
+          {!searching ? <VerifyEmailBanner /> : null}
           {searching ? (
             <Text style={styles.results}>Results for “{query}”</Text>
           ) : (

@@ -2,8 +2,6 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import Link from "next/link";
 import type { ReactNode } from "react";
 
-import { cn } from "@/lib/utils";
-
 function pageHref(pathname: string, params: Record<string, string | undefined>, page: number): string {
   const search = new URLSearchParams();
   for (const [key, value] of Object.entries(params)) {
@@ -21,12 +19,15 @@ export function Pagination({
   total,
   pathname,
   params,
+  onPage,
 }: {
   page: number;
   pageSize: number;
   total: number;
   pathname: string;
   params: Record<string, string | undefined>;
+  /** When set, the page changes in place. The caller decides whether to scroll. */
+  onPage?: (page: number) => void;
 }) {
   const pages = Math.max(1, Math.ceil(total / pageSize));
   const current = Math.min(Math.max(page, 1), pages);
@@ -41,10 +42,10 @@ export function Pagination({
         {start} to {end} of {total}
       </p>
       <div className="flex gap-2">
-        <PageLink href={previous} disabled={current <= 1} label="Previous page">
+        <PageLink href={previous} disabled={current <= 1} label="Previous page" onPage={onPage ? () => onPage(current - 1) : undefined}>
           <ChevronLeft size={20} strokeWidth={1.5} aria-hidden />
         </PageLink>
-        <PageLink href={next} disabled={current >= pages} label="Next page">
+        <PageLink href={next} disabled={current >= pages} label="Next page" onPage={onPage ? () => onPage(current + 1) : undefined}>
           <ChevronRight size={20} strokeWidth={1.5} aria-hidden />
         </PageLink>
       </div>
@@ -56,11 +57,13 @@ function PageLink({
   href,
   disabled,
   label,
+  onPage,
   children,
 }: {
   href: string;
   disabled: boolean;
   label: string;
+  onPage?: () => void;
   children: ReactNode;
 }) {
   if (disabled) {
@@ -75,14 +78,19 @@ function PageLink({
     );
   }
 
+  const className =
+    "press inline-flex size-11 items-center justify-center rounded-full border border-border bg-card text-foreground no-underline hover:bg-background";
+
+  if (onPage) {
+    return (
+      <button type="button" aria-label={label} className={className} onClick={onPage}>
+        {children}
+      </button>
+    );
+  }
+
   return (
-    <Link
-      href={href}
-      aria-label={label}
-      className={cn(
-        "press inline-flex size-11 items-center justify-center rounded-full border border-border bg-card text-foreground no-underline hover:bg-background",
-      )}
-    >
+    <Link href={href} aria-label={label} className={className}>
       {children}
     </Link>
   );

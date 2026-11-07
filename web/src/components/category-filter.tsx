@@ -24,11 +24,14 @@ export function CategoryFilter({
   query,
   sort = "",
   base = "/browse",
+  onSelect,
 }: {
   selected?: string;
   query?: string;
   sort?: string;
   base?: string;
+  /** When set, a click filters in place instead of navigating. */
+  onSelect?: (category: string | null) => void;
 }) {
   const current = selected && CATEGORIES.includes(selected as (typeof CATEGORIES)[number]) ? selected : "All";
   const chips = ["All", ...CATEGORIES];
@@ -47,6 +50,13 @@ export function CategoryFilter({
             <li key={chip} className="shrink-0">
               <Link
                 href={hrefFor(base, chip === "All" ? null : chip, query ?? "", sort)}
+                scroll={false}
+                onClick={(event) => {
+                  if (!onSelect) return;
+                  if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || event.button !== 0) return;
+                  event.preventDefault();
+                  onSelect(chip === "All" ? null : chip);
+                }}
                 aria-current={on ? "true" : undefined}
                 data-indicator-target={on}
                 className={cn(

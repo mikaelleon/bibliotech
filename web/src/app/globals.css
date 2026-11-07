@@ -469,36 +469,41 @@ p {
   }
 }
 
+/*
+ * Dialogs and toasts are centred with Tailwind's -translate-x-1/2, which sets the CSS `translate`
+ * property. These keyframes must not translate as well: `translate` and `transform` both apply, so a
+ * translate(-50%) here moved the box a further half its size until the animation ended, then it snapped.
+ */
 @keyframes dialog-in {
   from {
     opacity: 0;
-    transform: translate(-50%, -50%) scale(0.95);
+    transform: scale(0.95);
   }
   to {
     opacity: 1;
-    transform: translate(-50%, -50%) scale(1);
+    transform: none;
   }
 }
 
 @keyframes dialog-out {
   from {
     opacity: 1;
-    transform: translate(-50%, -50%) scale(1);
+    transform: none;
   }
   to {
     opacity: 0;
-    transform: translate(-50%, -50%) scale(0.95);
+    transform: scale(0.95);
   }
 }
 
 @keyframes toast-out {
   from {
     opacity: 1;
-    transform: translate(-50%, 0);
+    transform: none;
   }
   to {
     opacity: 0;
-    transform: translate(-50%, 8px);
+    transform: translateY(8px);
   }
 }
 
@@ -550,11 +555,11 @@ p {
 @keyframes toast-in {
   from {
     opacity: 0;
-    transform: translate(-50%, 12px);
+    transform: translateY(12px);
   }
   to {
     opacity: 1;
-    transform: translate(-50%, 0);
+    transform: none;
   }
 }
 

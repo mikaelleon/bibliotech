@@ -5,7 +5,7 @@ import { Pressable, StyleSheet, Text, View } from "react-native";
 
 import { FadeIn } from "@/components/FadeIn";
 import { SearchBar } from "@/components/SearchBar";
-import { leftLabel, quotaFor, type Quota } from "@/lib/quota";
+import { leftLabel, quotaFor, quotaNote, type Quota } from "@/lib/quota";
 import { useSession } from "@/lib/session";
 import { colors, font } from "@/theme/tokens";
 
@@ -107,16 +107,12 @@ function QuotaPanel({ quota, onRegister }: { quota: Quota; onRegister: () => voi
         <View style={[styles.fill, { width }]} />
       </View>
       <Text style={styles.panelBody}>
-        {quota.guest
-          ? "A free account raises the limit to 10 and keeps a library and favorites."
-          : quota.left === 0
-            ? "You've reached your limit."
-            : `Registered accounts include ${quota.limit} downloads.`}
+        {quota.guest ? "A free account keeps a library and favorites." : quotaNote(quota)}
       </Text>
       <Text style={styles.panelNote}>Downloading opens in a later update.</Text>
       {quota.guest ? (
         <Text accessibilityRole="link" onPress={onRegister} style={styles.panelLink}>
-          Register for 10 downloads
+          Create a free account
         </Text>
       ) : null}
     </FadeIn>

@@ -1,16 +1,13 @@
-import Link from "next/link";
 import { redirect } from "next/navigation";
 
 import { BookGrid } from "@/components/book-grid";
-import { CatalogToolbar } from "@/components/catalog-toolbar";
-import { EmptyState } from "@/components/empty-state";
+import { CatalogResults } from "@/components/catalog-results";
 import { FeaturedShelf } from "@/components/featured-shelf";
-import { Button } from "@/components/ui/button";
-import { filterBooks, getBooks, sortBooks, type BookSort } from "@/lib/books";
+import { VerifyEmailBanner } from "@/components/verify-email-banner";
+import { getBooks, type BookSort } from "@/lib/books";
 import { listLibrary } from "@/lib/records";
 import { getSession } from "@/lib/session";
 import { CATEGORIES, type Category } from "@/lib/types";
-import { SearchX } from "lucide-react";
 
 const sortOptions = [
   { value: "catalog", label: "Catalog order" },
@@ -29,7 +26,6 @@ export default async function BrowsePage({
   const query = (params.q ?? "").trim();
   const category = CATEGORIES.includes(params.category as Category) ? params.category : undefined;
   const sort: BookSort = params.sort === "title" || params.sort === "author" ? params.sort : "catalog";
-  const books = sortBooks(filterBooks(getBooks(), query, category), sort);
   const searching = query.length > 0;
   if (searching) {
     const next = new URLSearchParams();
@@ -40,10 +36,13 @@ export default async function BrowsePage({
   }
 
   const session = await getSession();
-  const library = session.kind === "user" ? await listLibrary(session.email) : [];
+  const library = session.kind === "user" ? await listLibrary(session.id) : [];
 
   return (
     <main className="mx-auto flex w-full max-w-[1200px] flex-col gap-8 px-4 py-6 md:px-8 md:py-8">
+      {session.kind === "user" && session.role !== "admin" && !session.verified ? (
+        <VerifyEmailBanner email={session.email} />
+      ) : null}
       <FeaturedShelf books={getBooks()} />
       {library.length > 0 ? (
         <section aria-label="In your library">
@@ -53,31 +52,13 @@ export default async function BrowsePage({
           </div>
         </section>
       ) : null}
-      <CatalogToolbar
-        count={books.length}
+      <CatalogResults
+        books={getBooks()}
         category={category}
-        query={query}
         sort={sort}
         base="/browse"
         options={sortOptions}
       />
-      {books.length === 0 ? (
-        <EmptyState
-          icon={<SearchX size={24} strokeWidth={1.5} aria-hidden className="text-muted-foreground" />}
-          title={category ? `No books in ${category}` : "No books yet"}
-          action={
-            <Button asChild variant="outline">
-              <Link href="/browse">Show all books</Link>
-            </Button>
-          }
-        >
-          Try another category.
-        </EmptyState>
-      ) : (
-        <section aria-label="Books">
-          <BookGrid books={books} />
-        </section>
-      )}
     </main>
   );
 }
