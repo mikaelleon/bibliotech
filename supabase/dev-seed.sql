@@ -3,10 +3,10 @@
 -- Replace the sample email before you paste a statement.
 -- Never paste a service-role key into the app or into git.
 
--- Promote one account to admin.
+-- Promote one account to admin. The demo reader dane@elibrary.local is not an admin.
 -- update public.profiles
 -- set role = 'admin'
--- where id = (select id from auth.users where email = 'dane@elibrary.local');
+-- where id = (select id from auth.users where email = 'admin@example.com');
 
 -- Sample favorites for that account. Replace the book ids with real ones.
 -- insert into public.favorites (user_id, book_id)

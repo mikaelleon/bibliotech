@@ -2,6 +2,7 @@
 
 import { ChevronDown } from "lucide-react";
 import Link from "next/link";
+import { useTransition } from "react";
 
 import { logoutAction } from "@/lib/actions";
 import type { Session } from "@/lib/types";
@@ -47,15 +48,26 @@ export function AccountMenu({ session }: { session: Session }) {
           <ChevronDown size={16} strokeWidth={1.5} aria-hidden />
         </DropdownMenuTrigger>
         <DropdownMenuContent>
-          <form action={logoutAction}>
-            <DropdownMenuItem asChild>
-              <button type="submit" className="w-full text-left">
-                Log out
-              </button>
-            </DropdownMenuItem>
-          </form>
+          <LogoutItem />
         </DropdownMenuContent>
       </DropdownMenu>
     </>
+  );
+}
+
+function LogoutItem() {
+  const [pending, startTransition] = useTransition();
+
+  return (
+    <DropdownMenuItem
+      disabled={pending}
+      onSelect={() => {
+        startTransition(() => {
+          void logoutAction();
+        });
+      }}
+    >
+      {pending ? "Logging out" : "Log out"}
+    </DropdownMenuItem>
   );
 }

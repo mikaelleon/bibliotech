@@ -1,4 +1,4 @@
-import { DataTable } from "@/components/data-table";
+import { AdminDownloadsTable } from "@/components/admin-downloads-table";
 import { PageHeader } from "@/components/page-header";
 import { SectionTabs } from "@/components/section-tabs";
 import { isAdminSession } from "@/lib/admin";
@@ -16,16 +16,7 @@ export default async function AdminDownloadsPage() {
         <PageHeader title="Downloads" lede="A record of files people have taken from the catalog." />
         <SectionTabs />
       </div>
-      <DataTable
-        caption="Downloads"
-        empty="No downloads have been recorded yet."
-        rows={[] as { id: string; who: string; book: string; date: string }[]}
-        columns={[
-          { key: "who", header: "User", cell: (row) => row.who },
-          { key: "book", header: "Book", cell: (row) => row.book },
-          { key: "date", header: "Date", cell: (row) => row.date },
-        ]}
-      />
+      <AdminDownloadsTable rows={[]} />
     </main>
   );
 }

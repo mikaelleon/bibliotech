@@ -1,4 +1,4 @@
-import { DataTable } from "@/components/data-table";
+import { AdminUsersTable } from "@/components/admin-users-table";
 import { PageHeader } from "@/components/page-header";
 import { Pagination } from "@/components/pagination";
 import { SectionTabs } from "@/components/section-tabs";
@@ -45,31 +45,7 @@ export default async function AdminUsersPage({
         </Button>
       </form>
       <div>
-        <DataTable
-          caption="Users"
-          empty="No users match that search."
-          rows={result.rows}
-          columns={[
-            {
-              key: "name",
-              header: "Name",
-              cell: (user) => (
-                <span className="block">
-                  <span className="block text-sm leading-5">{user.name}</span>
-                  <span className="block text-sm leading-5 text-muted-foreground">{user.email}</span>
-                </span>
-              ),
-            },
-            { key: "role", header: "Role", cell: (user) => user.role },
-            { key: "joined", header: "Joined", cell: () => "Not recorded" },
-            {
-              key: "downloads",
-              header: "Downloads used",
-              align: "right",
-              cell: (user) => `${user.downloadsUsed} of 10`,
-            },
-          ]}
-        />
+        <AdminUsersTable rows={result.rows} />
         <div className="overflow-hidden rounded-b-xl border border-t-0 border-border bg-card">
           <Pagination
             page={page}

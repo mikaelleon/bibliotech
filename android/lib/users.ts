@@ -16,7 +16,7 @@ export const users: StoredUser[] = [
     name: "Dane Peralta",
     email: "dane@elibrary.local",
     password: "library1",
-    role: "admin",
+    role: "user",
     downloadsUsed: 0,
   },
 ];

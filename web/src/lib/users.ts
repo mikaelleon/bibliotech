@@ -13,7 +13,7 @@ export type StoredUser = {
 
 /**
  * Local stand-in for the account table. There is no database in this repo.
- * Seeded admin: dane@elibrary.local / library1
+ * Seeded reader: dane@elibrary.local / library1. Role is user, not admin.
  */
 const filePath = path.join(process.cwd(), "data", "users.json");
 
