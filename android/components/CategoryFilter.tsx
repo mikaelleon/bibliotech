@@ -52,16 +52,13 @@ const styles = StyleSheet.create({
   chip: {
     minHeight: 44,
     paddingHorizontal: 16,
-    borderRadius: radius.pill,
-    borderWidth: 1,
-    borderColor: colors.line,
+    borderRadius: radius.panel,
     backgroundColor: colors.surface,
     alignItems: "center",
     justifyContent: "center",
   },
   chipOn: {
     backgroundColor: colors.primary,
-    borderColor: colors.primary,
   },
   label: {
     fontFamily: font.sans,

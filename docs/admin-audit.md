@@ -1,5 +1,9 @@
 # Admin audit
 
+The access model changed after this audit. Administrators now use a separate shell (Dashboard, Analytics, Books, Users), reader routes redirect to `/admin`, and Android shows a notice instead of the reader app. The notes below describe the earlier pass, when Admin was a fifth rail item.
+
+
+
 Checked on 7 November 2026, before the completion pass. Scope is `web/` only. There is no live Supabase project. Admin figures come from the catalog and `web/data/users.json`. The SQL in `supabase/migrations/` is the contract for a later database and is not applied.
 
 The design frame `e-library-ai-design/project/Admin.dc.html` is a placeholder: a shield icon in the rail, the title "Admin dashboard", and a note that the dashboard arrives later. The mobile frames (`MBrowse.dc.html` and the other `M*.dc.html` files) use four bottom tabs: Browse, Library, Favorites, Profile. They do not include Admin. Where this prompt and those frames disagree, the frames win.

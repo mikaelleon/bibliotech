@@ -54,7 +54,7 @@ export function DataTable<T extends { id: string }>({
 }) {
   if (rows.length === 0) {
     return (
-      <div className="rounded-xl border border-border bg-card px-4 py-8 text-sm leading-5 text-muted-foreground">
+      <div className="rounded-xl bg-card px-4 py-8 text-sm leading-5 text-muted-foreground">
         {empty}
       </div>
     );
@@ -66,7 +66,7 @@ export function DataTable<T extends { id: string }>({
   const menuColumn = columns.find((column) => column.key === "menu");
 
   return (
-    <div className="overflow-hidden rounded-xl border border-border bg-card">
+    <div className="overflow-hidden rounded-xl bg-card">
       <table className="hidden w-full border-collapse md:table">
         <caption className="sr-only">{caption}</caption>
         <thead>
@@ -84,7 +84,7 @@ export function DataTable<T extends { id: string }>({
         </thead>
         <tbody>
           {rows.map((row) => (
-            <RowLink key={row.id} href={hrefFor?.(row)} className="h-16 border-t border-border hover:bg-background">
+            <RowLink key={row.id} href={hrefFor?.(row)} className="h-16 hover:bg-background">
               {columns.map((column) => (
                 <td
                   key={column.key}
@@ -101,7 +101,7 @@ export function DataTable<T extends { id: string }>({
       </table>
       <ul className="md:hidden">
         {rows.map((row) => (
-          <li key={row.id} className="border-t border-border first:border-t-0">
+          <li key={row.id} className="py-2">
             <div className="flex items-start gap-3 px-4 py-3">
               <div className="min-w-0 flex-1">
                 {titleColumn ? <div className="text-sm leading-5">{titleColumn.cell(row)}</div> : null}

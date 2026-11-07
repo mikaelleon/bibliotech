@@ -1,9 +1,16 @@
-import { Search } from "lucide-react";
+import { Search, X } from "lucide-react";
+import Link from "next/link";
 
+import { ShortcutHint } from "@/components/shortcut-hint";
 import { cn } from "@/lib/utils";
 
 type SearchBarProps = {
   query?: string;
+  /** Kept when the reader submits a new query, until they clear it. */
+  category?: string;
+  sort?: string;
+  /** Where the clear control goes. Omitted when the field is empty. */
+  clearHref?: string;
   /** Landing field is 56px. The shell field is 44px. */
   large?: boolean;
   /** Mobile shell: short placeholder, no key hint. */
@@ -12,8 +19,18 @@ type SearchBarProps = {
   className?: string;
 };
 
-export function SearchBar({ query = "", large = false, compact = false, action, className }: SearchBarProps) {
+export function SearchBar({
+  query = "",
+  category = "",
+  sort = "",
+  clearHref,
+  large = false,
+  compact = false,
+  action,
+  className,
+}: SearchBarProps) {
   const placeholder = compact ? "Search books" : "Search by title or author";
+  const showClear = query.length > 0 && Boolean(clearHref);
 
   return (
     <form
@@ -30,26 +47,34 @@ export function SearchBar({ query = "", large = false, compact = false, action, 
         aria-hidden
         className={cn("pointer-events-none absolute left-4 text-muted-foreground", large ? "top-[18px]" : "top-3")}
       />
+      {category ? <input type="hidden" name="category" value={category} /> : null}
+      {sort && sort !== "catalog" ? <input type="hidden" name="sort" value={sort} /> : null}
       <input
         id={large ? "landing-search" : "site-search"}
         name="q"
         defaultValue={query}
         placeholder={placeholder}
+        enterKeyHint="search"
+        autoComplete="off"
         className={cn(
-          "w-full rounded-full border border-border bg-card pl-12 text-base text-foreground placeholder:text-muted-foreground",
+          "w-full rounded-xl border border-border bg-card pl-12 text-base text-foreground placeholder:text-muted-foreground",
           large ? "h-14" : "h-11",
-          compact ? "pr-4" : "pr-4 md:pr-16",
+          showClear || !compact ? "pr-12" : "pr-4",
         )}
       />
-      {compact ? null : (
-        <kbd
+      {showClear ? (
+        <Link
+          href={clearHref ?? "/browse"}
+          aria-label="Clear search"
           className={cn(
-            "absolute right-4 hidden rounded-sm border border-border px-2 py-0.5 text-xs leading-4 text-muted-foreground md:inline",
-            large ? "top-4" : "top-2.5",
+            "absolute right-1.5 inline-flex size-8 items-center justify-center rounded-full text-muted-foreground hover:bg-card hover:text-foreground",
+            large ? "top-3" : "top-1.5",
           )}
         >
-          Ctrl K
-        </kbd>
+          <X size={16} strokeWidth={1.5} aria-hidden />
+        </Link>
+      ) : compact ? null : (
+        <ShortcutHint large={large} />
       )}
     </form>
   );

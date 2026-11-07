@@ -1,6 +1,6 @@
 # Screens
 
-Routes below are the Phase 1 app. Android has no admin screens. A guest is a signed-in anonymous session in the local stub (a guest cookie, not a Supabase anonymous user). A registered user has an account. An admin has `role = admin` on the server.
+Routes below are the Phase 1 app. An administrator is an operator: the web shell is Dashboard, Analytics, Books, and Users, and reader routes redirect to `/admin`. Android has no admin screens. If an administrator signs in there, the app shows a notice and a Log out button. A guest is a signed-in anonymous session in the local stub (a guest cookie, not a Supabase anonymous user). A registered user has an account. An admin has `role = admin` on the server.
 
 | Screen | Role | Web | Android | Loading | Empty | Error | Disabled |
 |---|---|---|---|---|---|---|---|
@@ -18,20 +18,26 @@ Routes below are the Phase 1 app. Android has no admin screens. A guest is a sig
 | Profile | user (guest sees Locked) | `/profile` | Profile tab | | | name and password | |
 | 404 | any session | `not-found` | `+not-found` | | | the page itself | |
 | 403 | signed-in non-admin | `/admin/*` | none | | | the page itself | |
-| Admin overview | admin | `/admin` | none | skeleton | no downloads, empty chart | retry | |
+| Dashboard | admin | `/admin` | notice only | skeleton | nothing to review, no downloads | retry | |
+| Analytics | admin | `/admin/analytics` | none | | no downloads | retry | user growth and ratings |
 | Admin books | admin | `/admin/books` | none | skeleton | no matches | retry | Delete |
 | Add book | admin | `/admin/books/new` | none | | | required fields | Save |
 | Edit book | admin | `/admin/books/[id]/edit` | none | | | required fields | Save |
-| Admin users | admin | `/admin/users` | none | | no matches | | role changes |
-| Admin downloads | admin | `/admin/downloads` | none | | no rows | | |
+| Admin users | admin | `/admin/users` | none | | no matches | | create, edit, delete |
+| Create user | admin | `/admin/users/new` | none | | | | Create |
+| User detail | admin | `/admin/users/[id]` | none | | | | save, reset, disable, delete |
+| Account settings | admin | `/admin/account` | none | | | name and password | |
+| Admin notice | admin | none | `admin-notice` | | | | |
 | Download limit | gallery only | dialog on `/dev/states` | not linked | | | | |
 | Offline | any | banner under the top bar | banner under the header | | | retry on a failed page | |
 | State gallery | signed-in, development only | `/dev/states` | none | skeleton sample | empty sample | 403 and 404 samples | |
 
 Judgment calls:
 
-- The Admin frame uses a shield icon and no mobile admin tab. Those stay. The later note that asked for `layout-dashboard` and a mobile Admin tab loses to the frame.
-- The overview chart is an inline SVG. With no download rows it shows "No downloads yet. They will appear here as readers download books." A hidden table repeats the 30 daily counts.
+- Administrators do not browse, download, or rate. After login they land on `/admin`. Opening `/`, `/browse`, `/search`, `/books/*`, `/library`, `/favorites`, or `/profile` sends them back to `/admin`. Below 768px the same four operator items are tabs. Android never shows those screens.
+- A guest can still open Log in and Register, so an anonymous session can become an account. A reader or an administrator who opens those pages is sent to their home.
+- The downloads chart lives on Analytics. With no download rows it shows "No downloads yet. They will appear here as readers download books." `/admin/downloads` redirects there.
+- Creating, editing, and deleting books and users is on screen and switched off. The helper text is "Arrives in Phase 2." An administrator cannot delete or demote their own account, and the last administrator cannot be removed.
 - Added dates and joined dates say "Not recorded". The local catalog and `users.json` do not store those timestamps.
 - There is no database, so search, library, favorites, and admin figures run in the Next.js server against the catalog and the JSON files. The SQL migration is the contract for later.
 - Library and favorites for `dane@elibrary.local` are seeded in `web/data` so the demo can show a populated library. Downloads stay empty.

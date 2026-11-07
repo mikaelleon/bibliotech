@@ -34,23 +34,29 @@ export function ShellHeader() {
     <View style={[styles.bar, session.kind === "guest" && styles.guestGap]}>
       <SearchBar value={text} onChangeText={setText} onSubmit={submit} />
       {session.kind === "user" ? (
-        <Pressable
-          accessibilityRole="link"
-          accessibilityLabel={`${session.name} account`}
-          onPress={() => router.push("/profile")}
-          style={styles.avatar}
-        >
-          <Text style={styles.initial}>{session.name.slice(0, 1).toUpperCase()}</Text>
-        </Pressable>
+        <View style={styles.side}>
+          <Text style={styles.quota}>{session.downloadsUsed} of 10</Text>
+          <Pressable
+            accessibilityRole="link"
+            accessibilityLabel={`${session.name} account`}
+            onPress={() => router.push("/profile")}
+            style={styles.avatar}
+          >
+            <Text style={styles.initial}>{session.name.slice(0, 1).toUpperCase()}</Text>
+          </Pressable>
+        </View>
       ) : (
-        <Pressable
-          accessibilityRole="link"
-          accessibilityLabel="Register"
-          onPress={() => router.push("/register")}
-          style={styles.register}
-        >
-          <Text style={styles.registerLabel}>Register</Text>
-        </Pressable>
+        <View style={styles.side}>
+          <Text style={styles.quota}>5 left</Text>
+          <Pressable
+            accessibilityRole="link"
+            accessibilityLabel="Register"
+            onPress={() => router.push("/register")}
+            style={styles.register}
+          >
+            <Text style={styles.registerLabel}>Register</Text>
+          </Pressable>
+        </View>
       )}
     </View>
   );
@@ -63,12 +69,21 @@ const styles = StyleSheet.create({
     gap: 12,
     paddingVertical: 12,
     paddingHorizontal: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.line,
-    backgroundColor: colors.bg,
+    backgroundColor: colors.surface,
   },
   guestGap: {
     gap: 8,
+  },
+  side: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+  },
+  quota: {
+    fontFamily: font.sans,
+    fontSize: 14,
+    lineHeight: 20,
+    color: colors.muted,
   },
   avatar: {
     width: 44,

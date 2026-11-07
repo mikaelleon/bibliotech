@@ -25,7 +25,7 @@ export function DropdownMenuContent({
         align="end"
         sideOffset={8}
         className={cn(
-          "z-50 min-w-40 rounded-xl border border-border bg-card p-1 shadow-[var(--shadow-overlay)]",
+          "menu-pop z-50 min-w-40 rounded-xl bg-card p-1 shadow-[var(--shadow-overlay)]",
           className,
         )}
         {...props}

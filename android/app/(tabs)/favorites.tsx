@@ -95,8 +95,6 @@ const styles = StyleSheet.create({
     left: 16,
     right: 16,
     bottom: 16,
-    borderWidth: 1,
-    borderColor: colors.line,
     backgroundColor: colors.surface,
     borderRadius: 12,
     paddingHorizontal: 16,

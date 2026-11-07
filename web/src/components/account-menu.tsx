@@ -5,9 +5,9 @@ import Link from "next/link";
 import { useTransition } from "react";
 
 import { logoutAction } from "@/lib/actions";
+import { Button } from "@/components/ui/button";
 import type { Session } from "@/lib/types";
 import { Avatar } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -15,16 +15,18 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-export function AccountMenu({ session }: { session: Session }) {
+export function AccountMenu({ session, upgrade = true }: { session: Session; upgrade?: boolean }) {
   if (session.kind !== "user") {
     return (
       <div className="flex shrink-0 items-center gap-2 md:gap-4">
-        <Button asChild variant="link" className="hidden text-sm md:inline-flex">
+        <Button asChild variant="outline" className="hidden md:inline-flex">
           <Link href="/login">Log in</Link>
         </Button>
-        <Button asChild variant="outline" className="px-4 md:px-6">
-          <Link href="/register">Register</Link>
-        </Button>
+        {upgrade ? (
+          <Button asChild variant="outline" className="px-4 md:px-6">
+            <Link href="/register">Register</Link>
+          </Button>
+        ) : null}
       </div>
     );
   }
@@ -32,7 +34,7 @@ export function AccountMenu({ session }: { session: Session }) {
   return (
     <>
       <Link
-        href="/profile"
+        href={session.role === "admin" ? "/admin/account" : "/profile"}
         aria-label={`${session.name} account`}
         className="md:hidden"
       >
@@ -49,8 +51,19 @@ export function AccountMenu({ session }: { session: Session }) {
         </DropdownMenuTrigger>
         <DropdownMenuContent>
           {session.role === "admin" ? (
-            <p className="px-3 py-2 text-sm leading-5 text-muted-foreground">Admin</p>
-          ) : null}
+            <DropdownMenuItem asChild>
+              <Link href="/admin/account">Account settings</Link>
+            </DropdownMenuItem>
+          ) : (
+            <>
+              <DropdownMenuItem asChild>
+                <Link href="/profile">Profile</Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link href="/library">Library</Link>
+              </DropdownMenuItem>
+            </>
+          )}
           <LogoutItem />
         </DropdownMenuContent>
       </DropdownMenu>

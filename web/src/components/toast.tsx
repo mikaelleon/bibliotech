@@ -45,7 +45,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
           role="status"
           onMouseEnter={clear}
           onMouseLeave={dismissLater}
-          className="fixed bottom-[calc(72px+env(safe-area-inset-bottom))] left-1/2 z-50 flex w-[min(420px,calc(100%-32px))] -translate-x-1/2 items-center justify-between gap-4 rounded-xl border border-border bg-card px-4 py-3 text-sm leading-5 shadow-[var(--shadow-overlay)] md:bottom-6"
+          className="toast-pop fixed bottom-[calc(72px+env(safe-area-inset-bottom))] left-1/2 z-50 flex w-[min(420px,calc(100%-32px))] -translate-x-1/2 items-center justify-between gap-4 rounded-xl bg-card px-4 py-3 text-sm leading-5 shadow-[var(--shadow-overlay)] md:bottom-6"
         >
           <p>{item.message}</p>
           {item.action ? (

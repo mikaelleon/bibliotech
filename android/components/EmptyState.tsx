@@ -24,18 +24,15 @@ export function EmptyState({ icon, title, children, action, alert = false }: Emp
 
 const styles = StyleSheet.create({
   panel: {
-    borderWidth: 1,
-    borderColor: colors.line,
     backgroundColor: colors.surface,
     borderRadius: radius.panel,
-    padding: 24,
+    padding: 32,
   },
   title: {
     marginTop: 16,
-    fontFamily: font.serif,
-    fontSize: 24,
-    lineHeight: 32,
-    letterSpacing: -0.24,
+    fontFamily: font.medium,
+    fontSize: 20,
+    lineHeight: 28,
     color: colors.ink,
   },
   body: {

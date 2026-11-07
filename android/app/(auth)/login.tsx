@@ -15,6 +15,7 @@ import { Button } from "@/components/Button";
 import { Field } from "@/components/Field";
 import { Wordmark } from "@/components/Wordmark";
 import { useSession } from "@/lib/session";
+import { findUser } from "@/lib/users";
 import { colors, font } from "@/theme/tokens";
 
 export default function LoginScreen() {
@@ -33,7 +34,8 @@ export default function LoginScreen() {
       setBusy(false);
       return;
     }
-    router.replace("/browse");
+    const signedIn = findUser(email, password);
+    router.replace(signedIn?.role === "admin" ? "/admin-notice" : "/browse");
   }
 
   return (
@@ -112,7 +114,6 @@ const styles = StyleSheet.create({
     fontFamily: font.serif,
     fontSize: 32,
     lineHeight: 40,
-    letterSpacing: -0.32,
     color: colors.ink,
   },
   lede: {

@@ -59,6 +59,7 @@ export function Button({
         variant === "link" && styles.link,
         full && variant !== "link" && styles.full,
         pressed && !off && variant === "primary" && styles.primaryPressed,
+        pressed && !off && variant !== "link" && { transform: [{ scale: 0.97 }] },
         pressed && !off && variant === "outline" && styles.outlinePressed,
         off && styles.off,
         style,

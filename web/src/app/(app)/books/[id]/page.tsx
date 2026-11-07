@@ -1,13 +1,10 @@
-import { ArrowLeft, Bookmark, Download, Info } from "lucide-react";
-import Link from "next/link";
 import { notFound } from "next/navigation";
 
-import { Banner } from "@/components/banner";
-import { BookCard } from "@/components/book-card";
+import { BackLink } from "@/components/back-link";
+import { BookGrid } from "@/components/book-grid";
 import { BookCover } from "@/components/book-cover";
+import { CardFavorite } from "@/components/card-favorite";
 import { DefinitionList } from "@/components/definition-list";
-import { FavoriteButton } from "@/components/favorite-button";
-import { Button } from "@/components/ui/button";
 import { getBook, relatedBooks } from "@/lib/books";
 import { isFavorite } from "@/lib/records";
 import { getSession } from "@/lib/session";
@@ -26,19 +23,14 @@ export default async function BookPage({ params }: { params: Promise<{ id: strin
   const session = await getSession();
   const more = relatedBooks(book);
   const saved = session.kind === "user" ? await isFavorite(session.email, book.id) : false;
-  const guestLeft = 5;
-  const used = session.kind === "user" ? session.downloadsUsed : 0;
 
   return (
     <main className="mx-auto w-full max-w-[1200px] px-4 pt-2 pb-6 md:px-8 md:py-8">
-      <Link href="/browse" className="inline-flex min-h-11 items-center gap-2 text-sm leading-5 text-muted-foreground no-underline">
-        <ArrowLeft size={16} strokeWidth={1.5} aria-hidden />
-        Back to Browse
-      </Link>
+      <BackLink />
 
       <div className="mt-2 flex flex-col items-start gap-6 md:mt-4 md:flex-row md:gap-12">
         <div className="w-48 shrink-0 md:w-[280px]">
-          <BookCover book={book} />
+          <BookCover book={book} transitionName={`book-${book.id}`} />
         </div>
         <div className="min-w-0 flex-1">
           <h1 className="serif text-[32px] leading-10 font-light md:text-[40px] md:leading-[46px]">{book.title}</h1>
@@ -50,7 +42,7 @@ export default async function BookPage({ params }: { params: Promise<{ id: strin
               { term: "Language", value: book.language },
               { term: "License", value: book.license },
               {
-                term: "Source",
+                term: "Read online",
                 value: (
                   <a
                     href={book.sourceUrl}
@@ -74,48 +66,16 @@ export default async function BookPage({ params }: { params: Promise<{ id: strin
               book.summary
             )}
           </p>
-          <div className="mt-6 grid gap-4 md:mt-8">
-            {session.kind === "guest" ? (
-              <Banner icon={<Info size={20} strokeWidth={1.5} aria-hidden />}>
-                {guestLeft} of 5 downloads left. Create a free account for 10.{" "}
-                <Link href="/register" className="text-brand-text underline underline-offset-4">
-                  Register
-                </Link>
-              </Banner>
-            ) : null}
-            {session.kind === "user" ? (
-              <Banner icon={<Info size={20} strokeWidth={1.5} aria-hidden />}>
-                {used} of 10 downloads used.
-              </Banner>
-            ) : null}
-            <div className="flex flex-col gap-2 md:flex-row md:flex-wrap md:items-center">
-              <Button type="button" disabled aria-describedby="phase-note" className="w-full md:w-auto">
-                <Download strokeWidth={1.5} />
-                Download
-              </Button>
-              <Button type="button" variant="outline" disabled aria-describedby="phase-note" className="w-full md:w-auto">
-                <Bookmark strokeWidth={1.5} />
-                Save to Library
-              </Button>
-              {session.kind === "user" ? <FavoriteButton bookId={book.id} active={saved} /> : null}
-            </div>
-            <p id="phase-note" className="text-sm leading-5 text-muted-foreground">
-              Downloads arrive in Phase 2.
-            </p>
+          <div className="mt-6 md:mt-8">
+            <CardFavorite bookId={book.id} active={saved} signedIn={session.kind === "user"} />
           </div>
         </div>
       </div>
 
       {more.length > 0 ? (
         <section className="mt-16" aria-label={`More in ${book.category}`}>
-          <h2 className="serif text-2xl leading-8 font-light">More in {book.category}</h2>
-          <ul className="mt-6 grid grid-cols-2 gap-6 md:grid-cols-6">
-            {more.map((item) => (
-              <li key={item.id}>
-                <BookCard book={item} />
-              </li>
-            ))}
-          </ul>
+          <h2 className="section-title">More in {book.category}</h2>
+          <BookGrid books={more} showCategory={false} className="mt-6 md:grid-cols-6" />
         </section>
       ) : null}
     </main>

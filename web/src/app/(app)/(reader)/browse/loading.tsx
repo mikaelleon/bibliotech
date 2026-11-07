@@ -8,7 +8,7 @@ export default function BrowseLoading() {
       role="status"
       aria-label="Loading books"
     >
-      <section className="rounded-xl border border-border bg-card p-8">
+      <section className="rounded-xl bg-card p-8">
         <Skeleton className="h-10 w-2/3" />
         <Skeleton className="mt-3 h-4 w-1/3" />
         <Skeleton className="mt-6 h-11 w-48 rounded-full" />

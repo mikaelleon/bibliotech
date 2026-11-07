@@ -6,11 +6,14 @@ export function BookCover({
   book,
   className,
   decorative = false,
+  transitionName,
 }: {
   book: Book;
   className?: string;
   /** Inside a card the link already names the book, so the cover stays unlabeled. */
   decorative?: boolean;
+  /** Matches the card cover during a view transition. Set on one cover per page. */
+  transitionName?: string;
 }) {
   const label = `Cover of ${book.title} by ${book.author}`;
 
@@ -23,6 +26,7 @@ export function BookCover({
         alt={decorative ? "" : label}
         aria-hidden={decorative || undefined}
         className={cn("aspect-[2/3] w-full rounded-sm object-cover shadow-[var(--shadow-cover)]", className)}
+        style={transitionName ? { viewTransitionName: transitionName } : undefined}
       />
     );
   }
@@ -34,7 +38,11 @@ export function BookCover({
       aria-label={decorative ? undefined : label}
       aria-hidden={decorative || undefined}
       className={cn("cv", className)}
-      style={{ background: colors.background, color: colors.color }}
+      style={{
+        background: colors.background,
+        color: colors.color,
+        ...(transitionName ? { viewTransitionName: transitionName } : {}),
+      }}
     >
       <span className="ct">{book.title}</span>
       <span className="ca">{book.author}</span>

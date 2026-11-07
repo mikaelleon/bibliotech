@@ -81,7 +81,25 @@ body {
 .serif {
   font-family: var(--font-newsreader), Georgia, serif;
   font-weight: 300;
-  letter-spacing: -0.01em;
+  letter-spacing: 0;
+}
+
+.section-title {
+  font-family: var(--font-inter), system-ui, sans-serif;
+  font-weight: 500;
+  font-size: 20px;
+  line-height: 28px;
+  letter-spacing: 0;
+}
+
+h1,
+h2,
+h3 {
+  text-wrap: balance;
+}
+
+p {
+  text-wrap: pretty;
 }
 
 :focus-visible {
@@ -107,7 +125,7 @@ body {
   width: 100%;
   border-radius: 4px;
   box-shadow: var(--shadow-cover);
-  padding: 9cqw;
+  padding: 9%;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -128,6 +146,7 @@ body {
   font-weight: 400;
   font-size: 12cqw;
   line-height: 1.1;
+  overflow-wrap: anywhere;
 }
 
 .cv .ca {
@@ -161,41 +180,263 @@ body {
   }
 }
 
-@keyframes elib-slide-left {
+:root {
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --ease-in: cubic-bezier(0.4, 0, 1, 1);
+  --dur-press: 100ms;
+  --dur-hover: 150ms;
+  --dur-menu: 180ms;
+  --dur-menu-exit: 145ms;
+  --dur-panel: 250ms;
+  --dur-panel-exit: 200ms;
+  --dur-drawer: 300ms;
+  --dur-drawer-exit: 240ms;
+  --dur-page: 250ms;
+}
+
+.press {
+  transition: transform var(--dur-press) var(--ease-out), background-color var(--dur-hover) var(--ease-out),
+    color var(--dur-hover) var(--ease-out);
+}
+
+.press:active {
+  transform: scale(0.97);
+  transition: none;
+}
+
+.press-card {
+  transition: transform var(--dur-press) var(--ease-out);
+}
+
+.press-card:active {
+  transform: scale(0.98);
+  transition: none;
+}
+
+.page-enter {
+  animation: page-enter var(--dur-page) var(--ease-out);
+}
+
+.stagger > * {
+  animation: page-enter var(--dur-page) var(--ease-out) both;
+}
+
+.stagger > *:nth-child(1) { animation-delay: 0ms; }
+.stagger > *:nth-child(2) { animation-delay: 30ms; }
+.stagger > *:nth-child(3) { animation-delay: 60ms; }
+.stagger > *:nth-child(4) { animation-delay: 90ms; }
+.stagger > *:nth-child(5) { animation-delay: 120ms; }
+.stagger > *:nth-child(6) { animation-delay: 150ms; }
+.stagger > *:nth-child(7) { animation-delay: 180ms; }
+.stagger > *:nth-child(8) { animation-delay: 210ms; }
+.stagger > *:nth-child(9) { animation-delay: 240ms; }
+.stagger > *:nth-child(10) { animation-delay: 270ms; }
+.stagger > *:nth-child(11) { animation-delay: 300ms; }
+.stagger > *:nth-child(12) { animation-delay: 330ms; }
+.stagger > *:nth-child(n + 13) { animation-delay: 360ms; }
+
+.menu-pop[data-state="open"] {
+  transform-origin: var(--radix-dropdown-menu-content-transform-origin);
+  animation: pop-in var(--dur-menu) var(--ease-out);
+}
+
+.menu-pop[data-state="closed"] {
+  transform-origin: var(--radix-dropdown-menu-content-transform-origin);
+  animation: pop-out var(--dur-menu-exit) var(--ease-in);
+}
+
+.dialog-pop[data-state="open"] {
+  animation: dialog-in var(--dur-panel) var(--ease-out);
+}
+
+.dialog-pop[data-state="closed"] {
+  animation: dialog-out var(--dur-panel-exit) var(--ease-in);
+}
+
+.dialog-pop[data-state="open"] > * {
+  animation: page-enter var(--dur-page) var(--ease-out) both;
+}
+
+.dialog-pop[data-state="open"] > *:nth-child(2) { animation-delay: 30ms; }
+.dialog-pop[data-state="open"] > *:nth-child(3) { animation-delay: 60ms; }
+
+.toast-pop {
+  animation: toast-in var(--dur-panel) var(--ease-out);
+}
+
+.bar-grow {
+  transform-box: fill-box;
+  transform-origin: left center;
+  animation: bar-grow 400ms var(--ease-out) both;
+}
+
+.bar-rise {
+  transform-box: fill-box;
+  transform-origin: center bottom;
+  animation: bar-rise 400ms var(--ease-out) both;
+}
+
+@keyframes page-enter {
   from {
-    transform: translateX(100%);
+    opacity: 0;
+    transform: translateY(8px);
   }
   to {
-    transform: translateX(0);
+    opacity: 1;
+    transform: none;
   }
 }
 
-@keyframes elib-slide-up {
+@keyframes pop-in {
   from {
-    transform: translateY(100%);
+    opacity: 0;
+    transform: scale(0.95);
   }
   to {
-    transform: translateY(0);
+    opacity: 1;
+    transform: scale(1);
   }
+}
+
+@keyframes pop-out {
+  from {
+    opacity: 1;
+    transform: scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+}
+
+@keyframes dialog-in {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+@keyframes dialog-out {
+  from {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.96);
+  }
+}
+
+@keyframes toast-in {
+  from {
+    opacity: 0;
+    transform: translate(-50%, 12px);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+}
+
+@keyframes bar-grow {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+@keyframes bar-rise {
+  from {
+    transform: scaleY(0);
+  }
+  to {
+    transform: scaleY(1);
+  }
+}
+
+@keyframes sheet-in-right {
+  from { transform: translateX(100%); }
+  to { transform: translateX(0); }
+}
+
+@keyframes sheet-out-right {
+  from { transform: translateX(0); }
+  to { transform: translateX(100%); }
+}
+
+@keyframes sheet-in-up {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+
+@keyframes sheet-out-up {
+  from { transform: translateY(0); }
+  to { transform: translateY(100%); }
 }
 
 .sheet-overlay[data-state="open"] {
-  animation: elib-fade 200ms ease;
+  animation: elib-fade var(--dur-panel) var(--ease-out);
+}
+
+.sheet-overlay[data-state="closed"] {
+  animation: elib-fade var(--dur-panel-exit) var(--ease-in) reverse;
 }
 
 .sheet-right[data-state="open"] {
-  animation: elib-slide-left 200ms ease;
+  animation: sheet-in-right var(--dur-drawer) var(--ease-out);
+}
+
+.sheet-right[data-state="closed"] {
+  animation: sheet-out-right var(--dur-drawer-exit) var(--ease-in);
 }
 
 .sheet-bottom[data-state="open"] {
-  animation: elib-slide-up 200ms ease;
+  animation: sheet-in-up var(--dur-panel) var(--ease-out);
+}
+
+.sheet-bottom[data-state="closed"] {
+  animation: sheet-out-up var(--dur-panel-exit) var(--ease-in);
+}
+
+::view-transition-group(*) {
+  animation-duration: 300ms;
+  animation-timing-function: var(--ease-in-out);
 }
 
 @media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none;
+  }
+
   .sk-pulse,
   .sheet-overlay,
   .sheet-right,
-  .sheet-bottom {
+  .sheet-bottom,
+  .page-enter,
+  .stagger > *,
+  .menu-pop,
+  .dialog-pop,
+  .dialog-pop > *,
+  .toast-pop,
+  .bar-grow,
+  .bar-rise,
+  .press,
+  .press-card {
     animation: none;
+    transition: opacity 100ms linear;
+  }
+
+  .press:active,
+  .press-card:active {
+    transform: none;
   }
 }

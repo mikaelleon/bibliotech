@@ -8,14 +8,17 @@ export function BarList({ items }: { items: { label: string; count: number }[] }
 
   return (
     <ul className="grid gap-4">
-      {items.map((item) => (
+      {items.map((item, index) => (
         <li key={item.label}>
           <div className="flex items-baseline justify-between gap-4 text-sm leading-5">
             <span>{item.label}</span>
             <span className="text-muted-foreground">{item.count}</span>
           </div>
           <div className="mt-2 h-2 overflow-hidden rounded-full bg-border" aria-hidden>
-            <i className="block h-full bg-foreground" style={{ width: `${(item.count / max) * 100}%` }} />
+            <i
+              className="bar-grow block h-full bg-foreground"
+              style={{ width: `${(item.count / max) * 100}%`, animationDelay: `${Math.min(index, 12) * 30}ms` }}
+            />
           </div>
         </li>
       ))}

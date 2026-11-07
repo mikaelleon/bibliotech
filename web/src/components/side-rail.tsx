@@ -1,46 +1,22 @@
 "use client";
 
-import { BookOpen, Heart, Library, Lock, Shield, User, type LucideIcon } from "lucide-react";
+import { Lock } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
+import { mainNav } from "@/components/main-nav";
 import { Tooltip } from "@/components/ui/tooltip";
 import type { Session } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
-type Item = {
-  href: string;
-  label: string;
-  icon: LucideIcon;
-  locked: boolean;
-};
-
-function isCurrent(href: string, path: string): boolean {
-  if (href === "/browse") {
-    return path === "/browse" || path.startsWith("/books/") || path.startsWith("/search");
-  }
-  if (href === "/admin") return path.startsWith("/admin");
-  return path === href;
-}
-
 export function SideRail({ session }: { session: Session }) {
   const path = usePathname();
-  const guest = session.kind !== "user";
-  const items: Item[] = [
-    { href: "/browse", label: "Browse", icon: BookOpen, locked: false },
-    { href: "/library", label: "My Library", icon: Library, locked: guest },
-    { href: "/favorites", label: "Favorites", icon: Heart, locked: guest },
-    { href: "/profile", label: "Profile", icon: User, locked: guest },
-  ];
-
-  if (session.kind === "user" && session.role === "admin") {
-    items.push({ href: "/admin", label: "Admin", icon: Shield, locked: false });
-  }
+  const items = mainNav(session, false);
 
   return (
-    <nav aria-label="Main" className="hidden w-20 shrink-0 flex-col items-center gap-2 border-r border-border bg-card py-6 md:flex">
+    <nav aria-label="Main" className="sticky top-0 hidden h-dvh w-20 shrink-0 flex-col items-center gap-2 self-start bg-card py-6 md:flex">
       {items.map((item) => {
-        const current = isCurrent(item.href, path);
+        const current = item.current(path);
         const Icon = item.icon;
         const label = item.locked ? `${item.label} (requires an account)` : item.label;
         const link = (
@@ -67,7 +43,7 @@ export function SideRail({ session }: { session: Session }) {
 
         return (
           <div key={item.href}>
-            {item.locked ? <Tooltip label="Requires an account">{link}</Tooltip> : link}
+            {item.locked ? <Tooltip label="Requires an account">{link}</Tooltip> : <Tooltip label={item.label}>{link}</Tooltip>}
           </div>
         );
       })}

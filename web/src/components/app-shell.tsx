@@ -1,25 +1,30 @@
 "use client";
 
+import { BookOpen } from "lucide-react";
 import { usePathname } from "next/navigation";
+import Link from "next/link";
 import { Suspense, type ReactNode } from "react";
 
 import { AccountMenu } from "@/components/account-menu";
 import { AIAssistant } from "@/components/ai-assistant";
 import { OfflineBanner } from "@/components/offline-banner";
-import { QuotaStrip } from "@/components/quota-strip";
+import { QuotaMeter } from "@/components/quota-strip";
 import { SearchBar } from "@/components/search-bar";
 import { ShellSearch } from "@/components/shell-search";
 import { SideRail } from "@/components/side-rail";
 import { TabBar } from "@/components/tab-bar";
+import { ThemeToggle } from "@/components/theme-toggle";
 import { ToastProvider } from "@/components/toast";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { Wordmark } from "@/components/wordmark";
 import type { Session } from "@/lib/types";
 
 export function AppShell({ session, children }: { session: Session; children: ReactNode }) {
   const path = usePathname();
   const onBook = path.startsWith("/books/");
-  const onAdmin = path.startsWith("/admin");
-  const onBrowse = path === "/browse";
+  const admin = session.kind === "user" && session.role === "admin";
+  const reader = session.kind === "guest" || (session.kind === "user" && !admin);
+  const lockedPage = path === "/library" || path === "/favorites" || path === "/profile";
 
   return (
     <TooltipProvider>
@@ -29,22 +34,34 @@ export function AppShell({ session, children }: { session: Session; children: Re
           <SideRail session={session} />
           <div className="flex min-w-0 flex-1 flex-col pb-[calc(56px+env(safe-area-inset-bottom))] md:pb-0">
             <div className={onBook ? "hidden md:contents" : "contents"}>
-              <header className="flex items-center gap-3 border-b border-border px-4 py-3 md:gap-4 md:px-8">
-                <Suspense fallback={<SearchBar />}>
-                  <ShellSearch />
-                </Suspense>
-                <div className="ml-auto">
-                  <AccountMenu session={session} />
+              <header className="sticky top-0 z-30 flex items-center gap-3 bg-card px-4 py-3 md:gap-4 md:px-8">
+                {admin ? (
+                  <Wordmark />
+                ) : (
+                  <>
+                    <Link href="/browse" aria-label="E-Library AI" className="inline-flex size-11 shrink-0 items-center justify-center md:hidden">
+                      <BookOpen size={20} strokeWidth={1.5} aria-hidden />
+                    </Link>
+                    <Suspense fallback={<SearchBar />}>
+                      <ShellSearch />
+                    </Suspense>
+                  </>
+                )}
+                <div className="ml-auto flex items-center gap-2 md:gap-3">
+                  {admin ? null : <QuotaMeter session={session} />}
+                  <ThemeToggle compact />
+                  <AccountMenu session={session} upgrade={!lockedPage} />
                 </div>
               </header>
-              {onAdmin ? null : <QuotaStrip session={session} />}
               <OfflineBanner />
             </div>
-            {children}
+            <div key={path} className="page-enter">
+              {children}
+            </div>
           </div>
         </div>
         <TabBar session={session} />
-        {onBrowse ? <AIAssistant hideTriggerOnMobile={session.kind !== "user"} /> : null}
+        {reader ? <AIAssistant /> : null}
       </div>
       </ToastProvider>
     </TooltipProvider>

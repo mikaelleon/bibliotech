@@ -8,7 +8,9 @@ export type StoredUser = {
 
 /**
  * In-memory account stub. The repo has no database.
- * Seed login matches the web app: dane@elibrary.local / library1.
+ * Seed logins match the web app: dane@elibrary.local / library1 (reader)
+ * and admin@elibrary.local / admin1234 (admin). An administrator on Android
+ * sees a notice and cannot open the reader tabs.
  * New accounts last until the process restarts.
  */
 export const users: StoredUser[] = [
@@ -17,6 +19,13 @@ export const users: StoredUser[] = [
     email: "dane@elibrary.local",
     password: "library1",
     role: "user",
+    downloadsUsed: 0,
+  },
+  {
+    name: "Library Admin",
+    email: "admin@elibrary.local",
+    password: "admin1234",
+    role: "admin",
     downloadsUsed: 0,
   },
 ];

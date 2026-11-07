@@ -27,11 +27,9 @@ export function DefinitionList({ items, card = false }: DefinitionListProps) {
 
 const styles = StyleSheet.create({
   card: {
-    borderWidth: 1,
-    borderColor: colors.line,
     backgroundColor: colors.surface,
     borderRadius: radius.panel,
-    padding: 24,
+    padding: 32,
   },
   row: {
     flexDirection: "row",

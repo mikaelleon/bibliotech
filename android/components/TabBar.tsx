@@ -67,8 +67,6 @@ export function TabBar() {
 const styles = StyleSheet.create({
   bar: {
     flexDirection: "row",
-    borderTopWidth: 1,
-    borderTopColor: colors.line,
     backgroundColor: colors.surface,
     paddingTop: 4,
   },

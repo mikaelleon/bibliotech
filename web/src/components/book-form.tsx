@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 
+import { BookCover } from "@/components/book-cover";
 import { Field } from "@/components/field";
 import { Button } from "@/components/ui/button";
 import { Select } from "@/components/ui/select";
@@ -45,6 +46,11 @@ export function BookForm({ book }: { book?: Book }) {
         event.preventDefault();
       }}
     >
+      {book ? (
+        <div className="w-24">
+          <BookCover book={book} />
+        </div>
+      ) : null}
       <Field
         label="Title"
         name="title"
@@ -125,13 +131,13 @@ export function BookForm({ book }: { book?: Book }) {
       <Field label="Language" name="language" value={language} onChange={setLanguage} />
       <div className="mt-2 flex flex-wrap justify-end gap-2">
         <Button asChild variant="outline">
-          <Link href="/admin/books">Cancel</Link>
+          <Link href="/admin/books">Back to books</Link>
         </Button>
         <Button type="submit" disabled>
-          Save book
+          Save
         </Button>
       </div>
-      <p className="text-sm leading-5 text-muted-foreground">Saving arrives in Phase 2.</p>
+      <p className="text-sm leading-5 text-muted-foreground">Arrives in Phase 2.</p>
     </form>
   );
 }

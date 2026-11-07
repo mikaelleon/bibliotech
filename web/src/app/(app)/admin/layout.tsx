@@ -18,7 +18,7 @@ export default async function AdminLayout({ children }: { children: ReactNode })
           </Button>
         }
       >
-        Admin pages are limited to accounts with the admin role.
+        Admin pages are limited to accounts with the admin role. Ask an administrator to change your role, then sign in again.
       </ErrorPanel>
     );
   }

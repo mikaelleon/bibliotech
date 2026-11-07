@@ -1,10 +1,10 @@
 [
   {
     "userEmail": "dane@elibrary.local",
-    "bookId": "dracula"
+    "bookId": "walden"
   },
   {
     "userEmail": "dane@elibrary.local",
-    "bookId": "walden"
+    "bookId": "dracula"
   }
 ]

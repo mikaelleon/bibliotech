@@ -2,7 +2,6 @@ import { notFound } from "next/navigation";
 
 import { BookForm } from "@/components/book-form";
 import { PageHeader } from "@/components/page-header";
-import { SectionTabs } from "@/components/section-tabs";
 import { isAdminSession } from "@/lib/admin";
 import { getBook } from "@/lib/books";
 import { getSession } from "@/lib/session";
@@ -22,10 +21,7 @@ export default async function EditBookPage({ params }: { params: Promise<{ id: s
 
   return (
     <main className="mx-auto flex w-full max-w-[1200px] flex-col gap-16 px-4 py-6 md:px-8 md:py-8">
-      <div>
-        <PageHeader title="Edit book" lede={book.title} />
-        <SectionTabs />
-      </div>
+      <PageHeader title="Edit book" lede={book.title} />
       <BookForm book={book} />
     </main>
   );

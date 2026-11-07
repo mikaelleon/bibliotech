@@ -36,7 +36,7 @@ export function Pagination({
   const next = pageHref(pathname, params, current + 1);
 
   return (
-    <div className="flex items-center justify-between gap-4 border-t border-border px-4 py-3">
+    <div className="flex items-center justify-between gap-4 px-4 py-3">
       <p className="text-sm leading-5 text-muted-foreground">
         {start} to {end} of {total}
       </p>

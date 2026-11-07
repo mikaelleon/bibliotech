@@ -21,8 +21,8 @@ export function Dialog({
     <DialogPrimitive.Root open={open} onOpenChange={onOpenChange}>
       <DialogPrimitive.Portal>
         <DialogPrimitive.Overlay className="fixed inset-0 z-50 bg-[rgba(31,35,48,0.4)]" />
-        <DialogPrimitive.Content className="fixed top-1/2 left-1/2 z-50 w-[min(480px,calc(100%-32px))] -translate-x-1/2 -translate-y-1/2 rounded-xl bg-card p-6 shadow-[var(--shadow-overlay)] focus:outline-none">
-          <DialogPrimitive.Title className="serif text-2xl leading-8 font-light">{title}</DialogPrimitive.Title>
+        <DialogPrimitive.Content className="dialog-pop fixed top-1/2 left-1/2 z-50 w-[min(480px,calc(100%-32px))] -translate-x-1/2 -translate-y-1/2 rounded-xl bg-card p-8 shadow-[var(--shadow-overlay)] focus:outline-none">
+          <DialogPrimitive.Title className="section-title">{title}</DialogPrimitive.Title>
           <DialogPrimitive.Description asChild>
             <div className="mt-2 text-base leading-6 text-foreground">{children}</div>
           </DialogPrimitive.Description>

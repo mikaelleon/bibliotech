@@ -120,7 +120,6 @@ const styles = StyleSheet.create({
     fontFamily: font.serif,
     fontSize: 32,
     lineHeight: 40,
-    letterSpacing: -0.32,
     color: colors.ink,
   },
   lede: {
@@ -162,11 +161,9 @@ const styles = StyleSheet.create({
     color: colors.ink,
   },
   card: {
-    borderWidth: 1,
-    borderColor: colors.line,
     backgroundColor: colors.surface,
     borderRadius: radius.panel,
-    padding: 24,
+    padding: 32,
   },
   usage: {
     fontFamily: font.medium,

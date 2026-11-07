@@ -1,6 +1,6 @@
 "use client";
 
-import { MessageSquare, Send, Sparkles, X } from "lucide-react";
+import { MessagesSquare, Send, X } from "lucide-react";
 import { useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
@@ -42,7 +42,7 @@ export function AIAssistant({ hideTriggerOnMobile = false }: { hideTriggerOnMobi
             open && "hidden",
           )}
         >
-          <Sparkles size={16} strokeWidth={1.5} aria-hidden />
+          <MessagesSquare size={16} strokeWidth={1.5} aria-hidden />
           Ask AI
         </button>
       </SheetTrigger>
@@ -50,8 +50,13 @@ export function AIAssistant({ hideTriggerOnMobile = false }: { hideTriggerOnMobi
         {mobile ? (
           <div aria-hidden className="mx-auto mt-2 h-1 w-12 rounded-full bg-border" />
         ) : null}
-        <div className="flex items-center justify-between border-b border-border px-4 py-1 md:py-3">
-          <SheetTitle className="serif text-xl leading-7 font-normal">AI assistant</SheetTitle>
+        <div className="flex items-center justify-between px-4 py-1 md:py-3">
+          <SheetTitle className="section-title">
+            <span className="inline-flex items-center gap-2">
+              <MessagesSquare size={20} strokeWidth={1.5} aria-hidden />
+              AI assistant
+            </span>
+          </SheetTitle>
           <SheetClose asChild>
             <Button type="button" variant="link" className="size-11 px-0 text-foreground no-underline" aria-label="Close AI assistant">
               <X size={20} strokeWidth={1.5} />
@@ -59,8 +64,8 @@ export function AIAssistant({ hideTriggerOnMobile = false }: { hideTriggerOnMobi
           </SheetClose>
         </div>
         <div className="flex-1 overflow-y-auto px-4 py-4 md:py-6">
-          <MessageSquare size={24} strokeWidth={1.5} aria-hidden className="hidden text-muted-foreground md:block" />
-          <p className="serif text-2xl leading-8 md:mt-4">AI assistant coming in Phase 2.</p>
+          <MessagesSquare size={24} strokeWidth={1.5} aria-hidden className="hidden text-muted-foreground md:block" />
+          <p className="section-title md:mt-4">AI assistant coming in Phase 2</p>
           <p className="mt-2 text-sm leading-5 text-muted-foreground">
             It will answer questions about the library and help you pick your next book.
           </p>
@@ -70,7 +75,7 @@ export function AIAssistant({ hideTriggerOnMobile = false }: { hideTriggerOnMobi
               <li key={prompt}>
                 <button
                   type="button"
-                  className="min-h-11 w-full border-b border-border py-2 text-left text-sm leading-5"
+                  className="press min-h-11 w-full py-2 text-left text-sm leading-5"
                   onClick={() => setDraft(prompt)}
                 >
                   {prompt}
@@ -80,7 +85,7 @@ export function AIAssistant({ hideTriggerOnMobile = false }: { hideTriggerOnMobi
           </ul>
         </div>
         <form
-          className="border-t border-border p-4"
+          className="p-4"
           onSubmit={(event) => event.preventDefault()}
         >
           <label htmlFor="ai-message" className="sr-only">
@@ -92,7 +97,7 @@ export function AIAssistant({ hideTriggerOnMobile = false }: { hideTriggerOnMobi
               value={draft}
               onChange={(event) => setDraft(event.target.value)}
               placeholder="Ask about a book"
-              className="h-11 min-w-0 flex-1 rounded-full border border-border bg-background px-4 text-sm"
+              className="h-11 min-w-0 flex-1 rounded-xl border border-border bg-background px-4 text-sm"
             />
             <Button type="submit" disabled aria-label="Send message" className="size-11 px-0">
               <Send size={16} strokeWidth={1.5} />

@@ -24,7 +24,6 @@ const styles = StyleSheet.create({
     fontFamily: font.serif,
     fontSize: 20,
     lineHeight: 28,
-    letterSpacing: -0.2,
     color: colors.ink,
   },
 });

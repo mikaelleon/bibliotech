@@ -10,7 +10,7 @@ export function LockedPanel({ title }: { title: string }) {
       <Text style={styles.h1}>{title}</Text>
       <View style={styles.panel}>
         <Lock color={colors.muted} size={24} strokeWidth={1.5} />
-        <Text style={styles.h2}>Create a free account to unlock this.</Text>
+        <Text style={styles.h2}>Create a free account to unlock this</Text>
         <Text style={styles.body}>
           My Library keeps every book you download in one place. An account also adds Favorites and raises your limit from 5 to 10 downloads.
         </Text>
@@ -31,23 +31,19 @@ const styles = StyleSheet.create({
     fontFamily: font.serif,
     fontSize: 32,
     lineHeight: 40,
-    letterSpacing: -0.32,
     color: colors.ink,
   },
   panel: {
     marginTop: 24,
-    borderWidth: 1,
-    borderColor: colors.line,
     backgroundColor: colors.surface,
     borderRadius: 12,
-    padding: 24,
+    padding: 32,
   },
   h2: {
     marginTop: 16,
-    fontFamily: font.serif,
-    fontSize: 24,
-    lineHeight: 32,
-    letterSpacing: -0.24,
+    fontFamily: font.medium,
+    fontSize: 20,
+    lineHeight: 28,
     color: colors.ink,
   },
   body: {

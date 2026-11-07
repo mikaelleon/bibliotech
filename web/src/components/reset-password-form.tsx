@@ -34,7 +34,7 @@ export function ResetPasswordForm({ valid }: { valid: boolean }) {
         title="Password updated"
         action={
           <Button asChild>
-            <Link href="/login">Back to Login</Link>
+            <Link href="/login">Back to login</Link>
           </Button>
         }
       >

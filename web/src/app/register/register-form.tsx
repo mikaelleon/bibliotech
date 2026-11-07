@@ -15,14 +15,24 @@ export function RegisterForm() {
   const [email, setEmail] = useState(state?.values?.email ?? "");
   const [password, setPassword] = useState("");
   const [submitted, setSubmitted] = useState(false);
+  const [touched, setTouched] = useState({ name: false, email: false, password: false });
 
-  const nameError = submitted && !name.trim() ? "Enter a display name." : undefined;
+  function mark(field: keyof typeof touched) {
+    return () => {
+      setTouched((current) => ({ ...current, [field]: true }));
+    };
+  }
+
+  const showName = submitted || touched.name;
+  const showEmail = submitted || touched.email;
+  const showPassword = submitted || touched.password;
+  const nameError = showName && !name.trim() ? "Enter a display name." : undefined;
   const emailStillRejected =
     state?.errors?.email && state.values?.email === email.trim() ? state.errors.email : undefined;
   const emailError =
     emailStillRejected ??
-    (submitted && !emailPattern.test(email.trim()) ? "Enter a valid email, like name@example.com." : undefined);
-  const passwordError = submitted && password.length < 8 ? "Use at least 8 characters." : undefined;
+    (showEmail && !emailPattern.test(email.trim()) ? "Enter a valid email, like name@example.com." : undefined);
+  const passwordError = showPassword && password.length < 8 ? "Use at least 8 characters." : undefined;
 
   return (
     <form
@@ -36,8 +46,8 @@ export function RegisterForm() {
         autoComplete="name"
         value={name}
         onChange={setName}
-        error={submitted ? nameError : undefined}
-        success={name.trim() ? "Looks good." : undefined}
+        onBlur={mark("name")}
+        error={nameError}
       />
       <Field
         label="Email"
@@ -46,6 +56,7 @@ export function RegisterForm() {
         autoComplete="email"
         value={email}
         onChange={setEmail}
+        onBlur={mark("email")}
         error={emailError}
       />
       <Field
@@ -55,6 +66,7 @@ export function RegisterForm() {
         autoComplete="new-password"
         value={password}
         onChange={setPassword}
+        onBlur={mark("password")}
         hint="At least 8 characters."
         error={passwordError}
       />

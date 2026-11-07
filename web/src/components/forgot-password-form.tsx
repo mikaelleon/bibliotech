@@ -44,14 +44,16 @@ export function ForgotPasswordForm() {
           {cooldown > 0 ? (
             <span className="text-muted-foreground">Resend email in {cooldown}s</span>
           ) : (
-            <button type="button" className="text-brand-text underline underline-offset-4" onClick={() => send(sent)}>
+            <Button type="button" variant="outline" onClick={() => send(sent)}>
               Resend email
-            </button>
+            </Button>
           )}
         </p>
-        <Link href="/login" className="mt-4 inline-block text-sm leading-5 text-brand-text underline underline-offset-4">
-          Back to Login
-        </Link>
+        <p className="mt-4 text-sm leading-5">
+          <Link href="/login" className="text-brand-text underline">
+            Back to login
+          </Link>
+        </p>
       </div>
     );
   }
@@ -71,9 +73,11 @@ export function ForgotPasswordForm() {
     >
       <Field label="Email" name="email" type="email" autoComplete="email" value={email} onChange={setEmail} error={error ?? undefined} />
       <Button type="submit">Send reset link</Button>
-      <Link href="/login" className="text-sm leading-5 text-brand-text underline underline-offset-4">
-        Back to Login
-      </Link>
+      <p className="text-sm leading-5">
+        <Link href="/login" className="text-brand-text underline">
+          Back to login
+        </Link>
+      </p>
     </form>
     </>
   );

@@ -6,7 +6,7 @@
 -- Promote one account to admin. The demo reader dane@elibrary.local is not an admin.
 -- update public.profiles
 -- set role = 'admin'
--- where id = (select id from auth.users where email = 'admin@example.com');
+-- where id = (select id from auth.users where email = 'admin@elibrary.local');
 
 -- Sample favorites for that account. Replace the book ids with real ones.
 -- insert into public.favorites (user_id, book_id)

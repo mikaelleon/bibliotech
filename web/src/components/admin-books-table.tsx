@@ -1,6 +1,6 @@
 "use client";
 
-import { MoreHorizontal } from "lucide-react";
+import { Ellipsis } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 
@@ -16,35 +16,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import type { Book } from "@/lib/types";
 
-function RowMenu({ book, onDelete }: { book: Book; onDelete: (book: Book) => void }) {
-  return (
-    <DropdownMenu>
-      <DropdownMenuTrigger
-        aria-label={`Actions for ${book.title}`}
-        className="inline-flex size-11 items-center justify-center rounded-full hover:bg-background"
-        onClick={(event) => event.stopPropagation()}
-      >
-        <MoreHorizontal size={20} strokeWidth={1.5} aria-hidden />
-      </DropdownMenuTrigger>
-      <DropdownMenuContent>
-        <DropdownMenuItem asChild>
-          <Link href={`/admin/books/${book.id}/edit`}>Edit</Link>
-        </DropdownMenuItem>
-        <DropdownMenuItem
-          onSelect={(event) => {
-            event.preventDefault();
-            onDelete(book);
-          }}
-        >
-          Delete
-        </DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
-  );
-}
-
 export function AdminBooksTable({ books }: { books: Book[] }) {
-  const [pending, setPending] = useState<Book | null>(null);
   const columns: DataColumn<Book>[] = [
     {
       key: "cover",
@@ -61,7 +33,9 @@ export function AdminBooksTable({ books }: { books: Book[] }) {
       header: "Title",
       cell: (book) => (
         <span className="block">
-          <span className="block text-sm leading-5 font-medium">{book.title}</span>
+          <Link href={`/admin/books/${book.id}/edit`} className="block text-sm leading-5 font-medium text-foreground no-underline">
+            {book.title}
+          </Link>
           <span className="block text-sm leading-5 text-muted-foreground">{book.author}</span>
         </span>
       ),
@@ -89,22 +63,53 @@ export function AdminBooksTable({ books }: { books: Book[] }) {
     {
       key: "menu",
       header: "Actions",
-      cell: (book) => <RowMenu book={book} onDelete={setPending} />,
+      cell: (book) => <BookRowMenu book={book} />,
     },
   ];
 
   return (
+    <DataTable
+      columns={columns}
+      rows={books}
+      empty="No books match that search."
+      caption="Books"
+      hrefFor={(book) => `/admin/books/${book.id}/edit`}
+    />
+  );
+}
+
+function BookRowMenu({ book }: { book: Book }) {
+  const [open, setOpen] = useState(false);
+
+  return (
     <>
-      <DataTable columns={columns} rows={books} empty="No books match that search." caption="Books" hrefFor={(book) => `/books/${book.id}`} />
+      <DropdownMenu>
+        <DropdownMenuTrigger
+          aria-label={`Actions for ${book.title}`}
+          className="inline-flex size-11 items-center justify-center rounded-full hover:bg-background"
+        >
+          <Ellipsis size={20} strokeWidth={1.5} aria-hidden />
+        </DropdownMenuTrigger>
+        <DropdownMenuContent>
+          <DropdownMenuItem asChild>
+            <Link href={`/admin/books/${book.id}/edit`}>Edit</Link>
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            onSelect={() => {
+              window.setTimeout(() => setOpen(true), 0);
+            }}
+          >
+            Delete
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
       <Dialog
-        open={pending !== null}
-        onOpenChange={(open) => {
-          if (!open) setPending(null);
-        }}
-        title="Delete this book?"
+        open={open}
+        onOpenChange={setOpen}
+        title={`Delete ${book.title}?`}
         footer={
           <>
-            <Button type="button" variant="outline" onClick={() => setPending(null)}>
+            <Button type="button" variant="outline" onClick={() => setOpen(false)}>
               Cancel
             </Button>
             <Button type="button" disabled>
@@ -113,8 +118,8 @@ export function AdminBooksTable({ books }: { books: Book[] }) {
           </>
         }
       >
-        {pending ? `${pending.title} will be removed. This can't be undone.` : null}
-        <span className="mt-2 block text-sm leading-5 text-muted-foreground">Deleting arrives in Phase 2.</span>
+        <p>This removes {book.title} from the catalog.</p>
+        <p className="mt-2 text-sm leading-5 text-muted-foreground">Arrives in Phase 2.</p>
       </Dialog>
     </>
   );

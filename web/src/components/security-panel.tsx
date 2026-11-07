@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 
+import { Field } from "@/components/field";
 import { useToast } from "@/components/toast";
 import { Button } from "@/components/ui/button";
 import { updatePasswordAction } from "@/lib/actions";
@@ -36,34 +37,31 @@ export function SecurityPanel() {
   }
 
   return (
-    <section className="rounded-xl border border-border bg-card p-6" aria-labelledby="security-heading">
+    <section className="rounded-xl bg-card p-8" aria-labelledby="security-heading">
       <h2 id="security-heading" className="text-xl leading-7 font-medium">
         Security
       </h2>
-      <label className="mt-4 grid gap-2 text-sm leading-5" htmlFor="new-password">
-        New password
-        <input
-          id="new-password"
+      <div className="mt-4 grid gap-4">
+        <Field
+          label="New password"
+          name="newPassword"
           type="password"
           autoComplete="new-password"
           value={password}
-          onChange={(event) => setPassword(event.target.value)}
-          className="h-11 rounded-xl border border-border bg-background px-3 text-base"
+          onChange={setPassword}
+          hint="At least 8 characters."
         />
-      </label>
-      <label className="mt-4 grid gap-2 text-sm leading-5" htmlFor="confirm-password">
-        Confirm password
-        <input
-          id="confirm-password"
+        <Field
+          label="Confirm password"
+          name="confirmPassword"
           type="password"
           autoComplete="new-password"
           value={confirm}
-          onChange={(event) => setConfirm(event.target.value)}
-          className="h-11 rounded-xl border border-border bg-background px-3 text-base"
+          onChange={setConfirm}
+          error={error ?? undefined}
         />
-      </label>
-      {error ? <p className="mt-2 text-sm leading-5 text-brand-text">{error}</p> : null}
-      <Button type="button" variant="outline" className="mt-4" onClick={() => void save()} disabled={pending}>
+      </div>
+      <Button type="button" className="mt-4" onClick={() => void save()} disabled={pending}>
         {pending ? "Updating" : "Update password"}
       </Button>
     </section>

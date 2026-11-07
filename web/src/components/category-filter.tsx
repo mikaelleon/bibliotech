@@ -3,10 +3,11 @@ import Link from "next/link";
 import { CATEGORIES } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
-function hrefFor(base: string, category: string | null, query: string): string {
+function hrefFor(base: string, category: string | null, query: string, sort: string): string {
   const params = new URLSearchParams();
   if (query) params.set("q", query);
   if (category) params.set("category", category);
+  if (sort && sort !== "catalog") params.set("sort", sort);
   const value = params.toString();
   return value ? `${base}?${value}` : base;
 }
@@ -15,10 +16,12 @@ function hrefFor(base: string, category: string | null, query: string): string {
 export function CategoryFilter({
   selected,
   query,
+  sort = "",
   base = "/browse",
 }: {
   selected?: string;
   query?: string;
+  sort?: string;
   base?: string;
 }) {
   const current = selected && CATEGORIES.includes(selected as (typeof CATEGORIES)[number]) ? selected : "All";
@@ -32,13 +35,11 @@ export function CategoryFilter({
           return (
             <li key={chip} className="shrink-0">
               <Link
-                href={hrefFor(base, chip === "All" ? null : chip, query ?? "")}
+                href={hrefFor(base, chip === "All" ? null : chip, query ?? "", sort)}
                 aria-current={on ? "true" : undefined}
                 className={cn(
-                  "inline-flex min-h-11 items-center rounded-full border px-4 text-sm leading-5 no-underline",
-                  on
-                    ? "border-primary bg-primary text-primary-foreground"
-                    : "border-border bg-card text-foreground",
+                  "press inline-flex min-h-11 items-center rounded-xl px-4 text-sm leading-5 no-underline",
+                  on ? "bg-primary text-primary-foreground" : "bg-card text-foreground",
                 )}
               >
                 {chip}

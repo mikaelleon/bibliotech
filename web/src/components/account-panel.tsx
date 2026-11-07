@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 
+import { Field } from "@/components/field";
 import { useToast } from "@/components/toast";
 import { Button } from "@/components/ui/button";
 import { updateNameAction } from "@/lib/actions";
@@ -25,25 +26,17 @@ export function AccountPanel({ name, email }: { name: string; email: string }) {
   }
 
   return (
-    <section className="rounded-xl border border-border bg-card p-6" aria-labelledby="account-heading">
+    <section className="rounded-xl bg-card p-8" aria-labelledby="account-heading">
       <h2 id="account-heading" className="text-xl leading-7 font-medium">
         Account
       </h2>
-      <label className="mt-4 grid gap-2 text-sm leading-5" htmlFor="display-name">
-        Display name
-        <input
-          id="display-name"
-          value={value}
-          onChange={(event) => setValue(event.target.value)}
-          className="h-11 rounded-xl border border-border bg-background px-3 text-base"
-        />
-      </label>
-      {error ? <p className="mt-2 text-sm leading-5 text-brand-text">{error}</p> : null}
+      <div className="mt-4 grid gap-4">
+        <Field label="Display name" name="displayName" value={value} onChange={setValue} error={error ?? undefined} />
+        <Field label="Email" name="email" value={email} readOnly />
+      </div>
       <Button type="button" className="mt-4" onClick={() => void save()} disabled={pending}>
         {pending ? "Saving" : "Save"}
       </Button>
-      <p className="mt-6 text-sm leading-5 text-muted-foreground">Email</p>
-      <p className="text-sm leading-5 text-muted-foreground">{email}</p>
     </section>
   );
 }

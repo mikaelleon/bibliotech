@@ -8,7 +8,7 @@ Checked on 7 November 2026. There is no Supabase project in this repo, so the SQ
 
 These statements were not executed against Postgres. There is no database in this repo, so a guest or a registered user cannot be shown a live RPC rejection. The same refusal is what the Next.js server does.
 
-In `web/src/lib/admin.ts`, `assertAdmin` throws `not allowed` before `adminStats`, `adminListUsers`, or `adminListDownloads` read anything. A guest and a registered user therefore cannot receive those results. Confirmed in the browser: both see the 403 panel on `/admin`, `/admin/books`, `/admin/users`, and `/admin/downloads`, and the Admin rail item is absent. A visitor with no cookie is redirected to `/login` by `proxy.ts` before the page renders.
+In `web/src/lib/admin.ts`, `assertAdmin` throws `not allowed` before `adminStats`, `adminListUsers`, or `adminListDownloads` read anything. A guest and a registered user therefore cannot receive those results. Confirmed in the browser: both see the 403 panel on `/admin`, `/admin/books`, `/admin/users`, and `/admin/analytics`, and the operator navigation is absent. An administrator who opens a reader route is redirected to `/admin`. `/admin/downloads` redirects to `/admin/analytics`. A visitor with no cookie is redirected to `/login` by `proxy.ts` before the page renders.
 
 ## No flash of admin data
 

@@ -18,6 +18,7 @@ export function FavoritesGrid({ books }: { books: Book[] }) {
         <li key={book.id}>
           <BookCard
             book={book}
+            showCategory
             corner={
               <FavoriteButton
                 bookId={book.id}

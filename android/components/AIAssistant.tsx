@@ -1,4 +1,4 @@
-import { Send, Sparkles, X } from "lucide-react-native";
+import { MessagesSquare, Send, X } from "lucide-react-native";
 import { useEffect, useState } from "react";
 import {
   Animated,
@@ -28,6 +28,21 @@ export function AIAssistant() {
   const [draft, setDraft] = useState("");
   const [translate] = useState(() => new Animated.Value(560));
 
+  function close() {
+    if (reduce) {
+      setOpen(false);
+      return;
+    }
+    Animated.timing(translate, {
+      toValue: 560,
+      duration: 200,
+      easing: Easing.bezier(0.4, 0, 1, 1),
+      useNativeDriver: true,
+    }).start(({ finished }) => {
+      if (finished) setOpen(false);
+    });
+  }
+
   useEffect(() => {
     if (!open) return;
     if (reduce) {
@@ -37,8 +52,8 @@ export function AIAssistant() {
     translate.setValue(560);
     Animated.timing(translate, {
       toValue: 0,
-      duration: 200,
-      easing: Easing.out(Easing.ease),
+      duration: 250,
+      easing: Easing.bezier(0.22, 1, 0.36, 1),
       useNativeDriver: true,
     }).start();
   }, [open, reduce, translate]);
@@ -52,7 +67,7 @@ export function AIAssistant() {
           onPress={() => setOpen(true)}
           style={[styles.fab, { bottom: 64 + insets.bottom + 16 }]}
         >
-          <Sparkles color={colors.ink} size={16} strokeWidth={1.5} />
+          <MessagesSquare color={colors.ink} size={16} strokeWidth={1.5} />
           <Text style={styles.fabLabel}>Ask AI</Text>
         </Pressable>
       )}
@@ -61,24 +76,27 @@ export function AIAssistant() {
           <Pressable
             accessibilityRole="button"
             accessibilityLabel="Close AI assistant"
-            onPress={() => setOpen(false)}
+            onPress={close}
             style={styles.scrim}
           />
           <Animated.View style={[styles.sheet, { transform: [{ translateY: translate }] }]}>
             <View accessibilityElementsHidden style={styles.handle} />
             <View style={styles.sheetHead}>
-              <Text style={styles.sheetTitle}>AI assistant</Text>
+              <View style={styles.titleRow}>
+                <MessagesSquare color={colors.ink} size={20} strokeWidth={1.5} />
+                <Text style={styles.sheetTitle}>AI assistant</Text>
+              </View>
               <Pressable
                 accessibilityRole="button"
                 accessibilityLabel="Close AI assistant"
-                onPress={() => setOpen(false)}
+                onPress={close}
                 style={styles.close}
               >
                 <X color={colors.ink} size={20} strokeWidth={1.5} />
               </Pressable>
             </View>
             <View style={styles.sheetBody}>
-              <Text style={styles.coming}>AI assistant coming in Phase 2.</Text>
+              <Text style={styles.coming}>AI assistant coming in Phase 2</Text>
               <Text style={styles.note}>
                 It will answer questions about the library and help you pick your next book.
               </Text>
@@ -162,8 +180,6 @@ const styles = StyleSheet.create({
     backgroundColor: colors.surface,
     borderTopLeftRadius: radius.panel,
     borderTopRightRadius: radius.panel,
-    borderTopWidth: 1,
-    borderColor: colors.line,
     shadowColor: colors.ink,
     shadowOffset: { width: 0, height: 8 },
     shadowOpacity: 0.2,
@@ -184,14 +200,16 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    borderBottomWidth: 1,
-    borderBottomColor: colors.line,
+  },
+  titleRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
   },
   sheetTitle: {
-    fontFamily: font.serif,
+    fontFamily: font.medium,
     fontSize: 20,
     lineHeight: 28,
-    letterSpacing: -0.2,
     color: colors.ink,
   },
   close: {
@@ -206,10 +224,9 @@ const styles = StyleSheet.create({
     paddingTop: 16,
   },
   coming: {
-    fontFamily: font.serif,
-    fontSize: 24,
-    lineHeight: 32,
-    letterSpacing: -0.24,
+    fontFamily: font.medium,
+    fontSize: 20,
+    lineHeight: 28,
     color: colors.ink,
   },
   note: {
@@ -229,8 +246,6 @@ const styles = StyleSheet.create({
   prompt: {
     minHeight: 44,
     justifyContent: "center",
-    borderBottomWidth: 1,
-    borderBottomColor: colors.line,
   },
   promptLabel: {
     fontFamily: font.sans,
@@ -239,8 +254,6 @@ const styles = StyleSheet.create({
     color: colors.ink,
   },
   composer: {
-    borderTopWidth: 1,
-    borderTopColor: colors.line,
     padding: 16,
   },
   composerRow: {
@@ -251,7 +264,7 @@ const styles = StyleSheet.create({
   message: {
     flex: 1,
     height: 44,
-    borderRadius: radius.pill,
+    borderRadius: radius.panel,
     borderWidth: 1,
     borderColor: colors.line,
     backgroundColor: colors.bg,

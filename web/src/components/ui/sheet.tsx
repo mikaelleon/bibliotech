@@ -27,9 +27,8 @@ const panel = cva(
   {
     variants: {
       side: {
-        right: "sheet-right inset-y-0 right-0 h-full w-96 max-w-full border-l border-border",
-        bottom:
-          "sheet-bottom inset-x-0 bottom-0 h-[560px] max-h-[92vh] rounded-t-xl border-t border-border",
+        right: "sheet-right inset-y-0 right-0 h-full w-96 max-w-full",
+        bottom: "sheet-bottom inset-x-0 bottom-0 h-[560px] max-h-[92vh] rounded-t-xl",
       },
     },
     defaultVariants: { side: "right" },

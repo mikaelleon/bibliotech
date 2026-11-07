@@ -278,6 +278,15 @@ export function getPopularScienceBooks(): Book[] {
   return getBooksByIds(popularScienceIds);
 }
 
+export type BookSort = "catalog" | "title" | "author";
+
+export function sortBooks(list: Book[], sort: BookSort): Book[] {
+  const next = [...list];
+  if (sort === "title") next.sort((a, b) => a.title.localeCompare(b.title));
+  if (sort === "author") next.sort((a, b) => a.author.localeCompare(b.author));
+  return next;
+}
+
 export function filterBooks(
   list: Book[],
   query: string,

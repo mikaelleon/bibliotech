@@ -25,7 +25,7 @@ export async function loginAction(_state: LoginState, formData: FormData): Promi
   if (!user) return { error: "Incorrect email or password." };
 
   await setUserSession(user);
-  redirect("/browse");
+  redirect(user.role === "admin" ? "/admin" : "/browse");
 }
 
 export async function registerAction(
@@ -60,13 +60,14 @@ export async function logoutAction() {
 export async function landingSearchAction(formData: FormData) {
   const query = String(formData.get("q") ?? "").trim();
   const session = await getSession();
+  if (session.kind === "user" && session.role === "admin") redirect("/admin");
   if (session.kind === "none") await setGuestSession();
   redirect(query ? `/search?q=${encodeURIComponent(query)}` : "/search");
 }
 
 export async function toggleFavoriteAction(bookId: string): Promise<{ ok: true; active: boolean } | { ok: false }> {
   const session = await getSession();
-  if (session.kind !== "user") return { ok: false };
+  if (session.kind !== "user" || session.role === "admin") return { ok: false };
   const active = await toggleFavorite(session.email, bookId);
   revalidatePath("/favorites");
   revalidatePath(`/books/${bookId}`);
@@ -77,7 +78,10 @@ export async function updateNameAction(name: string): Promise<string | null> {
   const session = await getSession();
   if (session.kind !== "user") return "Log in to change your name.";
   const error = await updateDisplayName(session.email, name);
-  if (!error) revalidatePath("/profile");
+  if (!error) {
+    revalidatePath("/profile");
+    revalidatePath("/admin/account");
+  }
   return error;
 }
 

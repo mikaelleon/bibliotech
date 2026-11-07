@@ -1,17 +1,17 @@
 import { Inter_400Regular, Inter_500Medium } from "@expo-google-fonts/inter";
 import { Newsreader_300Light, Newsreader_400Regular } from "@expo-google-fonts/newsreader";
 import { useFonts } from "expo-font";
-import { Stack } from "expo-router";
+import { Redirect, Stack, usePathname } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import * as SplashScreen from "expo-splash-screen";
 import { CircleAlert } from "lucide-react-native";
-import { useEffect } from "react";
+import { useEffect, type ReactNode } from "react";
 import { StyleSheet, View } from "react-native";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 
 import { Button } from "@/components/Button";
 import { EmptyState } from "@/components/EmptyState";
-import { SessionProvider } from "@/lib/session";
+import { SessionProvider, useSession } from "@/lib/session";
 import { colors } from "@/theme/tokens";
 
 SplashScreen.preventAutoHideAsync();
@@ -35,6 +35,15 @@ export function ErrorBoundary({ retry }: { error: Error; retry: () => void }) {
   );
 }
 
+function RoleGate({ children }: { children: ReactNode }) {
+  const { session } = useSession();
+  const path = usePathname();
+  if (session.kind === "user" && session.role === "admin" && path !== "/admin-notice") {
+    return <Redirect href="/admin-notice" />;
+  }
+  return children;
+}
+
 export default function RootLayout() {
   const [loaded, error] = useFonts({
     Inter_400Regular,
@@ -53,13 +62,16 @@ export default function RootLayout() {
     <SafeAreaProvider style={styles.root}>
       <SessionProvider>
         <StatusBar style="dark" />
-        <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: colors.bg } }}>
-          <Stack.Screen name="index" />
-          <Stack.Screen name="(auth)" />
-          <Stack.Screen name="(tabs)" />
-          <Stack.Screen name="book/[id]" />
-          <Stack.Screen name="search" />
-        </Stack>
+        <RoleGate>
+          <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: colors.bg } }}>
+            <Stack.Screen name="index" />
+            <Stack.Screen name="(auth)" />
+            <Stack.Screen name="(tabs)" />
+            <Stack.Screen name="book/[id]" />
+            <Stack.Screen name="search" />
+            <Stack.Screen name="admin-notice" />
+          </Stack>
+        </RoleGate>
       </SessionProvider>
     </SafeAreaProvider>
   );

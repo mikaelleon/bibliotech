@@ -48,7 +48,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     borderWidth: 1,
     borderColor: colors.line,
-    borderRadius: radius.pill,
+    borderRadius: radius.panel,
     backgroundColor: colors.surface,
   },
   input: {

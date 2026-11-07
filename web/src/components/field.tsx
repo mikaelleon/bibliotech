@@ -1,7 +1,7 @@
 "use client";
 
 import { CircleAlert, Eye, EyeOff } from "lucide-react";
-import { useId, useState, type FocusEvent } from "react";
+import { useId, useState, type FocusEvent, type ReactNode } from "react";
 
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -18,6 +18,10 @@ type FieldProps = {
   error?: string;
   hint?: string;
   success?: string;
+  invalid?: boolean;
+  describedBy?: string;
+  readOnly?: boolean;
+  aside?: ReactNode;
   onBlur?: (event: FocusEvent<HTMLInputElement>) => void;
 };
 
@@ -33,17 +37,27 @@ export function Field({
   error,
   hint,
   success,
+  invalid,
+  describedBy,
+  readOnly,
+  aside,
   onBlur,
 }: FieldProps) {
   const generatedId = useId();
   const [visible, setVisible] = useState(false);
   const isPassword = type === "password";
   const inputType = isPassword && visible ? "text" : type;
-  const describedBy = error ? `${generatedId}-error` : hint ? `${generatedId}-hint` : undefined;
+  const ownDescription = error ? `${generatedId}-error` : hint ? `${generatedId}-hint` : undefined;
+  const described = [ownDescription, describedBy].filter(Boolean).join(" ") || undefined;
 
   return (
     <div>
-      <Label htmlFor={generatedId}>{label}</Label>
+      <div className="flex items-baseline justify-between gap-3">
+        <Label htmlFor={generatedId} className="mb-1">
+          {label}
+        </Label>
+        {aside}
+      </div>
       <div className="relative">
         <Input
           id={generatedId}
@@ -52,11 +66,12 @@ export function Field({
           autoComplete={autoComplete}
           defaultValue={value === undefined ? defaultValue : undefined}
           value={value}
+          readOnly={readOnly}
           onChange={onChange ? (event) => onChange(event.target.value) : undefined}
           onBlur={onBlur}
-          aria-invalid={error ? true : undefined}
-          aria-describedby={describedBy}
-          className={cn(isPassword && "pr-12")}
+          aria-invalid={error || invalid ? true : undefined}
+          aria-describedby={described}
+          className={cn(isPassword && "pr-12", readOnly && "text-muted-foreground")}
         />
         {isPassword ? (
           <button

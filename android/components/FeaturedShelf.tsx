@@ -16,8 +16,7 @@ export function FeaturedShelf({ books }: { books: Book[] }) {
 
   return (
     <View accessibilityLabel="Featured books">
-      <Text style={styles.title}>Public-domain books, free to read and download.</Text>
-      <Text style={styles.lede}>Every title comes from Project Gutenberg, so it is legal to keep.</Text>
+      <Text style={styles.title}>Featured books</Text>
       <Button
         label={`View ${focal.title}`}
         href={{ pathname: "/book/[id]", params: { id: focal.id } }}
@@ -70,15 +69,7 @@ const styles = StyleSheet.create({
     fontFamily: font.serif,
     fontSize: 32,
     lineHeight: 40,
-    letterSpacing: -0.32,
     color: colors.ink,
-  },
-  lede: {
-    marginTop: 8,
-    fontFamily: font.sans,
-    fontSize: 14,
-    lineHeight: 20,
-    color: colors.muted,
   },
   view: {
     marginTop: 16,

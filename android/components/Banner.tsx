@@ -17,11 +17,9 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "flex-start",
     gap: space[12],
-    borderWidth: 1,
-    borderColor: colors.line,
     backgroundColor: colors.surface,
     borderRadius: radius.panel,
-    padding: space[16],
+    padding: space[32],
   },
   text: {
     flex: 1,

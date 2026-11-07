@@ -160,7 +160,6 @@ const styles = StyleSheet.create({
     fontFamily: font.serif,
     fontSize: 32,
     lineHeight: 40,
-    letterSpacing: -0.32,
     color: colors.ink,
   },
   author: {

@@ -13,8 +13,14 @@ function barPath(x: number, y: number, width: number, height: number): string {
   return `M ${x} ${y + radius} Q ${x} ${y} ${x + radius} ${y} H ${x + width - radius} Q ${x + width} ${y} ${x + width} ${y + radius} V ${y + height} H ${x} Z`;
 }
 
-/** Single-series bars for the last 30 days. A hidden table carries the same numbers. */
-export function DownloadChart({ points }: { points: { date: string; count: number }[] }) {
+/** Single-series bars for a date range. A hidden table carries the same numbers. */
+export function DownloadChart({
+  points,
+  days = 30,
+}: {
+  points: { date: string; count: number }[];
+  days?: number;
+}) {
   const max = points.reduce((highest, point) => Math.max(highest, point.count), 0);
   const width = 600;
   const height = 140;
@@ -24,9 +30,9 @@ export function DownloadChart({ points }: { points: { date: string; count: numbe
   const last = points[points.length - 1];
 
   return (
-    <section className="rounded-xl border border-border bg-card p-6" aria-labelledby="downloads-30">
+    <section className="rounded-xl bg-card p-8" aria-labelledby="downloads-30">
       <h2 id="downloads-30" className="text-xl leading-7 font-medium">
-        Downloads in the last 30 days
+        Downloads in the last {days} days
       </h2>
       {max === 0 ? (
         <p className="mt-6 text-sm leading-5 text-muted-foreground">
@@ -51,7 +57,15 @@ export function DownloadChart({ points }: { points: { date: string; count: numbe
             {points.map((point, index) => {
               const barHeight = (point.count / max) * (height - 4);
               const x = index * (barWidth + gap);
-              return <path key={point.date} d={barPath(x, height - barHeight, barWidth, barHeight)} fill="var(--foreground)" />;
+              return (
+                <path
+                  key={point.date}
+                  className="bar-rise"
+                  style={{ animationDelay: `${Math.min(index, 12) * 30}ms` }}
+                  d={barPath(x, height - barHeight, barWidth, barHeight)}
+                  fill="var(--foreground)"
+                />
+              );
             })}
           </svg>
           {first && last ? (

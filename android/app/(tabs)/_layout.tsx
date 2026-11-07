@@ -4,7 +4,6 @@ import { SafeAreaView } from "react-native-safe-area-context";
 
 import { AIAssistant } from "@/components/AIAssistant";
 import { OfflineBanner } from "@/components/OfflineBanner";
-import { QuotaStrip } from "@/components/QuotaStrip";
 import { ShellHeader } from "@/components/ShellHeader";
 import { TabBar } from "@/components/TabBar";
 import { useSession } from "@/lib/session";
@@ -19,14 +18,14 @@ export default function TabLayout() {
   const path = usePathname();
 
   if (session.kind === "none") return <Redirect href="/login" />;
+  if (session.kind === "user" && session.role === "admin") return <Redirect href="/admin-notice" />;
 
-  const showAssistant = session.kind === "user" && path === "/browse";
+  const showAssistant = path === "/browse";
 
   return (
     <View style={styles.root}>
       <SafeAreaView edges={["top"]} style={styles.chrome}>
         <ShellHeader />
-        <QuotaStrip />
         <OfflineBanner />
       </SafeAreaView>
       <View style={styles.body}>

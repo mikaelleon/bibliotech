@@ -13,7 +13,7 @@ export function proxy(request: NextRequest) {
     return new NextResponse(null, { status: 404 });
   }
 
-  if (!token && !publicPaths.has(pathname)) {
+  if (!token && !publicPaths.has(pathname) && !pathname.startsWith("/books/")) {
     const url = request.nextUrl.clone();
     url.pathname = "/login";
     url.search = "";

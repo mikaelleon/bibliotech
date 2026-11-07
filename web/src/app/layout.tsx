@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import { Inter, Newsreader } from "next/font/google";
+import Script from "next/script";
 
 import { SearchHotkey } from "@/components/search-hotkey";
 import "./globals.css";
@@ -26,6 +27,9 @@ export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en" className={`${inter.variable} ${newsreader.variable} h-full`}>
       <body className="min-h-full bg-background text-foreground antialiased">
+        <Script id="theme" strategy="beforeInteractive">
+          {`try{if(localStorage.getItem("elib-theme")==="dark")document.documentElement.dataset.theme="dark"}catch(e){}`}
+        </Script>
         <SearchHotkey />
         {children}
       </body>

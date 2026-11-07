@@ -1,45 +1,25 @@
 "use client";
 
-import { BookOpen, Heart, Library, Lock, User, type LucideIcon } from "lucide-react";
+import { Lock } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
+import { mainNav } from "@/components/main-nav";
 import type { Session } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
-type Item = {
-  href: string;
-  label: string;
-  icon: LucideIcon;
-  locked: boolean;
-};
-
-function isCurrent(href: string, path: string): boolean {
-  if (href === "/browse") {
-    return path === "/browse" || path.startsWith("/books/") || path.startsWith("/search");
-  }
-  if (href === "/admin") return path.startsWith("/admin");
-  return path === href;
-}
-
-/** Bottom tabs under 768px. Matches the mobile frames, including the lock on guest tabs. */
+/** Bottom tabs under 768px. Administrators get the same four operator destinations as the desktop rail. */
 export function TabBar({ session }: { session: Session }) {
   const path = usePathname();
-  const guest = session.kind !== "user";
-  const items: Item[] = [
-    { href: "/browse", label: "Browse", icon: BookOpen, locked: false },
-    { href: "/library", label: "Library", icon: Library, locked: guest },
-    { href: "/favorites", label: "Favorites", icon: Heart, locked: guest },
-    { href: "/profile", label: "Profile", icon: User, locked: guest },
-  ];
+  const items = mainNav(session, true);
 
   return (
     <nav
       aria-label="Main"
-      className="fixed inset-x-0 bottom-0 z-20 flex border-t border-border bg-card pb-[env(safe-area-inset-bottom)] md:hidden"
+      className="fixed inset-x-0 bottom-0 z-20 flex bg-card pb-[env(safe-area-inset-bottom)] md:hidden"
     >
       {items.map((item) => {
-        const current = isCurrent(item.href, path);
+        const current = item.current(path);
         const Icon = item.icon;
         const accessible = item.locked ? `${item.label}, requires an account` : item.label;
         return (

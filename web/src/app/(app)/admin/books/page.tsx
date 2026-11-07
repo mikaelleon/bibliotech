@@ -4,7 +4,6 @@ import { AdminBooksFilters } from "@/components/admin-books-filters";
 import { AdminBooksTable } from "@/components/admin-books-table";
 import { PageHeader } from "@/components/page-header";
 import { Pagination } from "@/components/pagination";
-import { SectionTabs } from "@/components/section-tabs";
 import { Button } from "@/components/ui/button";
 import { isAdminSession } from "@/lib/admin";
 import { filterBooks, getBooks } from "@/lib/books";
@@ -18,7 +17,7 @@ export const metadata = { title: "Books" };
 export default async function AdminBooksPage({
   searchParams,
 }: {
-  searchParams: Promise<{ q?: string; category?: string; page?: string }>;
+  searchParams: Promise<{ q?: string; category?: string; page?: string; missing?: string }>;
 }) {
   const session = await getSession();
   if (!isAdminSession(session)) return null;
@@ -26,26 +25,34 @@ export default async function AdminBooksPage({
   const params = await searchParams;
   const query = (params.q ?? "").trim();
   const category = CATEGORIES.includes(params.category as Category) ? params.category : undefined;
+  const missing = params.missing === "cover" || params.missing === "license" ? params.missing : undefined;
   const requested = Number(params.page ?? "1");
   const page = Number.isFinite(requested) && requested > 0 ? Math.floor(requested) : 1;
-  const matches = filterBooks(getBooks(), query, category);
+  const matches = filterBooks(getBooks(), query, category).filter((book) => {
+    if (missing === "cover") return !book.coverUrl;
+    if (missing === "license") return book.license.trim() === "";
+    return true;
+  });
   const visible = matches.slice((page - 1) * pageSize, page * pageSize);
 
   return (
     <main className="mx-auto flex w-full max-w-[1200px] flex-col gap-16 px-4 py-6 md:px-8 md:py-8">
-      <div>
-        <PageHeader
-          title="Books"
-          lede="The catalog. Adding and editing stay off until Phase 2."
-          action={
-            <Button asChild>
-              <Link href="/admin/books/new">Add book</Link>
-            </Button>
-          }
-        />
-        <SectionTabs />
-      </div>
-      <AdminBooksFilters query={query} category={category} />
+      <PageHeader
+        title="Books"
+        lede={
+          missing === "cover"
+            ? "Books missing a cover."
+            : missing === "license"
+              ? "Books missing a license."
+              : "The catalog. Saving a book arrives in Phase 2."
+        }
+        action={
+          <Button asChild>
+            <Link href="/admin/books/new">Add book</Link>
+          </Button>
+        }
+      />
+      <AdminBooksFilters query={query} category={category} missing={missing} />
       <div>
         <AdminBooksTable books={visible} />
         <div className="overflow-hidden rounded-b-xl border border-t-0 border-border bg-card">
@@ -54,7 +61,7 @@ export default async function AdminBooksPage({
             pageSize={pageSize}
             total={matches.length}
             pathname="/admin/books"
-            params={{ q: query || undefined, category }}
+            params={{ q: query || undefined, category, missing }}
           />
         </div>
       </div>

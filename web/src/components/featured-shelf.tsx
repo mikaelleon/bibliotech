@@ -4,12 +4,21 @@ import { ArrowRight, ChevronLeft, ChevronRight } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 
+import { CardFavorite } from "@/components/card-favorite";
 import { BookCard } from "@/components/book-card";
 import { Button } from "@/components/ui/button";
 import type { Book } from "@/lib/types";
 
 /** One large focal cover and its neighbors. Arrows move the focal book. */
-export function FeaturedShelf({ books }: { books: Book[] }) {
+export function FeaturedShelf({
+  books,
+  signedIn = false,
+  favoriteIds = [],
+}: {
+  books: Book[];
+  signedIn?: boolean;
+  favoriteIds?: string[];
+}) {
   const [index, setIndex] = useState(0);
   if (books.length === 0) return null;
 
@@ -17,14 +26,11 @@ export function FeaturedShelf({ books }: { books: Book[] }) {
   const neighbors = books.slice(index + 1, index + 4);
 
   return (
-    <section className="md:rounded-xl md:border md:border-border md:bg-card md:p-8" aria-labelledby="featured-heading">
+    <section className="rounded-xl bg-card p-8" aria-labelledby="featured-heading">
       <div className="max-w-xl">
         <h1 id="featured-heading" className="serif text-[32px] leading-10 md:text-[40px] md:leading-[46px]">
-          Public-domain books, free to read and download.
+          Featured books
         </h1>
-        <p className="mt-2 text-sm leading-5 text-muted-foreground md:mt-3 md:text-base md:leading-normal">
-          Every title comes from Project Gutenberg, so it is legal to keep.
-        </p>
         <Button asChild className="mt-4 md:mt-6">
           <Link href={`/books/${focal.id}`}>
             View {focal.title}
@@ -35,14 +41,20 @@ export function FeaturedShelf({ books }: { books: Book[] }) {
 
       <ul className="mt-6 flex items-start gap-4 overflow-x-auto md:mt-8 md:gap-6">
         <li className="w-40 shrink-0 md:w-48">
-          <BookCard book={focal} />
+          <BookCard
+            book={focal}
+            corner={<CardFavorite bookId={focal.id} active={favoriteIds.includes(focal.id)} signedIn={signedIn} />}
+          />
         </li>
         {neighbors.map((book, neighborIndex) => (
           <li
             key={book.id}
             className={neighborIndex > 1 ? "hidden w-28 shrink-0 md:block md:w-32" : "w-28 shrink-0 md:w-32"}
           >
-            <BookCard book={book} />
+            <BookCard
+              book={book}
+              corner={<CardFavorite bookId={book.id} active={favoriteIds.includes(book.id)} signedIn={signedIn} />}
+            />
           </li>
         ))}
       </ul>
