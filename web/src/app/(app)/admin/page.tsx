@@ -1,4 +1,6 @@
+import { AdminDownloadsTable } from "@/components/admin-downloads-table";
 import { BarList } from "@/components/bar-list";
+import { DownloadChart } from "@/components/download-chart";
 import { PageHeader } from "@/components/page-header";
 import { SectionTabs } from "@/components/section-tabs";
 import { StatRow } from "@/components/stat-row";
@@ -13,7 +15,7 @@ export default async function AdminPage() {
   const stats = await adminStats(session);
 
   return (
-    <main className="mx-auto flex w-full max-w-[1200px] flex-col gap-8 px-4 py-6 md:px-8 md:py-8">
+    <main className="mx-auto flex w-full max-w-[1200px] flex-col gap-16 px-4 py-6 md:px-8 md:py-8">
       <div>
         <PageHeader title="Admin dashboard" lede="A summary of the catalog and its use." />
         <SectionTabs />
@@ -26,6 +28,7 @@ export default async function AdminPage() {
           { label: "Downloads", value: String(stats.downloads), context: `${stats.downloadsLast30Days} in the last 30 days` },
         ]}
       />
+      <DownloadChart points={stats.downloadsPerDay} />
       <div className="grid gap-6 md:grid-cols-2">
         <section className="rounded-xl border border-border bg-card p-6" aria-labelledby="by-category">
           <h2 id="by-category" className="text-xl leading-7 font-medium">
@@ -55,13 +58,11 @@ export default async function AdminPage() {
           )}
         </section>
       </div>
-      <section aria-labelledby="recent-downloads">
+      <section aria-labelledby="recent-downloads" className="grid gap-6">
         <h2 id="recent-downloads" className="text-xl leading-7 font-medium">
           Recent downloads
         </h2>
-        <p className="mt-4 rounded-xl border border-border bg-card px-4 py-8 text-sm leading-5 text-muted-foreground">
-          No downloads have been recorded yet.
-        </p>
+        <AdminDownloadsTable rows={stats.recentDownloads} />
       </section>
     </main>
   );

@@ -22,3 +22,12 @@ The migration adds:
 `supabase/dev-seed.sql` holds commented statements only. Paste them by hand to promote an account and to insert sample favorites and library rows. Do not put a service-role key in client code or in git.
 
 Until that database exists, the server repeats the same checks in process: admin pages read the session role, library and favorites are filtered by the signed-in email, and profile updates never write `role`.
+
+`supabase/migrations/003_admin_support.sql` replaces the two admin functions and adds a third. It does not edit `002`. Apply `002` first, then `003`.
+
+- `admin_stats()` keeps the same counts and adds `downloadsPerDay`: one object per day for the last 30 days, including days with zero downloads.
+- `admin_list_users` adds `total_count`, the number of matches before limit and offset. The return type changed, so `003` drops the old function before creating it.
+- `admin_list_downloads(lim, off)` returns a user label (display name, email, or "Guest" for a missing or anonymous user), the book title, the download time, and `total_count`.
+- Execute on all three is revoked from `anon` and `public` and granted to `authenticated`. Each function still raises `not allowed` when `is_admin()` is false.
+
+The role revoke and the restrictive update policy stay in `002`. `003` does not weaken them. None of these files run on their own.

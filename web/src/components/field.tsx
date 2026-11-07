@@ -1,7 +1,7 @@
 "use client";
 
 import { CircleAlert, Eye, EyeOff } from "lucide-react";
-import { useId, useState } from "react";
+import { useId, useState, type FocusEvent } from "react";
 
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -18,7 +18,7 @@ type FieldProps = {
   error?: string;
   hint?: string;
   success?: string;
-  onBlur?: () => void;
+  onBlur?: (event: FocusEvent<HTMLInputElement>) => void;
 };
 
 /** Label, 44px input, optional hint, and an error or success line. */
