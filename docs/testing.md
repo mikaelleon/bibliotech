@@ -4,9 +4,15 @@ Checked on 7 November 2026. There is no Supabase project in this repo, so the SQ
 
 ## Admin functions
 
-`admin_stats()` and `admin_list_users()` in `supabase/migrations/002_admin_and_library.sql` raise `not allowed` unless `is_admin()` is true, and execute is revoked from `anon` and `public`.
+`admin_stats()` and `admin_list_users()` start in `supabase/migrations/002_admin_and_library.sql`. `003_admin_support.sql` replaces them and adds `admin_list_downloads()`. Each raises `not allowed` unless `is_admin()` is true. Execute is revoked from `anon` and `public` and granted to `authenticated`.
 
-In the running app, `web/src/lib/admin.ts` throws `not allowed` when the session is not an admin. Admin pages return no data in that case. The admin layout renders the 403 screen for a guest or a registered user. This was not verified by calling Postgres.
+These statements were not executed against Postgres. There is no database in this repo, so a guest or a registered user cannot be shown a live RPC rejection. The same refusal is what the Next.js server does.
+
+In `web/src/lib/admin.ts`, `assertAdmin` throws `not allowed` before `adminStats`, `adminListUsers`, or `adminListDownloads` read anything. A guest and a registered user therefore cannot receive those results. Confirmed in the browser: both see the 403 panel on `/admin`, `/admin/books`, `/admin/users`, and `/admin/downloads`, and the Admin rail item is absent. A visitor with no cookie is redirected to `/login` by `proxy.ts` before the page renders.
+
+## No flash of admin data
+
+The admin layout returns the 403 panel and does not render `children` until the session role is `admin`. Each page also returns `null` before it calls an admin helper. The role comes from `users.json` on each request, not from the cookie payload.
 
 ## Role changes
 

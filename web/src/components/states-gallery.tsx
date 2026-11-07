@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 
+import { Dialog } from "@/components/dialog";
+import { DownloadChart } from "@/components/download-chart";
 import { EmptyState } from "@/components/empty-state";
 import { ErrorPanel } from "@/components/error-panel";
 import { LimitDialog } from "@/components/limit-dialog";
@@ -16,6 +18,7 @@ export function StatesGallery() {
   const { toast } = useToast();
   const [guestLimit, setGuestLimit] = useState(false);
   const [userLimit, setUserLimit] = useState(false);
+  const [deleteBook, setDeleteBook] = useState(false);
 
   return (
     <main className="mx-auto flex w-full max-w-[1200px] flex-col gap-16 px-4 py-6 md:px-8 md:py-8">
@@ -59,6 +62,41 @@ export function StatesGallery() {
           <Skeleton className="h-6 w-40" />
           <Skeleton className="aspect-[2/3] w-40" />
         </div>
+      </section>
+
+      <section className="grid gap-6">
+        <h2 className="serif text-2xl leading-8 font-light">Admin</h2>
+        <DownloadChart points={[{ date: "2026-10-09", count: 0 }, { date: "2026-11-07", count: 0 }]} />
+        <p className="text-sm leading-5 text-muted-foreground">No downloads have been recorded yet.</p>
+        <div className="flex flex-wrap items-center gap-3">
+          <Button type="button" disabled>
+            Save book
+          </Button>
+          <p className="text-sm leading-5 text-muted-foreground">Saving arrives in Phase 2.</p>
+        </div>
+        <div>
+          <Button type="button" variant="outline" onClick={() => setDeleteBook(true)}>
+            Delete dialog
+          </Button>
+        </div>
+        <Dialog
+          open={deleteBook}
+          onOpenChange={setDeleteBook}
+          title="Delete this book?"
+          footer={
+            <>
+              <Button type="button" variant="outline" onClick={() => setDeleteBook(false)}>
+                Cancel
+              </Button>
+              <Button type="button" disabled>
+                Delete
+              </Button>
+            </>
+          }
+        >
+          Pride and Prejudice will be removed. This can&apos;t be undone.
+          <span className="mt-2 block text-sm leading-5 text-muted-foreground">Deleting arrives in Phase 2.</span>
+        </Dialog>
       </section>
     </main>
   );

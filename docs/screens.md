@@ -18,8 +18,8 @@ Routes below are the Phase 1 app. Android has no admin screens. A guest is a sig
 | Profile | user (guest sees Locked) | `/profile` | Profile tab | | | name and password | |
 | 404 | any session | `not-found` | `+not-found` | | | the page itself | |
 | 403 | signed-in non-admin | `/admin/*` | none | | | the page itself | |
-| Admin overview | admin | `/admin` | none | | no downloads | | |
-| Admin books | admin | `/admin/books` | none | | no matches | | Delete |
+| Admin overview | admin | `/admin` | none | skeleton | no downloads, empty chart | retry | |
+| Admin books | admin | `/admin/books` | none | skeleton | no matches | retry | Delete |
 | Add book | admin | `/admin/books/new` | none | | | required fields | Save |
 | Edit book | admin | `/admin/books/[id]/edit` | none | | | required fields | Save |
 | Admin users | admin | `/admin/users` | none | | no matches | | role changes |
@@ -31,6 +31,8 @@ Routes below are the Phase 1 app. Android has no admin screens. A guest is a sig
 Judgment calls:
 
 - The Admin frame uses a shield icon and no mobile admin tab. Those stay. The later note that asked for `layout-dashboard` and a mobile Admin tab loses to the frame.
+- The overview chart is an inline SVG. With no download rows it shows "No downloads yet. They will appear here as readers download books." A hidden table repeats the 30 daily counts.
+- Added dates and joined dates say "Not recorded". The local catalog and `users.json` do not store those timestamps.
 - There is no database, so search, library, favorites, and admin figures run in the Next.js server against the catalog and the JSON files. The SQL migration is the contract for later.
 - Library and favorites for `dane@elibrary.local` are seeded in `web/data` so the demo can show a populated library. Downloads stay empty.
 - Guest download copy uses 5 of 5 left, because guest downloads are not counted yet.
