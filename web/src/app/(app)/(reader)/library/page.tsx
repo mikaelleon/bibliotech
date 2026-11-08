@@ -1,7 +1,7 @@
 import { Library } from "lucide-react";
 import Link from "next/link";
 
-import { SortedShelf } from "@/components/sorted-shelf";
+import { LibraryViews } from "@/components/library-views";
 import { ShelfCount } from "@/components/shelf-grid";
 import { EmptyState } from "@/components/empty-state";
 import { LockedPanel } from "@/components/locked-panel";
@@ -31,8 +31,7 @@ export default async function LibraryPage({
 
   return (
     <main className="mx-auto flex w-full max-w-[1200px] flex-col gap-8 px-4 py-6 md:px-8 md:py-8">
-      <SortedShelf
-        title="Library"
+      <LibraryViews
         lede={<ShelfCount shelf="library" />}
         books={books}
         sort={sort}

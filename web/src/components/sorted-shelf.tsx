@@ -19,6 +19,8 @@ export function SortedShelf({
   options,
   shelf,
   empty,
+  belowHeader,
+  footer,
 }: {
   title: string;
   lede?: ReactNode;
@@ -27,6 +29,8 @@ export function SortedShelf({
   options: { value: string; label: string }[];
   shelf: Shelf;
   empty: ReactNode;
+  belowHeader?: ReactNode;
+  footer?: ReactNode;
 }) {
   const [current, setCurrent] = useState(sort);
   const [seen, setSeen] = useState(sort);
@@ -55,7 +59,9 @@ export function SortedShelf({
           </Suspense>
         }
       />
+      {belowHeader}
       <ShelfGrid shelf={shelf} books={ordered} empty={empty} />
+      {footer}
     </>
   );
 }
