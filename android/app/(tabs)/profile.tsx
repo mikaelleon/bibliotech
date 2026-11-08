@@ -1,5 +1,5 @@
 import { LogOut } from "lucide-react-native";
-import { useRouter } from "expo-router";
+import { useRouter, type Href } from "expo-router";
 import { useState } from "react";
 import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
 
@@ -61,6 +61,10 @@ export default function ProfileScreen() {
           <View style={[styles.fill, { width }]} />
         </View>
         {quota ? <Text style={styles.note}>{quotaNote(quota)}</Text> : null}
+        <View style={styles.actions}>
+          <Button label="Downloads" href={"/downloads" as Href} variant="outline" />
+          <Button label="Download history" href={"/download-history" as Href} variant="outline" />
+        </View>
       </View>
       <View style={styles.card}>
         <Text style={styles.usage}>Security</Text>
@@ -170,6 +174,10 @@ const styles = StyleSheet.create({
     backgroundColor: colors.surface,
     borderRadius: radius.panel,
     padding: 32,
+  },
+  actions: {
+    marginTop: 16,
+    gap: 12,
   },
   usage: {
     fontFamily: font.medium,

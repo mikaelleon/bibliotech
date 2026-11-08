@@ -1,7 +1,7 @@
 import { AccountPanel } from "@/components/account-panel";
 import { PageHeader } from "@/components/page-header";
 import { SecurityPanel } from "@/components/security-panel";
-import { logoutAction } from "@/lib/actions";
+import { LogoutButton } from "@/components/logout-button";
 import { isAdminSession } from "@/lib/admin";
 import { getSession } from "@/lib/session";
 
@@ -17,11 +17,7 @@ export default async function AdminAccountPage() {
       <div className="mt-6 grid max-w-xl gap-6">
         <AccountPanel name={session.name} email={session.email} />
         <SecurityPanel />
-        <form action={logoutAction}>
-          <button type="submit" className="min-h-11 text-sm leading-5 text-brand-text underline">
-            Log out
-          </button>
-        </form>
+        <LogoutButton userId={session.id} />
       </div>
     </main>
   );

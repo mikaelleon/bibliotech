@@ -15,6 +15,8 @@ type SetOptions = { silent?: boolean; at?: number; addedAt?: string };
 type ShelfValue = {
   /** Registered reader. Guests see the buttons, and pressing one opens the sign-up prompt. */
   signedIn: boolean;
+  /** Signed-in account. Offline files are stored under this id. */
+  userId: string | null;
   has: (shelf: Shelf, bookId: string) => boolean;
   count: (shelf: Shelf) => number;
   set: (shelf: Shelf, bookId: string, on: boolean, options?: SetOptions) => Promise<boolean>;
@@ -48,12 +50,14 @@ const prompt = {
  */
 export function ShelfProvider({
   signedIn,
+  userId,
   favoriteIds,
   libraryIds,
   libraryAddedAt,
   children,
 }: {
   signedIn: boolean;
+  userId: string | null;
   favoriteIds: string[];
   libraryIds: string[];
   libraryAddedAt: Record<string, string>;
@@ -149,7 +153,7 @@ export function ShelfProvider({
     latest.current = set;
   });
 
-  const value: ShelfValue = { signedIn, has, count, set, promptSignUp: setAsking };
+  const value: ShelfValue = { signedIn, userId, has, count, set, promptSignUp: setAsking };
 
   return (
     <ShelfContext.Provider value={value}>

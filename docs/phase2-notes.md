@@ -69,4 +69,37 @@ Migration `20261107142501_quota_and_verification.sql`, plus web and Android chan
 
 - `signUp` returns a session with Confirm email off: handled both ways in code; confirm on first run.
 - `getClaims(jwt)` for Bearer tokens: checkpoint 3.
-- Reader and text extraction: checkpoint 7.
+- Reader and text extraction: done in checkpoint 7 (below). `getClaims(jwt)` is used by `requestUser()` for the download and progress routes.
+
+## Checkpoints 4, 5, 6 and 7
+
+### Checkpoint 4 — files and importer
+
+- Migration `20261107233000_book_files.sql` adds file columns, the private `books` bucket, the `file_path` check inside `request_download`, and `reading_progress`. Pushed to the hosted project on 2026-11-08 (`supabase db push --remote`).
+- `scripts/import-books/` reads Gutendex for metadata and the Gutenberg robot harvest for files (2 seconds between file downloads, images edition first, skip when both editions are over 5 MB). `--dry-run`, `--limit` (default 30), `--source gutenberg` only. Standard Ebooks stays a hand list in `scripts/data/standard-ebooks.txt`.
+- An existing row matches on `(source, source_id)` or on normalized title and author, so the 19 seeded books are updated instead of duplicated. `published` is the author's death year from Gutendex when the harvest has no publication year.
+- Web browse, search, book detail, library, favorites, and admin books read `listCatalog()` (`books` ordered by title). Android calls `loadRemoteCatalog()` at startup. Both keep the static list when the query fails or returns nothing.
+- The importer uploads the EPUB first and writes `file_path` only after Storage accepts it. A failed upload leaves the book without a file, so a reader is not charged.
+- Metadata comes from Gutendex, with retries (2s, 4s, 8s, 16s). If Gutendex does not answer, the importer reads Gutenberg's public `pg_catalog.csv`. Harvest pages follow the next `offset` link, two seconds apart, and stop once every candidate id has a URL. On 2026-11-08 `robot/harvest` returned 404, so the importer uses the PGLAF cache (`aleph.pglaf.org/cache/epub/<id>/`) for those ids only, still two seconds apart. It does not walk `/ebooks/<id>.epub3.images`.
+- `--ids 1342,84,...` imports that list. An existing row is also matched by the ebook id in `source_url`. A match updates only the file columns, so the seeded title, summary, year, and category stay.
+- On 2026-11-08 Gutendex returned 503 and `robot/harvest` returned 404. The first run saved 30 English texts from the front of `pg_catalog.csv` (about 21 MB, no failures). A second run attached files to 18 of the 19 seeded books. Ebook 1067 is Grant's memoirs, not Locke, so that file was removed and `thoughts-on-education` now links to the Wikipedia article. There is no English Gutenberg EPUB for that title.
+
+### Checkpoint 5 — on the device
+
+- Web: IndexedDB database `elib-offline` v2. Book files and the progress queue are keyed by `userId:bookId`. Log out deletes that account's files and the `elib-*` caches. `public/sw.js` (`elib-shell-v2`) caches same-origin successful responses for `/`, `/browse`, `/search`, and `/_next/static`. It also caches `/read/` after that page has been opened, so a reload in airplane mode can still open the reader. It does not cache `/library`, `/downloads`, `/profile`, `/admin`, `/api`, `/auth`, or `.epub`, and it ignores other sites. A reader opened for the first time while already offline falls back to `/browse`.
+- Android: `expo-file-system` `File.createDownloadTask` into `Paths.document/books/<userId>/<slug>.epub`, plus `local_books` and `progress_queue` in `expo-sqlite` (`elib.db`), both keyed by user. Log out deletes that account's files and queued positions.
+
+### Checkpoint 6 — download UI
+
+- Book page: Download, a determinate progress bar, failure with retry, "You already downloaded this book" (repeat does not use a download), and the quota dialog. On the device: Read and Remove from device.
+- Web `/downloads` and Android `downloads`: history from `GET /api/downloads`, "On this device", remove one, remove all. Removal does not refund a download. The web copy says a browser may evict IndexedDB.
+- Library shows "On this device". Offline, the Android Library lists only books saved on the device. Profile links to Downloads.
+
+### Checkpoint 7 — reader and Listen
+
+**[SPIKE] result.** `@epubjs-react-native` expects an https URL and can fetch `epub.js`. A web epub.js rendition wants a browser DOM and remote assets, so it cannot read a file that must stay on the device with the network off. Both apps unzip the EPUB with JSZip and show the spine in order. The saved position is a spine CFI, `epubcfi(/6/{(index+1)*2})`, not a character offset. The same plain text feeds Listen.
+
+- Web `/read/[id]`: table of contents, type size, cream and dark, percent, last position via `PUT /api/books/:id/progress`. Listen uses `speechSynthesis`, sentences of at most 180 characters. Pause is `cancel()` plus the saved sentence index. No voice means the Listen controls stay hidden.
+- Android `read/[id]` opens at the saved spine CFI (the server row, or the on-device queue when the network is down). A failed save stays in `progress_queue` and is sent on the next open. `PUT /api/books/:id/progress` caps `updatedAt` at the server clock, so a device set to the future cannot block later saves.
+- Listen: speed 0.75x to 2x, a voice control, previous and next sentence. Pause is `Speech.stop()` plus the chunk index. **Listen does not keep playing with the screen off.** That needs a foreground service and is out of this phase.
+- Opening a book that is not on the device sends the reader back to the book page to download it. A download is checked by unzipping it before it is marked saved, so a bad file is not kept.

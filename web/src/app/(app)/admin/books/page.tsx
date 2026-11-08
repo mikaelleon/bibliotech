@@ -4,7 +4,7 @@ import { AdminBooksBrowser } from "@/components/admin-books-browser";
 import { PageHeader } from "@/components/page-header";
 import { Button } from "@/components/ui/button";
 import { isAdminSession } from "@/lib/admin";
-import { getBooks } from "@/lib/books";
+import { listCatalog } from "@/lib/catalog";
 import { getSession } from "@/lib/session";
 import { CATEGORIES, type Category } from "@/lib/types";
 
@@ -42,7 +42,7 @@ export default async function AdminBooksPage({
           </Button>
         }
       />
-      <AdminBooksBrowser books={getBooks()} query={query} category={category} missing={missing} page={page} />
+      <AdminBooksBrowser books={await listCatalog()} query={query} category={category} missing={missing} page={page} />
     </main>
   );
 }

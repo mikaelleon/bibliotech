@@ -1,6 +1,8 @@
+import { useNetworkState } from "expo-network";
+import { type Href } from "expo-router";
 import { Library } from "lucide-react-native";
 import { useCallback, useState } from "react";
-import { FlatList, StyleSheet, View } from "react-native";
+import { FlatList, StyleSheet, Text, View } from "react-native";
 
 import { BookCard } from "@/components/BookCard";
 import { LibraryButton } from "@/components/LibraryButton";
@@ -11,8 +13,10 @@ import { EmptyState } from "@/components/EmptyState";
 import { LockedPanel } from "@/components/LockedPanel";
 import { PageHeader } from "@/components/PageHeader";
 import { getBook } from "@/lib/books";
+import { useCatalogBooks } from "@/lib/catalog";
+import { localBooks } from "@/lib/local-books";
 import { useSession } from "@/lib/session";
-import { colors } from "@/theme/tokens";
+import { colors, font } from "@/theme/tokens";
 
 export default function LibraryScreen() {
   const { session, libraryIds, setInLibrary } = useSession();
@@ -20,9 +24,16 @@ export default function LibraryScreen() {
   const [notice, setNotice] = useState<ToastItem | null>(null);
   const [nextId, setNextId] = useState(1);
   const dismiss = useCallback(() => setNotice(null), []);
+  useCatalogBooks();
+  const network = useNetworkState();
   if (session.kind !== "user") return <LockedPanel title="Library" />;
 
-  const books = libraryIds.map((id) => getBook(id)).filter((book) => book !== undefined);
+  const offline = network.isInternetReachable === false;
+  const onDevice = new Set(localBooks(session.id).map((item) => item.bookId));
+  const books = libraryIds
+    .map((id) => getBook(id))
+    .filter((book) => book !== undefined)
+    .filter((book) => !offline || onDevice.has(book.id));
   const count = books.length === 1 ? "1 book in your Library" : `${books.length} books in your Library`;
 
   function remove(bookId: string) {
@@ -47,6 +58,8 @@ export default function LibraryScreen() {
       ListHeaderComponent={
         <View style={styles.header}>
           <PageHeader title="Library" lede={count} />
+          <Button label="Downloads" href={"/downloads" as Href} variant="outline" />
+          <Button label="Download history" href={"/download-history" as Href} variant="outline" />
         </View>
       }
       ListEmptyComponent={
@@ -62,6 +75,7 @@ export default function LibraryScreen() {
       renderItem={({ item, index }) => (
         <FadeIn index={index} skip={!fresh} style={styles.cell}>
           <BookCard book={item} corner={<LibraryButton title={item.title} active onPress={() => remove(item.id)} />} />
+          {onDevice.has(item.id) ? <Text style={styles.device}>On this device</Text> : null}
         </FadeIn>
       )}
     />
@@ -80,11 +94,19 @@ const styles = StyleSheet.create({
   },
   header: {
     marginBottom: 8,
+    gap: 12,
   },
   row: {
     gap: 16,
   },
   cell: {
     flex: 1,
+  },
+  device: {
+    fontFamily: font.sans,
+    fontSize: 12,
+    lineHeight: 16,
+    color: colors.muted,
+    marginTop: 4,
   },
 });

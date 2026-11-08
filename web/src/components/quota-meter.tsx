@@ -2,6 +2,8 @@
 
 import { Download } from "lucide-react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { useEffect, useState } from "react";
 
 import {
   DropdownMenu,
@@ -18,7 +20,32 @@ import { cn } from "@/lib/utils";
  * next to a download icon on phones). Pressing it explains the limit and, for guests, how to raise it.
  */
 export function QuotaMeter({ session }: { session: Session }) {
-  const quota = quotaFor(session);
+  const path = usePathname();
+  const [usedOverride, setUsedOverride] = useState<number | null>(null);
+
+  useEffect(() => {
+    let live = true;
+    void fetch("/api/me").then(async (response) => {
+      if (!response.ok || !live) return;
+      const body = (await response.json()) as { used?: number };
+      if (typeof body.used === "number") setUsedOverride(body.used);
+    });
+    return () => {
+      live = false;
+    };
+  }, [path]);
+
+  useEffect(() => {
+    const onQuota = (event: Event) => {
+      const used = (event as CustomEvent<{ used?: number }>).detail?.used;
+      if (typeof used === "number") setUsedOverride(used);
+    };
+    window.addEventListener("elib-quota", onQuota);
+    return () => window.removeEventListener("elib-quota", onQuota);
+  }, []);
+
+  const liveSession = session.kind === "user" && usedOverride != null ? { ...session, downloadsUsed: usedOverride } : session;
+  const quota = quotaFor(liveSession);
   if (!quota) return null;
 
   const label = leftLabel(quota.left);
@@ -54,7 +81,6 @@ export function QuotaMeter({ session }: { session: Session }) {
         <p className="mt-3 text-sm leading-5 text-muted-foreground">
           {quota.guest ? "A free account keeps a library and favorites." : quotaNote(quota)}
         </p>
-        <p className="mt-2 text-xs leading-4 text-muted-foreground">Downloading opens in a later update.</p>
         {quota.guest ? (
           // Menu items, so arrow keys reach them. Plain links inside a menu can't be tabbed to.
           <div className="-mx-2 mt-3 grid">

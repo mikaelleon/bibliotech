@@ -7,7 +7,7 @@ import { SecurityPanel } from "@/components/security-panel";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { VerifyEmailBanner } from "@/components/verify-email-banner";
 import { Button } from "@/components/ui/button";
-import { logoutAction } from "@/lib/actions";
+import { LogoutButton } from "@/components/logout-button";
 import { getSession } from "@/lib/session";
 
 export const metadata = { title: "Profile" };
@@ -48,6 +48,12 @@ export default async function ProfilePage() {
         {session.role !== "admin" && !session.verified ? <VerifyEmailBanner email={session.email} /> : null}
         <AccountPanel name={session.name} email={session.email} />
         {session.role !== "admin" ? <DownloadsPanel session={session} /> : null}
+        {session.role !== "admin" ? (
+          <p className="flex flex-wrap gap-4 text-sm leading-5">
+            <Link href="/downloads" className="text-brand-text underline">Downloads</Link>
+            <Link href="/downloads/history" className="text-brand-text underline">Download history</Link>
+          </p>
+        ) : null}
         <SecurityPanel />
         <section className="rounded-xl bg-card p-8" aria-labelledby="preferences-heading">
           <h2 id="preferences-heading" className="text-xl leading-7 font-medium">
@@ -64,11 +70,7 @@ export default async function ProfilePage() {
             </Link>
           </p>
         ) : null}
-        <form action={logoutAction}>
-          <button type="submit" className="min-h-11 text-sm leading-5 text-brand-text underline">
-            Log out
-          </button>
-        </form>
+        <LogoutButton userId={session.id} />
       </div>
     </main>
   );

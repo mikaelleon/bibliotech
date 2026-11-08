@@ -17,6 +17,10 @@ export const limits = {
   loginIp: { max: 20, windowMs: 15 * 60_000 },
   register: { max: 10, windowMs: 60 * 60_000 },
   resetRequest: { max: 5, windowMs: 15 * 60_000 },
+  /** Signed download URLs for one account. */
+  downloadUser: { max: 30, windowMs: 60_000 },
+  /** Signed download URLs from one address. */
+  downloadIp: { max: 60, windowMs: 60_000 },
 } satisfies Record<string, Limit>;
 
 function sweep(now: number) {

@@ -5,6 +5,7 @@ import { AppState, Platform } from "react-native";
 
 import { disposableMessage, isDisposableEmail } from "@/lib/disposable-domains";
 import { GUEST_LIMIT, USER_LIMIT } from "@/lib/quota";
+import { forgetUser } from "@/lib/local-books";
 import { supabase } from "@/lib/supabase";
 import type { Session } from "@/lib/types";
 import { clearFailures, lockedFor, PASSWORD_MAX, passwordProblem, recordFailure } from "@/lib/users";
@@ -298,7 +299,9 @@ export function SessionProvider({ children }: { children: ReactNode }) {
         return null;
       },
       continueAsGuest() {
+        const leaving = owner.current;
         void (async () => {
+          if (leaving) forgetUser(leaving);
           await supabase.auth.signOut({ scope: "local" });
           await writeFlag(VISITOR_KEY, true);
           setSession({ kind: "guest" });
@@ -307,6 +310,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
         setSession({ kind: "guest" });
       },
       async logout() {
+        if (owner.current) forgetUser(owner.current);
         await writeFlag(VISITOR_KEY, false);
         await writeFlag(SHORT_KEY, false);
         await supabase.auth.signOut({ scope: "local" });

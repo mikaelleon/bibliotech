@@ -3,6 +3,7 @@ import { Suspense, type ReactNode } from "react";
 import { Inter, Newsreader } from "next/font/google";
 import Script from "next/script";
 
+import { PwaRegister } from "@/components/pwa-register";
 import { NavProgress } from "@/components/nav-progress";
 import { SearchHotkey } from "@/components/search-hotkey";
 import { ViewTransitions } from "@/components/view-transitions";
@@ -34,6 +35,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
           {`try{if(localStorage.getItem("elib-theme")==="dark")document.documentElement.dataset.theme="dark"}catch(e){}`}
         </Script>
         <SearchHotkey />
+        <PwaRegister />
         <Suspense>
           <ViewTransitions />
           <NavProgress />

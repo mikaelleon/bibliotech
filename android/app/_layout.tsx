@@ -11,6 +11,7 @@ import { SafeAreaProvider } from "react-native-safe-area-context";
 
 import { Button } from "@/components/Button";
 import { EmptyState } from "@/components/EmptyState";
+import { loadRemoteCatalog } from "@/lib/catalog";
 import { SessionProvider, useSession } from "@/lib/session";
 import { colors } from "@/theme/tokens";
 
@@ -69,6 +70,10 @@ export default function RootLayout() {
     Newsreader_400Regular,
   });
 
+  useEffect(() => {
+    void loadRemoteCatalog();
+  }, []);
+
   return (
     <SafeAreaProvider style={styles.root}>
       <SessionProvider>
@@ -80,6 +85,9 @@ export default function RootLayout() {
               <Stack.Screen name="(auth)" />
               <Stack.Screen name="(tabs)" />
               <Stack.Screen name="book/[id]" />
+              <Stack.Screen name="read/[id]" />
+              <Stack.Screen name="downloads" />
+              <Stack.Screen name="download-history" />
               <Stack.Screen name="search" />
               <Stack.Screen name="admin-notice" />
             </Stack>

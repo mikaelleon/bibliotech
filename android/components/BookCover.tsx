@@ -50,16 +50,18 @@ export function BookCover({ book, decorative = false }: BookCoverProps) {
           />
           <View>
             <Text
+              numberOfLines={6}
               style={{
                 color: palette.color,
                 fontFamily: font.serif,
-                fontSize: width * 0.12,
-                lineHeight: width * 0.12 * 1.1,
+                fontSize: book.title.length > 48 ? width * 0.085 : width * 0.12,
+                lineHeight: (book.title.length > 48 ? width * 0.085 : width * 0.12) * 1.1,
               }}
             >
               {book.title}
             </Text>
             <Text
+              numberOfLines={2}
               style={{
                 marginTop: 4,
                 color: palette.color,

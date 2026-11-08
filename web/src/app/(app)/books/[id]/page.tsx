@@ -6,21 +6,27 @@ import { BookGrid } from "@/components/book-grid";
 import { BookSummary } from "@/components/book-summary";
 import { BookCover } from "@/components/book-cover";
 import { BookActions } from "@/components/book-actions";
+import { DownloadBook } from "@/components/download-book";
 import { DefinitionList } from "@/components/definition-list";
-import { getBook, relatedBooks } from "@/lib/books";
+import { listCatalog } from "@/lib/catalog";
+import { relatedBooks } from "@/lib/books";
+import { getSession } from "@/lib/session";
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const book = getBook(id);
+  const book = (await listCatalog()).find((item) => item.id === id);
   return { title: book?.title ?? "Book" };
 }
 
 export default async function BookPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const book = getBook(id);
+  const catalog = await listCatalog();
+  const book = catalog.find((item) => item.id === id);
   if (!book) notFound();
+  const session = await getSession();
+  const reader = session.kind === "user" && session.role !== "admin";
 
-  const more = relatedBooks(book);
+  const more = relatedBooks(book, catalog);
 
   return (
     <main className="mx-auto w-full max-w-[1200px] px-4 pt-2 pb-6 md:px-8 md:py-8">
@@ -60,6 +66,22 @@ export default async function BookPage({ params }: { params: Promise<{ id: strin
           <BookSummary summary={book.summary} long={Boolean(book.summaryShort)} />
           <div className="mt-6 md:mt-8">
             <BookActions bookId={book.id} />
+            <DownloadBook
+              bookId={book.id}
+              title={book.title}
+              author={book.author}
+              category={book.category}
+              hasFile={Boolean(book.hasFile)}
+              fileSize={book.fileSize}
+              attribution={book.attribution}
+              sourceName={book.sourceName}
+              canDownload={reader}
+              admin={session.kind === "user" && session.role === "admin"}
+              used={reader ? session.downloadsUsed : 0}
+              limit={reader ? session.downloadLimit : 0}
+              verified={reader ? session.verified : false}
+              resetsAt={reader ? session.resetsAt : null}
+            />
           </div>
         </div>
       </div>

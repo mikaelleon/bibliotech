@@ -31,6 +31,12 @@ export default async function LibraryPage({
 
   return (
     <main className="mx-auto flex w-full max-w-[1200px] flex-col gap-8 px-4 py-6 md:px-8 md:py-8">
+      <div className="mb-2 flex justify-end">
+        <div className="flex flex-wrap gap-4">
+          <Link href="/downloads" className="text-sm leading-5 text-brand-text underline">Downloads</Link>
+          <Link href="/downloads/history" className="text-sm leading-5 text-brand-text underline">Download history</Link>
+        </div>
+      </div>
       <SortedShelf
         title="Library"
         lede={<ShelfCount shelf="library" />}

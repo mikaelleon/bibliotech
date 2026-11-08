@@ -166,6 +166,10 @@ p {
   font-size: 12cqw;
   line-height: 1.1;
   overflow-wrap: anywhere;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 6;
+  overflow: hidden;
 }
 
 .cv .ca {
@@ -174,6 +178,10 @@ p {
   line-height: 1.3;
   letter-spacing: 0.04em;
   text-transform: uppercase;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
 }
 
 [data-theme="dark"] .cv {

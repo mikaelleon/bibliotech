@@ -5,6 +5,8 @@ import Link from "next/link";
 import { useTransition } from "react";
 
 import { logoutAction } from "@/lib/actions";
+import { clearAppCache } from "@/lib/device-cache";
+import { removeAllSaved } from "@/lib/offline-books";
 import { Button } from "@/components/ui/button";
 import type { Session } from "@/lib/types";
 import { Avatar } from "@/components/ui/avatar";
@@ -64,22 +66,24 @@ export function AccountMenu({ session, upgrade = true }: { session: Session; upg
               </DropdownMenuItem>
             </>
           )}
-          <LogoutItem />
+          <LogoutItem userId={session.id} />
         </DropdownMenuContent>
       </DropdownMenu>
     </>
   );
 }
 
-function LogoutItem() {
+function LogoutItem({ userId }: { userId: string }) {
   const [pending, startTransition] = useTransition();
 
   return (
     <DropdownMenuItem
       disabled={pending}
       onSelect={() => {
-        startTransition(() => {
-          void logoutAction();
+        startTransition(async () => {
+          await clearAppCache();
+          await removeAllSaved(userId);
+          await logoutAction();
         });
       }}
     >

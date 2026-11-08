@@ -6,6 +6,7 @@ import Link from "next/link";
 import { Suspense, type ReactNode } from "react";
 
 import { AccountMenu } from "@/components/account-menu";
+import { ProgressFlush } from "@/components/progress-flush";
 import { AIAssistant } from "@/components/ai-assistant";
 import { OfflineBanner } from "@/components/offline-banner";
 import { QuotaMeter } from "@/components/quota-meter";
@@ -42,8 +43,10 @@ export function AppShell({
   return (
     <TooltipProvider>
       <ToastProvider>
+      <ProgressFlush userId={session.kind === "user" ? session.id : null} />
       <ShelfProvider
         signedIn={session.kind === "user" && session.role !== "admin"}
+        userId={session.kind === "user" ? session.id : null}
         favoriteIds={shelves.favoriteIds}
         libraryIds={shelves.libraryIds}
         libraryAddedAt={shelves.libraryAddedAt}

@@ -13,11 +13,13 @@ export function BookCard({
   showCategory = false,
   href,
   corner,
+  extra,
 }: {
   book: Book;
   showCategory?: boolean;
   href?: string;
   corner?: ReactNode;
+  extra?: ReactNode;
 }) {
   const destination = href ?? `/books/${book.id}`;
 
@@ -32,6 +34,7 @@ export function BookCard({
         <p className="mt-3 text-sm leading-5 font-medium break-words">{book.title}</p>
         <p className="text-sm leading-5 text-muted-foreground">{book.author}</p>
         {showCategory ? <p className="text-xs leading-4 text-muted-foreground">{book.category}</p> : null}
+        {extra}
       </Link>
       {corner ? <div className="absolute top-2 right-2">{corner}</div> : null}
     </div>

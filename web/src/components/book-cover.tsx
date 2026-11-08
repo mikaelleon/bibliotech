@@ -41,7 +41,7 @@ export function BookCover({
       data-cover={transitionName}
       style={{ background: colors.background, color: colors.color }}
     >
-      <span className="ct">{book.title}</span>
+      <span className="ct" style={book.title.length > 48 ? { fontSize: "8.5cqw" } : undefined}>{book.title}</span>
       <span className="ca">{book.author}</span>
     </div>
   );

@@ -60,6 +60,12 @@ export function quotaNote(quota: Quota): string {
     : `${quota.limit} downloads a month.${resets}`;
 }
 
+/** Tell the header meter about a download without waiting for the layout to render again. */
+export function publishQuota(used: number): void {
+  if (typeof window === "undefined") return;
+  window.dispatchEvent(new CustomEvent("elib-quota", { detail: { used } }));
+}
+
 /** "5 downloads left", "1 download left", "No downloads left". */
 export function leftLabel(left: number): string {
   if (left === 0) return "No downloads left";

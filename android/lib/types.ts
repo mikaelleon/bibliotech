@@ -19,18 +19,23 @@ export type Session =
     };
 
 export const CATEGORIES = [
-  "Technology",
-  "Science",
-  "Business",
-  "Education",
   "Fiction",
+  "Classics",
+  "Philosophy",
   "History",
+  "Science",
+  "Technology",
+  "Business",
+  "Poetry",
+  "Children",
+  "Education",
 ] as const;
 
 export type Category = (typeof CATEGORIES)[number];
 
 export type Book = {
   id: string;
+  uuid?: string;
   title: string;
   author: string;
   category: Category;
@@ -41,4 +46,7 @@ export type Book = {
   summary: string;
   summaryShort?: string;
   coverUrl?: string;
+  hasFile?: boolean;
+  fileSize?: number;
+  attribution?: string;
 };

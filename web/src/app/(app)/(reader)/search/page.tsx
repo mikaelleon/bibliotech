@@ -1,6 +1,7 @@
 import { CatalogResults } from "@/components/catalog-results";
 import { PageHeader } from "@/components/page-header";
-import { getBooks, type BookSort } from "@/lib/books";
+import { listCatalog } from "@/lib/catalog";
+import { type BookSort } from "@/lib/books";
 import { CATEGORIES, type Category } from "@/lib/types";
 
 const pageSize = 24;
@@ -23,12 +24,13 @@ export default async function SearchPage({
   const sort: BookSort = params.sort === "title" || params.sort === "author" ? params.sort : "catalog";
   const requested = Number(params.page ?? "1");
   const page = Number.isFinite(requested) && requested > 0 ? Math.floor(requested) : 1;
+  const catalog = await listCatalog();
 
   return (
     <main className="mx-auto flex w-full max-w-[1200px] flex-col gap-8 px-4 py-6 md:px-8 md:py-8">
       <PageHeader title={query ? `Results for “${query}”` : "Search"} />
       <CatalogResults
-        books={getBooks()}
+        books={catalog}
         query={query}
         category={category}
         sort={sort}

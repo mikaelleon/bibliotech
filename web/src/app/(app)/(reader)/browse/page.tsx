@@ -5,6 +5,7 @@ import { CatalogResults } from "@/components/catalog-results";
 import { FeaturedShelf } from "@/components/featured-shelf";
 import { VerifyEmailBanner } from "@/components/verify-email-banner";
 import { getBooks, type BookSort } from "@/lib/books";
+import { listCatalog } from "@/lib/catalog";
 import { listLibrary } from "@/lib/records";
 import { getSession } from "@/lib/session";
 import { CATEGORIES, type Category } from "@/lib/types";
@@ -36,6 +37,7 @@ export default async function BrowsePage({
   }
 
   const session = await getSession();
+  const catalog = await listCatalog();
   const library = session.kind === "user" ? await listLibrary(session.id) : [];
 
   return (
@@ -43,7 +45,7 @@ export default async function BrowsePage({
       {session.kind === "user" && session.role !== "admin" && !session.verified ? (
         <VerifyEmailBanner email={session.email} />
       ) : null}
-      <FeaturedShelf books={getBooks()} />
+      <FeaturedShelf books={catalog.length ? catalog : getBooks()} />
       {library.length > 0 ? (
         <section aria-label="In your library">
           <h2 className="section-title">In your library</h2>
@@ -53,7 +55,7 @@ export default async function BrowsePage({
         </section>
       ) : null}
       <CatalogResults
-        books={getBooks()}
+        books={catalog}
         category={category}
         sort={sort}
         base="/browse"

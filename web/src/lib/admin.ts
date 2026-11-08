@@ -1,6 +1,6 @@
 import "server-only";
 
-import { getBooks } from "@/lib/books";
+import { listCatalog } from "@/lib/catalog";
 import { countByCategory, listFavoriteIds, listLibrary } from "@/lib/records";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
@@ -75,7 +75,7 @@ export async function adminStats(session: Session, days = 30) {
   const [{ data, error }, users] = await Promise.all([supabase.rpc("admin_stats"), allUsers()]);
   if (error) throw new Error(`Could not load stats: ${error.message}`);
   const stats = data as StatsRow;
-  const catalog = getBooks();
+  const catalog = await listCatalog();
   const perDay = new Map((stats.downloadsPerDay ?? []).map((point) => [point.date, point.count]));
 
   return {
@@ -85,7 +85,7 @@ export async function adminStats(session: Session, days = 30) {
     downloads: stats.downloads ?? 0,
     repeatDownloads: stats.repeatDownloads ?? 0,
     downloadsLast30Days: stats.downloadsLast30Days ?? 0,
-    booksByCategory: countByCategory(),
+    booksByCategory: await countByCategory(),
     mostDownloaded: stats.mostDownloaded ?? [],
     recentDownloads: (stats.recentDownloads ?? []).map((row, index) => ({
       id: `${row.at}-${index}`,

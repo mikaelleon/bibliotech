@@ -13,6 +13,7 @@ import { EmptyState } from "@/components/EmptyState";
 import { FeaturedShelf } from "@/components/FeaturedShelf";
 import { VerifyEmailBanner } from "@/components/VerifyEmailBanner";
 import { filterBooks, getBooks } from "@/lib/books";
+import { useCatalogBooks } from "@/lib/catalog";
 import { CATEGORIES, type Category } from "@/lib/types";
 import { colors, font } from "@/theme/tokens";
 
@@ -24,7 +25,8 @@ export default function BrowseScreen() {
   const query = typeof params.q === "string" ? params.q.trim() : "";
   const rawCategory = typeof params.category === "string" ? params.category : "";
   const category = CATEGORIES.includes(rawCategory as Category) ? rawCategory : undefined;
-  const books = filterBooks(getBooks(), query, category);
+  const catalog = useCatalogBooks();
+  const books = filterBooks(catalog.length ? catalog : getBooks(), query, category);
   const searching = query.length > 0;
   const { width } = useWindowDimensions();
   const cellWidth = (width - 32 - 16) / 2;
@@ -44,7 +46,7 @@ export default function BrowseScreen() {
           {searching ? (
             <Text style={styles.results}>Results for “{query}”</Text>
           ) : (
-            <FeaturedShelf books={getBooks()} />
+            <FeaturedShelf books={catalog} />
           )}
           <CategoryFilter selected={category} />
         </View>

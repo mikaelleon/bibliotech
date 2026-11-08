@@ -1,0 +1,13 @@
+{
+  "name": "import-books",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "import": "node import.mjs",
+    "test": "node --test lib.test.mjs"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.119.0",
+    "jszip": "^3.10.1"
+  }
+}

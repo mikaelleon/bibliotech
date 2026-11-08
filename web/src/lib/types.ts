@@ -24,18 +24,25 @@ export type Session =
     };
 
 export const CATEGORIES = [
-  "Technology",
-  "Science",
-  "Business",
-  "Education",
   "Fiction",
+  "Classics",
+  "Philosophy",
   "History",
+  "Science",
+  "Technology",
+  "Business",
+  "Poetry",
+  "Children",
+  "Education",
 ] as const;
 
 export type Category = (typeof CATEGORIES)[number];
 
 export type Book = {
+  /** Address used in URLs. This is `books.slug`. */
   id: string;
+  /** `books.id` when the row comes from the database. */
+  uuid?: string;
   title: string;
   author: string;
   category: Category;
@@ -50,4 +57,8 @@ export type Book = {
   /** Shorter synopsis used under 768px when the mobile frame uses different copy. */
   summaryShort?: string;
   coverUrl?: string;
+  /** True when a file sits in the private books bucket. */
+  hasFile?: boolean;
+  fileSize?: number;
+  attribution?: string;
 };

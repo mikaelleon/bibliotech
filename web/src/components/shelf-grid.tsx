@@ -3,6 +3,7 @@
 import { useEffect, useState, type ReactNode } from "react";
 
 import { BookCard } from "@/components/book-card";
+import { OnDeviceNote } from "@/components/on-device-note";
 import { FavoriteButton } from "@/components/favorite-button";
 import { LibraryButton } from "@/components/library-button";
 import { useShelf, type Shelf } from "@/components/shelf-provider";
@@ -75,6 +76,7 @@ export function ShelfGrid({ shelf: kind, books, empty }: { shelf: Shelf; books: 
                     <FavoriteButton bookId={book.id} title={book.title} />
                   )
                 }
+                extra={kind === "library" ? <OnDeviceNote bookId={book.id} /> : undefined}
               />
             </li>
           ))}

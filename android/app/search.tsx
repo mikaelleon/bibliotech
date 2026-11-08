@@ -11,6 +11,7 @@ import { CategoryFilter } from "@/components/CategoryFilter";
 import { EmptyState } from "@/components/EmptyState";
 import { SearchBar } from "@/components/SearchBar";
 import { filterBooks, getBooks } from "@/lib/books";
+import { useCatalogBooks } from "@/lib/catalog";
 import { useSession } from "@/lib/session";
 import { colors, font } from "@/theme/tokens";
 import { SearchX } from "lucide-react-native";
@@ -27,10 +28,10 @@ export default function SearchScreen() {
   const [text, setText] = useState(initial);
   const [query, setQuery] = useState(initial);
   const [shown, setShown] = useState(pageSize);
+  const catalog = useCatalogBooks();
 
   if (session.kind === "none") return <Redirect href="/login" />;
-
-  const matches = filterBooks(getBooks(), query, category || undefined);
+  const matches = filterBooks(catalog.length ? catalog : getBooks(), query, category || undefined);
   const visible = matches.slice(0, shown);
 
   return (

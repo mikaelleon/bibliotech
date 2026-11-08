@@ -2,9 +2,8 @@ import "server-only";
 
 import type { SupabaseClient } from "@supabase/supabase-js";
 
-import { getBook, getBooks } from "@/lib/books";
+import { getBooks, type Book } from "@/lib/books";
 import { createClient } from "@/lib/supabase/server";
-import type { Book } from "@/lib/types";
 
 /**
  * Library shelf (`library_items`) and favorites, stored in Supabase.
@@ -25,12 +24,17 @@ function slugOf(row: SlugRow): string | null {
   return book?.slug ?? null;
 }
 
-function booksFor(ids: string[]): Book[] {
-  return ids.map((id) => getBook(id)).filter((book): book is Book => Boolean(book));
+async function booksFor(ids: string[]): Promise<Book[]> {
+  const { listCatalog } = await import("@/lib/catalog");
+  const catalog = await listCatalog();
+  const byId = new Map(catalog.map((book) => [book.id, book]));
+  return ids.flatMap((id) => {
+    const book = byId.get(id) ?? getBooks().find((item) => item.id === id);
+    return book ? [book] : [];
+  });
 }
 
 async function bookIdForSlug(supabase: Client, slug: string): Promise<string | null> {
-  if (!getBook(slug)) return null;
   const { data } = await supabase.from("books").select("id").eq("slug", slug).maybeSingle();
   return data?.id ?? null;
 }
@@ -125,14 +129,15 @@ export async function libraryAddedAt(userId: string): Promise<Record<string, str
 export type LibrarySort = "added" | "title" | "author";
 
 export async function listLibrary(userId: string, sort: LibrarySort = "added", client?: Client): Promise<Book[]> {
-  const books = booksFor((await rows("library_items", userId, client)).map(slugOf).filter((slug): slug is string => Boolean(slug)));
+  const books = await booksFor((await rows("library_items", userId, client)).map(slugOf).filter((slug): slug is string => Boolean(slug)));
   if (sort === "title") books.sort((a, b) => a.title.localeCompare(b.title));
   if (sort === "author") books.sort((a, b) => a.author.localeCompare(b.author));
   return books;
 }
 
-export function countByCategory(): { label: string; count: number }[] {
-  const books = getBooks();
+export async function countByCategory(): Promise<{ label: string; count: number }[]> {
+  const { listCatalog } = await import("@/lib/catalog");
+  const books = await listCatalog();
   const labels = [...new Set(books.map((book) => book.category))];
   return labels.map((label) => ({
     label,

@@ -1,0 +1,3 @@
+# Hand-picked Standard Ebooks URLs, one per line. Do not scrape the site.
+# Download each file by hand and pass --source standard-ebooks only after
+# confirming a single-book download works without an account.

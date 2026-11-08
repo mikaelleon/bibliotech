@@ -66,3 +66,10 @@ The role revoke and the restrictive update policy stay in `002`. `003` does not 
 | `admin_list_downloads(lim, off)` | One row per (user, book) with first and last dates and `times_downloaded` | `authenticated`, refuses non-admins |
 
 It also removes the `anon` grant on `library_items` and recreates `is_admin()` with `search_path = ''`. Every function in it uses `search_path = ''`.
+
+`supabase/migrations/20261107233000_book_files.sql` (apply with the same `supabase db push --remote` consent as the others):
+
+- `books` gains `source`, `source_id`, `file_path`, `file_size_bytes` (1 to 5,242,880, or null), and `attribution`. Unique on `(source, source_id)` when both are set.
+- Private Storage bucket `books`, 5 MB, `application/epub+zip`. No client select policy. The server uploads with the secret key and hands out 60-second signed URLs.
+- `request_download` now returns `not_available` unless `books.file_path` is set. A catalog row with no file cannot be downloaded.
+- `reading_progress (user_id, book_id, cfi, progress, updated_at)`. A signed-in user can read and write only their own rows.

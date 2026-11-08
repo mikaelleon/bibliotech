@@ -9,9 +9,11 @@ import { Button } from "@/components/Button";
 import { EmptyState } from "@/components/EmptyState";
 import { ShelfButtons } from "@/components/ShelfButtons";
 import { SignUpPrompt, type ShelfKind } from "@/components/SignUpPrompt";
+import { DownloadActions } from "@/components/DownloadActions";
 import { FadeIn } from "@/components/FadeIn";
 import { TabBar } from "@/components/TabBar";
 import { getBook } from "@/lib/books";
+import { useCatalogBooks } from "@/lib/catalog";
 import { useSession } from "@/lib/session";
 import { colors, font } from "@/theme/tokens";
 import * as Linking from "expo-linking";
@@ -19,6 +21,7 @@ import * as Linking from "expo-linking";
 export default function BookScreen() {
   const { session } = useSession();
   const { id } = useLocalSearchParams<{ id: string }>();
+  useCatalogBooks();
   const book = typeof id === "string" ? getBook(id) : undefined;
 
   if (session.kind === "none") return <Redirect href="/login" />;
@@ -85,6 +88,17 @@ function BookBody({ id }: { id: string }) {
           onLibrary={() => setInLibrary(book.id, !inLibrary)}
           onFavorite={() => setFavorite(book.id, !favorite)}
           onLocked={setAsking}
+        />
+        <DownloadActions
+          bookId={book.id}
+          title={book.title}
+          author={book.author}
+          category={book.category}
+          hasFile={book.hasFile}
+          canDownload={session.kind === "user" && session.role !== "admin"}
+          verified={session.kind === "user" ? session.verified : false}
+          limit={session.kind === "user" ? session.downloadLimit : 0}
+          resetsAt={session.kind === "user" ? session.resetsAt : null}
         />
       </FadeIn>
       <SignUpPrompt kind={asking} onClose={() => setAsking(null)} />

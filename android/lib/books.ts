@@ -1,5 +1,7 @@
 import type { Book, Category } from "@/lib/types";
 
+export type { Book };
+
 /**
  * Catalog stand-in. This repo has no database yet.
  * Titles are public-domain books, with a real Project Gutenberg page when the id is known.
@@ -218,8 +220,8 @@ const books: Book[] = [
     category: "Education",
     language: "English",
     license: "Public Domain",
-    sourceName: "Project Gutenberg",
-    sourceUrl: "https://www.gutenberg.org/ebooks/1067",
+    sourceName: "Wikipedia",
+    sourceUrl: "https://en.wikipedia.org/wiki/Some_Thoughts_Concerning_Education",
     summary:
       "Locke advises a friend on raising a child: health, habits, and how to teach without breaking curiosity. It is a practical book, not a school syllabus.",
   },
@@ -255,12 +257,20 @@ const popularScienceIds = [
   "walden",
 ];
 
+/** Imported catalog, when the database has been loaded. Null keeps the static list. */
+let remoteCatalog: Book[] | null = null;
+
+/** Replace the static catalog with rows from `books`. An empty list does not replace it. */
+export function setRemoteCatalog(next: Book[]): void {
+  remoteCatalog = next.length > 0 ? next : null;
+}
+
 export function getBooks(): Book[] {
-  return books;
+  return remoteCatalog ?? books;
 }
 
 export function getBook(id: string): Book | undefined {
-  return books.find((book) => book.id === id);
+  return getBooks().find((book) => book.id === id);
 }
 
 export function getBooksByIds(ids: string[]): Book[] {
@@ -297,5 +307,8 @@ export function filterBooks(
 }
 
 export function relatedBooks(book: Book): Book[] {
-  return books.filter((item) => item.category === book.category && item.id !== book.id).slice(0, 5);
+  const others = getBooks().filter((item) => item.category === book.category && item.id !== book.id);
+  const sameAuthor = others.filter((item) => item.author === book.author);
+  const rest = others.filter((item) => item.author !== book.author);
+  return [...sameAuthor, ...rest].slice(0, 5);
 }
