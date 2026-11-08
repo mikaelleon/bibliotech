@@ -59,7 +59,6 @@ export default function LibraryScreen() {
         <View style={styles.header}>
           <PageHeader title="Library" lede={count} />
           <Button label="Downloads" href={"/downloads" as Href} variant="outline" />
-          <Button label="Download history" href={"/download-history" as Href} variant="outline" />
         </View>
       }
       ListEmptyComponent={

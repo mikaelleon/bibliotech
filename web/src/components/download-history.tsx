@@ -67,8 +67,7 @@ export function DownloadHistory({ used, limit }: { used: number; limit: number }
       <p className="text-sm leading-5 text-muted-foreground">{used} / {limit}</p>
       {offline ? (
         <p className="text-sm leading-5">
-          You are offline. Download history needs a connection.{" "}
-          <Link href="/downloads" className="text-brand-text underline">Books on this device</Link> are still available.
+          You are offline. Download history needs a connection. Books on this device are listed above.
         </p>
       ) : null}
       {error ? <p className="text-sm leading-5">{error}</p> : null}

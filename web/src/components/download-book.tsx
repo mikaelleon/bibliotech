@@ -176,7 +176,7 @@ export function DownloadBook(props: Props) {
         title="No downloads left this month"
         footer={
           <Button asChild variant="outline">
-            <Link href="/downloads/history">Download history</Link>
+            <Link href="/downloads">Downloads</Link>
           </Button>
         }
       >

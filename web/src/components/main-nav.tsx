@@ -3,7 +3,6 @@ import {
   ChartColumn,
   Download,
   Heart,
-  History,
   LayoutDashboard,
   Library,
   User,
@@ -84,14 +83,7 @@ export function mainNav(session: Session, compact: boolean): NavItem[] {
       label: "Downloads",
       icon: Download,
       locked: guest,
-      current: (path) => path === "/downloads",
-    },
-    {
-      href: "/downloads/history",
-      label: compact ? "History" : "Download history",
-      icon: History,
-      locked: guest,
-      current: (path) => path.startsWith("/downloads/history"),
+      current: (path) => path === "/downloads" || path.startsWith("/downloads/"),
     },
     {
       href: "/profile",
