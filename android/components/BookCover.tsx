@@ -3,6 +3,7 @@ import { StyleSheet, Text, View } from "react-native";
 
 import { Skeleton } from "@/components/Skeleton";
 import { coverColors } from "@/lib/cover";
+import { displayTitle } from "@/lib/title";
 import type { Book } from "@/lib/types";
 import { colors, font, radius } from "@/theme/tokens";
 
@@ -14,6 +15,7 @@ type BookCoverProps = {
 export function BookCover({ book, decorative = false }: BookCoverProps) {
   const [width, setWidth] = useState(0);
   const palette = coverColors(book.id);
+  const title = displayTitle(book.title);
   const label = `Cover of ${book.title} by ${book.author}`;
 
   return (
@@ -54,11 +56,11 @@ export function BookCover({ book, decorative = false }: BookCoverProps) {
               style={{
                 color: palette.color,
                 fontFamily: font.serif,
-                fontSize: book.title.length > 48 ? width * 0.085 : width * 0.12,
-                lineHeight: (book.title.length > 48 ? width * 0.085 : width * 0.12) * 1.1,
+                fontSize: title.length > 48 ? width * 0.085 : width * 0.12,
+                lineHeight: (title.length > 48 ? width * 0.085 : width * 0.12) * 1.1,
               }}
             >
-              {book.title}
+              {title}
             </Text>
             <Text
               numberOfLines={2}

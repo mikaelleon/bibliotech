@@ -15,6 +15,25 @@ const CATEGORY_RULES = [
   ["Fiction", /fiction|novel|literature|adventure/i],
 ];
 
+/**
+ * Gutenberg catalog titles sometimes keep MARC subfields (`$a`, `$b`, `$c`).
+ * Keep the title and subtitle. Drop the statement of responsibility.
+ */
+export function cleanTitle(title) {
+  let value = title.replace(/\s+/g, " ").trim();
+  value = value.replace(/\s+\/\s+\$c\b.*$/i, "");
+  value = value.replace(/\$c\b.*/i, "");
+  value = value.replace(/(?:^|\s)\$a\s+/gi, " ");
+  value = value.replace(/\s*:\s*\$b\s+/gi, ": ");
+  value = value.replace(/\$[a-z]\b\s*/gi, "");
+  value = value.replace(/\s*;\s*:/g, ":");
+  value = value.replace(/\s+:\s+/g, ": ");
+  value = value.replace(/\s+\/\s*$/g, "");
+  value = value.replace(/\s{2,}/g, " ").trim();
+  value = value.replace(/^[:;,\s]+|[:;\s]+$/g, "");
+  return value || title.trim();
+}
+
 export function slugify(title) {
   const base = title
     .normalize("NFKD")
@@ -165,7 +184,7 @@ export function catalogBooks(csv) {
     const split = (value) => value.split(";").map((part) => part.trim()).filter(Boolean);
     books.push({
       id,
-      title: (cols[column.Title] ?? "Untitled").replace(/\s+/g, " ").trim(),
+      title: cleanTitle(cols[column.Title] ?? "Untitled"),
       authors: [{ name: author }],
       subjects: split(cols[column.Subjects] ?? ""),
       bookshelves: split(cols[column.Bookshelves] ?? ""),

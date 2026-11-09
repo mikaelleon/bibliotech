@@ -53,7 +53,10 @@ export function CatalogResults({
 
   const defaultSort = options[0]?.value ?? "catalog";
   const matches = sortBooks(filterBooks(books, query, currentCategory || undefined), currentSort);
-  const visible = pageSize ? matches.slice((currentPage - 1) * pageSize, currentPage * pageSize) : matches;
+  const paging = Boolean(pageSize) && (base !== "/browse" || currentCategory === "");
+  const pageCount = paging && pageSize ? Math.max(1, Math.ceil(matches.length / pageSize)) : 1;
+  const safePage = Math.min(currentPage, pageCount);
+  const visible = paging && pageSize ? matches.slice((safePage - 1) * pageSize, safePage * pageSize) : matches;
 
   function selectCategory(next: string | null) {
     setCategory(next ?? "");
@@ -71,7 +74,9 @@ export function CatalogResults({
   function selectPage(next: number) {
     setPage(next);
     replaceSearch({ page: next > 1 ? String(next) : null });
-    window.scrollTo(0, 0);
+    const booksHeading = document.getElementById("browse-books");
+    if (base === "/browse" && booksHeading) booksHeading.scrollIntoView({ block: "start" });
+    else window.scrollTo(0, 0);
   }
 
   return (
@@ -116,16 +121,33 @@ export function CatalogResults({
           {suggest ? <SuggestedBooks /> : null}
         </>
       ) : base === "/browse" ? (
-        <section aria-label="Books">
-          <BookGrid books={visible} />
-        </section>
+        <>
+          <section id="browse-books" aria-label="Books" className="scroll-mt-24">
+            <BookGrid books={visible} />
+          </section>
+          {paging && pageSize && matches.length > pageSize ? (
+            <div className="overflow-hidden rounded-xl bg-card">
+              <Pagination
+                page={safePage}
+                pageSize={pageSize}
+                total={matches.length}
+                pathname={base}
+                params={{
+                  category: currentCategory || undefined,
+                  sort: currentSort === defaultSort ? undefined : currentSort,
+                }}
+                onPage={selectPage}
+              />
+            </div>
+          ) : null}
+        </>
       ) : (
         <>
           <BookGrid books={visible} />
           {pageSize ? (
             <div className="overflow-hidden rounded-xl bg-card">
               <Pagination
-                page={currentPage}
+                page={safePage}
                 pageSize={pageSize}
                 total={matches.length}
                 pathname={base}

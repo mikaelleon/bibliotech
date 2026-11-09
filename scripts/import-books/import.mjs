@@ -16,7 +16,7 @@ import { fileURLToPath } from "node:url";
 import { createClient } from "@supabase/supabase-js";
 import JSZip from "jszip";
 
-import { FILE_CAP, catalogBooks, categoryFor, chooseEdition, flipAuthor, nextHarvestUrl, normalizeKey, parseHarvest, uniqueSlug } from "./lib.mjs";
+import { FILE_CAP, catalogBooks, categoryFor, chooseEdition, cleanTitle, flipAuthor, nextHarvestUrl, normalizeKey, parseHarvest, uniqueSlug } from "./lib.mjs";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
 const reportPath = path.join(root, "docs", "catalog-report.md");
@@ -314,7 +314,7 @@ async function main() {
     const storagePath = `gutenberg/${book.id}.epub`;
     const record = {
       slug,
-      title: book.title.slice(0, 300),
+      title: cleanTitle(book.title).slice(0, 300),
       author: author.slice(0, 200),
       category,
       language: "English",

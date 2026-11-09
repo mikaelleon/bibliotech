@@ -19,6 +19,7 @@ type ButtonProps = {
   icon?: ReactNode;
   iconPosition?: "start" | "end";
   accessibilityLabel?: string;
+  numberOfLines?: number;
   style?: StyleProp<ViewStyle>;
 };
 
@@ -33,6 +34,7 @@ export function Button({
   icon,
   iconPosition = "end",
   accessibilityLabel,
+  numberOfLines,
   style,
 }: ButtonProps) {
   const router = useRouter();
@@ -76,10 +78,12 @@ export function Button({
     >
       {iconPosition === "start" ? tinted : null}
       <Text
+        numberOfLines={numberOfLines}
         style={[
           styles.label,
           { color: ink },
           variant === "link" && styles.linkLabel,
+          numberOfLines ? styles.wrap : null,
         ]}
       >
         {busy ? busyLabel(label) : label}
@@ -136,6 +140,9 @@ const styles = StyleSheet.create({
     fontFamily: font.medium,
     fontSize: 14,
     lineHeight: 20,
+  },
+  wrap: {
+    flexShrink: 1,
   },
   linkLabel: {
     color: colors.atext,

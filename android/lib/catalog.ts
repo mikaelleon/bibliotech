@@ -2,6 +2,7 @@ import { useSyncExternalStore } from "react";
 
 import { getBooks, setRemoteCatalog, type Book } from "@/lib/books";
 import { supabase } from "@/lib/supabase";
+import { cleanTitle } from "@/lib/title";
 import { CATEGORIES, type Category } from "@/lib/types";
 
 const listeners = new Set<() => void>();
@@ -45,7 +46,7 @@ export async function loadRemoteCatalog(): Promise<void> {
   const books = (data as Row[]).map((row) => ({
     id: row.slug,
     uuid: row.id,
-    title: row.title,
+    title: cleanTitle(row.title),
     author: row.author,
     category: (CATEGORIES.includes(row.category as Category) ? row.category : "Fiction") as Category,
     language: row.language,

@@ -10,6 +10,7 @@ import { BookCard } from "@/components/book-card";
 import { DefinitionList } from "@/components/definition-list";
 import { Button } from "@/components/ui/button";
 import { prefersReducedMotion } from "@/lib/motion";
+import { displayTitle } from "@/lib/title";
 import { useHoverIntent } from "@/lib/use-hover-intent";
 import type { Book } from "@/lib/types";
 
@@ -92,9 +93,9 @@ export function FeaturedShelf({ books }: { books: Book[] }) {
             <h1 id="featured-heading" className="page-title">
               Featured books
             </h1>
-            <Button asChild className="mt-4 md:mt-6">
-              <Link href={`/books/${focal.id}`}>
-                View {focal.title}
+            <Button asChild className="mt-4 h-auto w-full max-w-xl min-h-11 py-2 md:mt-6">
+              <Link href={`/books/${focal.id}`} aria-label={`View ${focal.title}`}>
+                <span className="line-clamp-2 min-w-0 flex-1 text-left">View {displayTitle(focal.title)}</span>
                 <ArrowRight strokeWidth={1.5} />
               </Link>
             </Button>
@@ -190,7 +191,7 @@ function BookPreview({ book }: { book: Book }) {
           {book.category}
           {book.published ? ` · ${book.published}` : null}
         </p>
-        <h2 className="serif mt-3 text-[32px] leading-10">{book.title}</h2>
+        <h2 className="serif mt-3 line-clamp-4 text-[32px] leading-10" title={book.title}>{displayTitle(book.title)}</h2>
         <p className="mt-1 text-muted-foreground">{book.author}</p>
 
         <p className="mt-6 line-clamp-6 text-sm leading-6">{book.summary}</p>

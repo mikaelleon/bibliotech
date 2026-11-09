@@ -1,4 +1,5 @@
 import { coverColors } from "@/lib/cover";
+import { displayTitle } from "@/lib/title";
 import type { Book } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
@@ -32,6 +33,7 @@ export function BookCover({
   }
 
   const colors = coverColors(book.id);
+  const title = displayTitle(book.title);
   return (
     <div
       role={decorative ? undefined : "img"}
@@ -41,7 +43,7 @@ export function BookCover({
       data-cover={transitionName}
       style={{ background: colors.background, color: colors.color }}
     >
-      <span className="ct" style={book.title.length > 48 ? { fontSize: "8.5cqw" } : undefined}>{book.title}</span>
+      <span className="ct" style={title.length > 48 ? { fontSize: "8.5cqw" } : undefined}>{title}</span>
       <span className="ca">{book.author}</span>
     </div>
   );

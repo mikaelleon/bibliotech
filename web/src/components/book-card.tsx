@@ -3,6 +3,7 @@ import type { ReactNode } from "react";
 import { Check } from "lucide-react";
 
 import { BookCover } from "@/components/book-cover";
+import { displayTitle } from "@/lib/title";
 import type { Book } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
@@ -43,7 +44,7 @@ export function BookCard({
           <i className="block h-full bg-foreground" style={{ width: `${Math.round(Math.min(1, Math.max(0, progress)) * 100)}%` }} />
         </div>
       ) : null}
-      <p className="mt-3 text-sm leading-5 font-medium break-words">{book.title}</p>
+      <p className="mt-3 line-clamp-2 text-sm leading-5 font-medium" title={book.title}>{displayTitle(book.title)}</p>
       <p className="text-sm leading-5 text-muted-foreground">{book.author}</p>
       {progress !== undefined ? (
         <p className="text-xs leading-4 text-muted-foreground">{progress >= 1 ? "Finished" : `${Math.round(progress * 100)}%`}</p>

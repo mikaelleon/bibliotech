@@ -4,6 +4,7 @@ import { ScrollView, StyleSheet, Text, useWindowDimensions, View } from "react-n
 
 import { BookCard } from "@/components/BookCard";
 import { Button } from "@/components/Button";
+import { displayTitle } from "@/lib/title";
 import type { Book } from "@/lib/types";
 import { colors, font } from "@/theme/tokens";
 
@@ -18,7 +19,10 @@ export function FeaturedShelf({ books }: { books: Book[] }) {
     <View accessibilityLabel="Featured books">
       <Text style={styles.title}>Featured books</Text>
       <Button
-        label={`View ${focal.title}`}
+        full
+        numberOfLines={2}
+        label={`View ${displayTitle(focal.title)}`}
+        accessibilityLabel={`View ${focal.title}`}
         href={{ pathname: "/book/[id]", params: { id: focal.id } }}
         icon={<ArrowRight />}
         style={styles.view}

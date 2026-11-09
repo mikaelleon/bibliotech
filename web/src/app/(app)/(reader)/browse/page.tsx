@@ -10,6 +10,7 @@ import { listLibrary } from "@/lib/records";
 import { getSession } from "@/lib/session";
 import { CATEGORIES, type Category } from "@/lib/types";
 
+const pageSize = 24;
 const sortOptions = [
   { value: "catalog", label: "Catalog order" },
   { value: "title", label: "Title" },
@@ -21,12 +22,14 @@ export const metadata = { title: "Browse" };
 export default async function BrowsePage({
   searchParams,
 }: {
-  searchParams: Promise<{ q?: string; category?: string; sort?: string }>;
+  searchParams: Promise<{ q?: string; category?: string; sort?: string; page?: string }>;
 }) {
   const params = await searchParams;
   const query = (params.q ?? "").trim();
   const category = CATEGORIES.includes(params.category as Category) ? params.category : undefined;
   const sort: BookSort = params.sort === "title" || params.sort === "author" ? params.sort : "catalog";
+  const requested = Number(params.page ?? "1");
+  const page = Number.isFinite(requested) && requested > 0 ? Math.floor(requested) : 1;
   const searching = query.length > 0;
   if (searching) {
     const next = new URLSearchParams();
@@ -59,6 +62,8 @@ export default async function BrowsePage({
         books={catalog}
         category={category}
         sort={sort}
+        page={page}
+        pageSize={pageSize}
         base="/browse"
         options={sortOptions}
       />

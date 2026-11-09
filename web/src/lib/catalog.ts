@@ -4,6 +4,7 @@ import { cache } from "react";
 
 import { getBooks, setRemoteCatalog, type Book } from "@/lib/books";
 import { createClient } from "@/lib/supabase/server";
+import { cleanTitle } from "@/lib/title";
 import { CATEGORIES, type Category } from "@/lib/types";
 
 type Row = {
@@ -33,7 +34,7 @@ function toBook(row: Row): Book {
   return {
     id: row.slug,
     uuid: row.id,
-    title: row.title,
+    title: cleanTitle(row.title),
     author: row.author,
     category: categoryOf(row.category),
     language: row.language,

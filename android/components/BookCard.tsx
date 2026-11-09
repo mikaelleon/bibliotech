@@ -5,6 +5,7 @@ import { Animated, Pressable, StyleSheet, Text, View } from "react-native";
 
 import { BookCover } from "@/components/BookCover";
 import { usePressScale } from "@/hooks/use-press-scale";
+import { displayTitle } from "@/lib/title";
 import type { Book } from "@/lib/types";
 import { colors, font } from "@/theme/tokens";
 
@@ -53,7 +54,7 @@ export function BookCard({
       ) : null}
       {progress !== undefined ? <View style={styles.track}><View style={[styles.fill, { width: `${Math.round(progress * 100)}%` }]} /></View> : null}
       <Text numberOfLines={2} style={styles.title}>
-        {book.title}
+        {displayTitle(book.title)}
       </Text>
       <Text numberOfLines={1} style={styles.author}>
         {book.author}
