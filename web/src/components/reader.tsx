@@ -15,7 +15,6 @@ export function Reader({ bookId, title }: { bookId: string; title: string }) {
   const [index, setIndex] = useState(0);
   const [missing, setMissing] = useState(false);
   const [size, setSize] = useState(18);
-  const [dark, setDark] = useState(false);
   const [chrome, setChrome] = useState(true);
   const [sentence, setSentence] = useState(0);
   const [playing, setPlaying] = useState(false);
@@ -108,18 +107,17 @@ export function Reader({ bookId, title }: { bookId: string; title: string }) {
   if (!chapter) return <main className="px-4 py-8 text-muted-foreground">Opening the book…</main>;
 
   return (
-    <main className={dark ? "min-h-full bg-[#1c1915] text-[#f3ead7]" : "min-h-full bg-[#f6f1e7] text-[#1f2330]"} onClick={() => setChrome((value) => !value)}>
+    <main className="reader-paper min-h-full" onClick={() => setChrome((value) => !value)}>
       {chrome ? (
         <div className="sticky top-0 z-10 flex flex-wrap items-center gap-3 border-b border-border bg-inherit px-4 py-3" onClick={(event) => event.stopPropagation()}>
           <Link href={`/books/${bookId}`} className="text-sm underline">Back</Link>
-          <select aria-label="Chapter" value={index} onChange={(event) => { stop(); setIndex(Number(event.target.value)); }} className="min-h-11 max-w-xs rounded-lg border border-border bg-card px-2 text-sm">
+          <select aria-label="Chapter" value={index} onChange={(event) => { stop(); setIndex(Number(event.target.value)); }} className="min-h-11 max-w-xs rounded-lg border border-border bg-transparent px-2 text-sm text-inherit">
             {chapters?.map((item, itemIndex) => (
               <option key={item.id} value={itemIndex}>{item.title}</option>
             ))}
           </select>
           <button type="button" className="min-h-11 px-2" onClick={() => setSize((value) => Math.max(14, value - 2))}>A−</button>
           <button type="button" className="min-h-11 px-2" onClick={() => setSize((value) => Math.min(28, value + 2))}>A+</button>
-          <button type="button" className="min-h-11 px-2" onClick={() => setDark((value) => !value)}>{dark ? "Cream" : "Dark"}</button>
           <span className="text-sm text-muted-foreground">{chapters ? Math.round(((index + 1) / chapters.length) * 100) : 0}%</span>
         </div>
       ) : null}
@@ -131,12 +129,12 @@ export function Reader({ bookId, title }: { bookId: string; title: string }) {
           <button type="button" className="min-h-11 px-2" onClick={() => { stop(); setSentence((value) => Math.min(sentences.length - 1, value + 1)); }}>Next sentence</button>
           <label className="text-sm">
             Speed
-            <select aria-label="Speed" value={speed} onChange={(event) => setSpeed(Number(event.target.value))} className="ml-2 min-h-11 rounded-lg border border-border bg-card px-2">
+            <select aria-label="Speed" value={speed} onChange={(event) => setSpeed(Number(event.target.value))} className="ml-2 min-h-11 rounded-lg border border-border bg-transparent px-2 text-inherit">
               {speeds.map((item) => <option key={item} value={item}>{item}x</option>)}
             </select>
           </label>
           {voices.length > 0 ? (
-            <select aria-label="Voice" value={voice} onChange={(event) => setVoice(event.target.value)} className="min-h-11 max-w-xs rounded-lg border border-border bg-card px-2 text-sm">
+            <select aria-label="Voice" value={voice} onChange={(event) => setVoice(event.target.value)} className="min-h-11 max-w-xs rounded-lg border border-border bg-transparent px-2 text-sm text-inherit">
               <option value="">Default voice</option>
               {voices.map((item) => <option key={item.name} value={item.name}>{item.name}</option>)}
             </select>

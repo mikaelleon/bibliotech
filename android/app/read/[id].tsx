@@ -1,7 +1,7 @@
 import { useLocalSearchParams, useRouter, type Href } from "expo-router";
 import * as Speech from "expo-speech";
 import { useEffect, useState } from "react";
-import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { Pressable, ScrollView, StyleSheet, Text, useColorScheme, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { cfiForChapter, chapterFromCfi, readEpub, sentencesOf, type EpubChapter } from "@/lib/epub";
@@ -25,7 +25,7 @@ export default function ReadScreen() {
   const [sentence, setSentence] = useState(0);
   const [playing, setPlaying] = useState(false);
   const [size, setSize] = useState(18);
-  const [dark, setDark] = useState(false);
+  const dark = useColorScheme() === "dark";
   const [error, setError] = useState<string | null>(null);
   const [speed, setSpeed] = useState(1);
   const [voices, setVoices] = useState<Speech.Voice[]>([]);
@@ -110,7 +110,6 @@ export default function ReadScreen() {
         <Pressable onPress={() => { stop(); setIndex((value) => Math.min((chapters?.length ?? 1) - 1, value + 1)); }}><Text style={styles.link}>Next</Text></Pressable>
         <Pressable onPress={() => setSize((value) => Math.max(14, value - 2))}><Text style={styles.link}>A-</Text></Pressable>
         <Pressable onPress={() => setSize((value) => Math.min(28, value + 2))}><Text style={styles.link}>A+</Text></Pressable>
-        <Pressable onPress={() => setDark((value) => !value)}><Text style={styles.link}>{dark ? "Cream" : "Dark"}</Text></Pressable>
       </View>
       {listenNote ? <Text style={styles.progress}>{listenNote}</Text> : (
         <View style={styles.bar}>

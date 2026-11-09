@@ -83,6 +83,22 @@ body {
   line-height: 1.5;
 }
 
+/* Reading paper follows the same light or dark choice as the rest of the app. */
+.reader-paper {
+  background: #f6f1e7;
+  color: #1f2330;
+}
+
+[data-theme="dark"] .reader-paper {
+  background: #1c1915;
+  color: #f3ead7;
+}
+
+.reader-paper article :where(p, div, span, h1, h2, h3, h4, h5, h6, li, blockquote, em, strong, i, b, a) {
+  color: inherit !important;
+  background-color: transparent !important;
+}
+
 .serif {
   font-family: var(--font-newsreader), Georgia, serif;
   font-weight: 400;
