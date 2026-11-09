@@ -27,8 +27,12 @@ export async function requestUser(request: Request): Promise<RequestUser | null>
       global: { headers: { Authorization: `Bearer ${token}` } },
     });
     const { data, error } = await supabase.auth.getClaims(token);
-    if (error || !data?.claims?.sub) return null;
-    return { id: data.claims.sub, email: String(data.claims.email ?? ""), supabase };
+    if (!error && data?.claims?.sub) {
+      return { id: data.claims.sub, email: String(data.claims.email ?? ""), supabase };
+    }
+    const user = await supabase.auth.getUser(token);
+    if (!user.data.user) return null;
+    return { id: user.data.user.id, email: user.data.user.email ?? "", supabase };
   }
 
   const supabase = await createCookieClient();

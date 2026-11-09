@@ -1,7 +1,17 @@
+import { apiBase } from "@/lib/api";
 import { dropQueuedReading, queuedReading, queuedReadings, queueReading } from "@/lib/local-books";
 import { supabase } from "@/lib/supabase";
 
-const api = process.env.EXPO_PUBLIC_API_URL;
+/** Access token for the signed-in account. Refreshes when the current one is about to expire. */
+async function accessToken(): Promise<string | null> {
+  const { data } = await supabase.auth.getSession();
+  const session = data.session;
+  if (!session?.access_token) return null;
+  const expiresAt = session.expires_at ?? 0;
+  if (expiresAt * 1000 - Date.now() > 60_000) return session.access_token;
+  const refreshed = await supabase.auth.refreshSession();
+  return refreshed.data.session?.access_token ?? session.access_token;
+}
 
 export type DownloadResponse = {
   url?: string;
@@ -11,22 +21,29 @@ export type DownloadResponse = {
 };
 
 export async function requestDownload(bookId: string, confirmRepeat: boolean): Promise<{ status: number; body: DownloadResponse }> {
-  const { data } = await supabase.auth.getSession();
-  const token = data.session?.access_token;
-  if (!api || !token) return { status: 401, body: { error: { code: "UNAUTHENTICATED", message: "Log in to download a book." } } };
-  const response = await fetch(`${api}/api/books/${bookId}/download`, {
-    method: "POST",
-    headers: { authorization: `Bearer ${token}`, "content-type": "application/json" },
-    body: JSON.stringify({ deviceLabel: "Android", confirmRepeat }),
-  });
-  const body = (await response.json()) as DownloadResponse;
-  return { status: response.status, body };
+  const token = await accessToken();
+  if (!token) return { status: 401, body: { error: { code: "UNAUTHENTICATED", message: "Log in to download a book." } } };
+  const api = apiBase();
+  if (!api) {
+    return { status: 0, body: { error: { code: "NO_API_URL", message: "This device can't reach the library server." } } };
+  }
+  try {
+    const response = await fetch(`${api}/api/books/${bookId}/download`, {
+      method: "POST",
+      headers: { authorization: `Bearer ${token}`, "content-type": "application/json" },
+      body: JSON.stringify({ deviceLabel: "Android", confirmRepeat }),
+    });
+    const body = (await response.json()) as DownloadResponse;
+    return { status: response.status, body };
+  } catch {
+    return { status: 0, body: { error: { code: "OFFLINE", message: "Couldn't reach the server. Check your connection." } } };
+  }
 }
 
 export async function readingPosition(userId: string, bookId: string): Promise<string | null> {
   const queued = queuedReading(userId, bookId);
-  const { data } = await supabase.auth.getSession();
-  const token = data.session?.access_token;
+  const token = await accessToken();
+  const api = apiBase();
   if (!api || !token) return queued?.cfi ?? null;
   try {
     const response = await fetch(`${api}/api/books/${bookId}/progress`, { headers: { authorization: `Bearer ${token}` } });
@@ -40,8 +57,8 @@ export async function readingPosition(userId: string, bookId: string): Promise<s
 
 export async function saveReadingPosition(userId: string, bookId: string, cfi: string, progress: number): Promise<void> {
   const updatedAt = new Date().toISOString();
-  const { data } = await supabase.auth.getSession();
-  const token = data.session?.access_token;
+  const token = await accessToken();
+  const api = apiBase();
   if (!api || !token) {
     queueReading(userId, bookId, cfi, progress, updatedAt);
     return;
