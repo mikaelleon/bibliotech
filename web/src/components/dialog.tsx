@@ -61,10 +61,10 @@ export function Dialog({
   return (
     <DialogPrimitive.Root open={open} onOpenChange={onOpenChange}>
       <DialogPrimitive.Portal>
-        <DialogPrimitive.Overlay className="sheet-overlay fixed inset-0 z-50 bg-[rgba(31,35,48,0.4)]" />
+        <DialogPrimitive.Overlay className="sheet-overlay fixed inset-0 z-50 bg-scrim" />
         <DialogPrimitive.Content
           style={style}
-          className="dialog-pop fixed top-1/2 left-1/2 z-50 w-[min(480px,calc(100%-32px))] -translate-x-1/2 -translate-y-1/2 rounded-xl bg-card p-8 shadow-[var(--shadow-overlay)] focus:outline-none"
+          className="dialog-pop fixed top-1/2 left-1/2 z-50 w-[min(480px,calc(100%-32px))] -translate-x-1/2 -translate-y-1/2 rounded-xl border border-border bg-card p-8 shadow-[var(--shadow-overlay)] focus:outline-none"
         >
           <DialogPrimitive.Title className="section-title">{title}</DialogPrimitive.Title>
           <DialogPrimitive.Description asChild>

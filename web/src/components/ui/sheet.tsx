@@ -43,7 +43,7 @@ export function SheetContent({
 }: React.ComponentProps<typeof Dialog.Content> & VariantProps<typeof panel>) {
   return (
     <Dialog.Portal>
-      <Dialog.Overlay className="sheet-overlay fixed inset-0 z-50 bg-[rgba(31,35,48,0.3)]" />
+      <Dialog.Overlay className="sheet-overlay fixed inset-0 z-50 bg-scrim" />
       <Dialog.Content className={cn(panel({ side }), className)} {...props}>
         {children}
       </Dialog.Content>

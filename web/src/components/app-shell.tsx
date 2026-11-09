@@ -6,6 +6,7 @@ import Link from "next/link";
 import { Suspense, type ReactNode } from "react";
 
 import { AccountMenu } from "@/components/account-menu";
+import { CollectionPickerHost } from "@/components/add-to-library";
 import { ProgressFlush } from "@/components/progress-flush";
 import { AIAssistant } from "@/components/ai-assistant";
 import { OfflineBanner } from "@/components/offline-banner";
@@ -87,7 +88,8 @@ export function AppShell({
           </div>
         </div>
         <TabBar session={session} />
-        {reader ? <AIAssistant /> : null}
+        {reader && path !== "/library" ? <AIAssistant /> : null}
+        <CollectionPickerHost />
       </div>
       </ShelfProvider>
       </ToastProvider>

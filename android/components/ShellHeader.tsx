@@ -72,6 +72,10 @@ export function ShellHeader() {
           setQuotaOpen(false);
           router.push("/register");
         }}
+        onHistory={() => {
+          setQuotaOpen(false);
+          router.push("/downloads" as Href);
+        }}
       />
     ) : null}
     </View>
@@ -96,7 +100,7 @@ function QuotaButton({ quota, open, onPress }: { quota: Quota; open: boolean; on
 }
 
 /** Opens under the header and pushes the page down, so nothing is covered. */
-function QuotaPanel({ quota, onRegister }: { quota: Quota; onRegister: () => void }) {
+function QuotaPanel({ quota, onRegister, onHistory }: { quota: Quota; onRegister: () => void; onHistory: () => void }) {
   const width = `${(quota.used / quota.limit) * 100}%` as const;
   return (
     <FadeIn style={styles.panel}>
@@ -114,7 +118,11 @@ function QuotaPanel({ quota, onRegister }: { quota: Quota; onRegister: () => voi
         <Text accessibilityRole="link" onPress={onRegister} style={styles.panelLink}>
           Create a free account
         </Text>
-      ) : null}
+      ) : (
+        <Text accessibilityRole="link" onPress={onHistory} style={styles.panelLink}>
+          View download history
+        </Text>
+      )}
     </FadeIn>
   );
 }

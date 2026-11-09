@@ -3,17 +3,20 @@
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { Select } from "@/components/ui/select";
+import { cn } from "@/lib/utils";
 
 /** Compact sort control. The first option is the default and stays out of the URL. */
 export function CatalogSort({
   value,
   options,
   onValueChange,
+  className,
 }: {
   value: string;
   options: { value: string; label: string }[];
   /** When set, the choice updates the list in place instead of navigating. */
   onValueChange?: (value: string) => void;
+  className?: string;
 }) {
   const router = useRouter();
   const pathname = usePathname();
@@ -23,7 +26,7 @@ export function CatalogSort({
     <Select
       aria-label="Sort"
       value={value}
-      className="w-full md:w-44"
+      className={cn("w-full md:w-44", className)}
       onChange={(event) => {
         const next = event.target.value;
         if (onValueChange) {

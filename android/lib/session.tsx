@@ -129,8 +129,8 @@ type SessionContextValue = {
   logout: () => Promise<void>;
   /** Sets the favorite to exactly `on`. `at` restores its old position (Undo). */
   setFavorite: (bookId: string, on: boolean, at?: number) => void;
-  /** Adds the book to, or removes it from, Library. Never uses a download. */
-  setInLibrary: (bookId: string, on: boolean, at?: number) => void;
+  /** Adds the book to, or removes it from, Library. Resolves after the shelf row, and any collection rows, are written. */
+  setInLibrary: (bookId: string, on: boolean, at?: number) => Promise<boolean>;
   rename: (name: string) => Promise<string | null>;
   changePassword: (password: string, confirm: string) => Promise<string | null>;
 };
@@ -339,12 +339,16 @@ export function SessionProvider({ children }: { children: ReactNode }) {
         });
       },
       setInLibrary(bookId, on, at) {
-        if (session.kind !== "user") return;
+        if (session.kind !== "user") return Promise.resolve(false);
         const before = libraryIds;
         setLibraryIds((current) => setIn(current, bookId, on, at));
-        void persistShelf("library_items", bookId, on).then((ok) => {
-          if (!ok) setLibraryIds(before);
-          else if (!on) void removeBookFromGroups(bookId);
+        return persistShelf("library_items", bookId, on).then(async (ok) => {
+          if (!ok) {
+            setLibraryIds(before);
+            return false;
+          }
+          if (!on) await removeBookFromGroups(bookId);
+          return true;
         });
       },
       async rename(name) {

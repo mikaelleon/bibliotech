@@ -10,6 +10,8 @@ import { EmptyState } from "@/components/EmptyState";
 import { ShelfButtons } from "@/components/ShelfButtons";
 import { AddToLibraryModal } from "@/components/AddToLibraryModal";
 import { SignUpPrompt, type ShelfKind } from "@/components/SignUpPrompt";
+import { Toast, type ToastItem } from "@/components/Toast";
+import { listMemberships, restoreMemberships } from "@/lib/collections";
 import { DownloadActions } from "@/components/DownloadActions";
 import { FadeIn } from "@/components/FadeIn";
 import { TabBar } from "@/components/TabBar";
@@ -35,10 +37,14 @@ export default function BookScreen() {
   );
 }
 
+let toldAdd = false;
+
 function BookBody({ id }: { id: string }) {
   const { session, favoriteIds, libraryIds, setFavorite, setInLibrary } = useSession();
   const [asking, setAsking] = useState<ShelfKind | null>(null);
-  const [adding, setAdding] = useState(false);
+  const [picking, setPicking] = useState(false);
+  const [menu, setMenu] = useState(false);
+  const [notice, setNotice] = useState<ToastItem | null>(null);
   const book = getBook(id);
   if (!book) return null;
   const summary = book.summaryShort ?? book.summary;
@@ -88,8 +94,20 @@ function BookBody({ id }: { id: string }) {
           inLibrary={inLibrary}
           favorite={favorite}
           onLibrary={() => {
-            if (inLibrary) setInLibrary(book.id, false);
-            else setAdding(true);
+            if (!signedIn) return;
+            if (inLibrary) {
+              setMenu(true);
+              return;
+            }
+            void setInLibrary(book.id, true);
+            const first = !toldAdd;
+            toldAdd = true;
+            setNotice({
+              id: Date.now(),
+              message: first ? "Added to Library. Adding doesn't use a download." : "Added to Library",
+              actionLabel: "Add to collection",
+              onAction: () => setPicking(true),
+            });
           }}
           onFavorite={() => setFavorite(book.id, !favorite)}
           onLocked={setAsking}
@@ -108,12 +126,38 @@ function BookBody({ id }: { id: string }) {
       </FadeIn>
       <SignUpPrompt kind={asking} onClose={() => setAsking(null)} />
       <AddToLibraryModal
-        visible={adding}
+        visible={picking}
         userId={session.kind === "user" ? session.id : ""}
-        bookId={book.id}
-        onClose={() => setAdding(false)}
-        onAdded={() => setInLibrary(book.id, true)}
+        bookIds={[book.id]}
+        onClose={() => setPicking(false)}
       />
+      {menu ? (
+        <View style={styles.menu}>
+          <Button label="Add to collection" variant="outline" onPress={() => { setMenu(false); setPicking(true); }} />
+          <Button
+            label="Remove from Library"
+            onPress={() => {
+              setMenu(false);
+              void listMemberships([book.id]).then(async (memberships) => {
+                const ok = await setInLibrary(book.id, false);
+                if (!ok) return;
+                const count = new Set(memberships.map((row) => row.collectionId)).size;
+                setNotice({
+                  id: Date.now(),
+                  message: count === 0 ? "Removed from Library" : `Removed from Library and ${count === 1 ? "1 collection" : `${count} collections`}`,
+                  actionLabel: "Undo",
+                  onAction: () => {
+                    void setInLibrary(book.id, true);
+                    void restoreMemberships(memberships);
+                  },
+                });
+              });
+            }}
+          />
+          <Button label="Cancel" variant="outline" onPress={() => setMenu(false)} />
+        </View>
+      ) : null}
+      <Toast item={notice} onDone={() => setNotice(null)} />
     </ScrollView>
   );
 }
@@ -223,6 +267,10 @@ const styles = StyleSheet.create({
   },
   actions: {
     marginTop: 16,
+    gap: 8,
+  },
+  menu: {
+    marginTop: 12,
     gap: 8,
   },
   missing: {

@@ -1,7 +1,6 @@
 import {
   BookOpen,
   ChartColumn,
-  Download,
   Heart,
   LayoutDashboard,
   Library,
@@ -77,13 +76,6 @@ export function mainNav(session: Session, compact: boolean): NavItem[] {
       icon: Heart,
       locked: guest,
       current: (path) => path === "/favorites",
-    },
-    {
-      href: "/downloads",
-      label: compact ? "Downloads" : "Download history",
-      icon: Download,
-      locked: guest,
-      current: (path) => path === "/downloads" || path.startsWith("/downloads/"),
     },
     {
       href: "/profile",

@@ -91,7 +91,13 @@ export function QuotaMeter({ session }: { session: Session }) {
               <Link href="/login">Log in</Link>
             </DropdownMenuItem>
           </div>
-        ) : null}
+        ) : (
+          <div className="-mx-2 mt-3 grid">
+            <DropdownMenuItem asChild>
+              <Link href="/downloads">View download history</Link>
+            </DropdownMenuItem>
+          </div>
+        )}
       </DropdownMenuContent>
     </DropdownMenu>
   );

@@ -3,12 +3,10 @@
 import { useEffect, useState, type ReactNode } from "react";
 
 import { BookCard } from "@/components/book-card";
-import { BookMarks } from "@/components/book-marks";
 import { FavoriteButton } from "@/components/favorite-button";
 import { useShelf, type Shelf } from "@/components/shelf-provider";
 import { bookGridClass } from "@/lib/book-grid-class";
 import { durPanelExit } from "@/lib/motion";
-import { savedBooks } from "@/lib/offline-books";
 import type { Book } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
@@ -34,16 +32,6 @@ export function ShelfGrid({
   onToggle?: (id: string) => void;
 }) {
   const shelf = useShelf();
-  const [saved, setSaved] = useState<Set<string>>(new Set());
-  useEffect(() => {
-    let live = true;
-    void savedBooks(shelf.userId ?? "").then((rows) => {
-      if (live) setSaved(new Set(rows.map((row) => row.bookId)));
-    });
-    return () => {
-      live = false;
-    };
-  }, [shelf.userId]);
   // Every book this page has shown, in page order, so an Undo returns a card to the same slot.
   const [known, setKnown] = useState(books);
   const [seenBooks, setSeenBooks] = useState(books);
@@ -96,13 +84,7 @@ export function ShelfGrid({
                 selecting={selecting}
                 selected={selected?.has(book.id)}
                 onToggleSelect={() => onToggle?.(book.id)}
-                corner={
-                  selecting ? undefined : kind === "library" ? (
-                    <BookMarks bookId={book.id} title={book.title} downloaded={saved.has(book.id)} />
-                  ) : (
-                    <FavoriteButton bookId={book.id} title={book.title} />
-                  )
-                }
+                corner={selecting ? undefined : <FavoriteButton bookId={book.id} title={book.title} />}
               />
             </li>
           ))}

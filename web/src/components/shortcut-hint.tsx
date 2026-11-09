@@ -20,7 +20,7 @@ export function ShortcutHint({ large = false }: { large?: boolean }) {
   return (
     <kbd
       className={cn(
-        "absolute right-4 hidden rounded-sm border border-border px-2 py-0.5 text-xs leading-4 text-muted-foreground md:inline",
+        "absolute right-4 rounded-sm border border-border px-2 py-0.5 text-xs leading-4 text-muted-foreground",
         large ? "top-4" : "top-2.5",
       )}
     >

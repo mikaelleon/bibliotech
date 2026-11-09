@@ -4,7 +4,6 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 
 import { BookCard } from "@/components/book-card";
-import { BookMarks } from "@/components/book-marks";
 import { useShelf } from "@/components/shelf-provider";
 import { Button } from "@/components/ui/button";
 import { bookGridClass } from "@/lib/book-grid-class";
@@ -83,8 +82,6 @@ export function DownloadHistory({ used, limit }: { used: number; limit: number }
       window.removeEventListener("online", on);
       window.removeEventListener("offline", on);
     };
-    // reload closes over the latest userId. The listeners only need to be current for this account.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userId]);
 
   const ordered = [...rows].sort((a, b) => Date.parse(b.lastDownloadedAt || b.firstDownloadedAt) - Date.parse(a.lastDownloadedAt || a.firstDownloadedAt));
@@ -202,7 +199,6 @@ export function DeviceDownloads({
                   selecting={selecting}
                   selected={selected?.has(item.bookId)}
                   onToggleSelect={() => onToggle?.(item.bookId)}
-                  corner={selecting ? undefined : <BookMarks bookId={item.bookId} title={item.meta.title} downloaded />}
                 />
               </li>
             );

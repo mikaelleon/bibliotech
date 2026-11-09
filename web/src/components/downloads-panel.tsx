@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 import { quotaFor, quotaNote, resetLabel } from "@/lib/quota";
 import type { Session } from "@/lib/types";
 
@@ -42,6 +44,9 @@ export function DownloadsPanel({ session }: { session: Extract<Session, { kind: 
         <i className="bar-grow block h-full bg-brand" style={{ width: percent }} />
       </div>
       <p className="mt-3 text-sm leading-5 text-muted-foreground">{quotaNote(quota)}</p>
+      <Link href="/downloads" className="mt-4 inline-flex min-h-11 items-center text-sm leading-5 text-brand-text underline">
+        View download history
+      </Link>
     </section>
   );
 }

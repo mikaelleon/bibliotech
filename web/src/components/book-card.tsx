@@ -19,6 +19,8 @@ export function BookCard({
   selecting = false,
   selected = false,
   onToggleSelect,
+  progress,
+  onDevice = false,
 }: {
   book: Book;
   showCategory?: boolean;
@@ -28,13 +30,30 @@ export function BookCard({
   selecting?: boolean;
   selected?: boolean;
   onToggleSelect?: () => void;
+  /** 0 to 1. Omitted when the book has never been opened. */
+  progress?: number;
+  onDevice?: boolean;
 }) {
   const destination = href ?? `/books/${book.id}`;
   const body = (
     <>
       <BookCover book={book} decorative />
+      {progress !== undefined ? (
+        <div className="mt-2 h-0.5 overflow-hidden rounded-full bg-border" aria-hidden>
+          <i className="block h-full bg-foreground" style={{ width: `${Math.round(Math.min(1, Math.max(0, progress)) * 100)}%` }} />
+        </div>
+      ) : null}
       <p className="mt-3 text-sm leading-5 font-medium break-words">{book.title}</p>
       <p className="text-sm leading-5 text-muted-foreground">{book.author}</p>
+      {progress !== undefined ? (
+        <p className="text-xs leading-4 text-muted-foreground">{progress >= 1 ? "Finished" : `${Math.round(progress * 100)}%`}</p>
+      ) : null}
+      {onDevice ? (
+        <p className="inline-flex items-center gap-1 text-xs leading-4 text-muted-foreground">
+          <Check size={12} strokeWidth={2} aria-hidden />
+          On this device
+        </p>
+      ) : null}
       {showCategory ? <p className="text-xs leading-4 text-muted-foreground">{book.category}</p> : null}
       {extra}
     </>
@@ -65,8 +84,8 @@ export function BookCard({
         <span
           aria-hidden
           className={cn(
-            "absolute top-2 left-2 inline-flex size-6 items-center justify-center rounded-full border",
-            selected ? "border-foreground bg-foreground text-background" : "border-border bg-card",
+            "absolute top-2 left-2 inline-flex size-6 items-center justify-center rounded-full border-2 border-[#20232f]",
+            selected ? "bg-[#20232f] text-white" : "bg-white",
           )}
         >
           {selected ? <Check size={14} strokeWidth={2} /> : null}

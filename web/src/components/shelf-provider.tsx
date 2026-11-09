@@ -7,10 +7,12 @@ import { Dialog } from "@/components/dialog";
 import { useToast } from "@/components/toast";
 import { Button } from "@/components/ui/button";
 import { setFavoriteAction, setLibraryAction } from "@/lib/actions";
+import type { Membership } from "@/lib/collection";
+import { openCollectionPicker } from "@/lib/collection-picker";
 
 export type Shelf = "favorites" | "library";
 
-type SetOptions = { silent?: boolean; at?: number; addedAt?: string };
+type SetOptions = { silent?: boolean; at?: number; addedAt?: string; memberships?: Membership[]; local?: boolean };
 
 type ShelfValue = {
   /** Registered reader. Guests see the buttons, and pressing one opens the sign-up prompt. */
@@ -113,12 +115,13 @@ export function ShelfProvider({
       }
       return shelf === "library" ? [bookId, ...current] : [...current, bookId];
     });
+    if (options.local) return true;
     setPending((value) => value + 1);
 
     const result =
       shelf === "favorites"
         ? await setFavoriteAction(bookId, on, restoreAt)
-        : await setLibraryAction(bookId, on, on ? keepDate : undefined);
+        : await setLibraryAction(bookId, on, on ? keepDate : undefined, on ? options.memberships : undefined);
     setPending((value) => value - 1);
 
     if (!result.ok) {
@@ -137,13 +140,40 @@ export function ShelfProvider({
     }
 
     if (!options.silent) {
-      toast(on ? copy[shelf].added : copy[shelf].removed, {
-        label: "Undo",
-        onClick: () => {
-          // The latest `set`, not this render's: this one still sees the shelf from before the change.
-          void latest.current?.(shelf, bookId, !on, { silent: true, at: on ? undefined : position, addedAt: keepDate });
-        },
-      });
+      if (shelf === "library" && on) {
+        let first = false;
+        try {
+          first = sessionStorage.getItem("elib.told-library") !== "1";
+          if (first) sessionStorage.setItem("elib.told-library", "1");
+        } catch {
+          first = false;
+        }
+        toast(first ? "Added to Library. Adding doesn't use a download." : "Added to Library", {
+          label: "Add to collection",
+          onClick: () => openCollectionPicker([bookId]),
+        });
+      } else if (shelf === "library") {
+        const saved = result.memberships ?? [];
+        const groups = new Set(saved.map((row) => row.collectionId)).size;
+        const message =
+          groups === 0
+            ? copy.library.removed
+            : `Removed from Library and ${groups === 1 ? "1 collection" : `${groups} collections`}`;
+        toast(message, {
+          label: "Undo",
+          onClick: () => {
+            void latest.current?.(shelf, bookId, true, { silent: true, addedAt: keepDate, memberships: saved });
+          },
+        });
+      } else {
+        toast(on ? copy[shelf].added : copy[shelf].removed, {
+          label: "Undo",
+          onClick: () => {
+            // The latest `set`, not this render's: this one still sees the shelf from before the change.
+            void latest.current?.(shelf, bookId, !on, { silent: true, at: on ? undefined : position, addedAt: keepDate });
+          },
+        });
+      }
     }
     return true;
   }

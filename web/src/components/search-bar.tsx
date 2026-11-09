@@ -1,5 +1,8 @@
+"use client";
+
 import { Search, X } from "lucide-react";
 import Link from "next/link";
+import { useSyncExternalStore } from "react";
 
 import { ShortcutHint } from "@/components/shortcut-hint";
 import { cn } from "@/lib/utils";
@@ -13,11 +16,21 @@ type SearchBarProps = {
   clearHref?: string;
   /** Landing field is 56px. The shell field is 44px. */
   large?: boolean;
-  /** Mobile shell: short placeholder, no key hint. */
+  /** Unused. Width decides the short placeholder, so the hint never overlaps it. */
   compact?: boolean;
   action?: (formData: FormData) => void | Promise<void>;
   className?: string;
 };
+
+function subscribe(onChange: () => void) {
+  const media = window.matchMedia("(min-width: 1024px)");
+  media.addEventListener("change", onChange);
+  return () => media.removeEventListener("change", onChange);
+}
+
+function wideEnough() {
+  return window.matchMedia("(min-width: 1024px)").matches;
+}
 
 export function SearchBar({
   query = "",
@@ -25,12 +38,13 @@ export function SearchBar({
   sort = "",
   clearHref,
   large = false,
-  compact = false,
   action,
   className,
 }: SearchBarProps) {
-  const placeholder = compact ? "Search books" : "Search by title or author";
+  const wide = useSyncExternalStore(subscribe, wideEnough, () => false);
+  const placeholder = large || wide ? "Search by title or author" : "Search";
   const showClear = query.length > 0 && Boolean(clearHref);
+  const showHint = wide && !showClear;
 
   return (
     <form
@@ -59,7 +73,7 @@ export function SearchBar({
         className={cn(
           "w-full rounded-xl border border-border bg-card pl-12 text-base text-foreground placeholder:text-muted-foreground",
           large ? "h-14" : "h-11",
-          showClear || !compact ? "pr-12" : "pr-4",
+          showHint || showClear ? "pr-16" : "pr-4",
         )}
       />
       {showClear ? (
@@ -73,9 +87,9 @@ export function SearchBar({
         >
           <X size={16} strokeWidth={1.5} aria-hidden />
         </Link>
-      ) : compact ? null : (
+      ) : showHint ? (
         <ShortcutHint large={large} />
-      )}
+      ) : null}
     </form>
   );
 }

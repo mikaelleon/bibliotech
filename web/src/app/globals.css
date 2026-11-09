@@ -23,6 +23,7 @@
   --shadow-cover: 0 4px 12px rgba(31, 35, 48, 0.2);
   --shadow-overlay: 0 8px 32px rgba(31, 35, 48, 0.2);
   --shadow-cover-hover: 0 10px 24px rgba(31, 35, 48, 0.22);
+  --scrim: rgba(31, 35, 48, 0.4);
 }
 
 [data-theme="dark"] {
@@ -47,6 +48,7 @@
   --shadow-cover: 0 4px 12px rgba(0, 0, 0, 0.5);
   --shadow-overlay: 0 8px 32px rgba(0, 0, 0, 0.6);
   --shadow-cover-hover: 0 10px 24px rgba(0, 0, 0, 0.6);
+  --scrim: rgba(0, 0, 0, 0.6);
 }
 
 @theme inline {
@@ -68,6 +70,7 @@
   --color-ring: var(--ring);
   --color-brand: var(--brand);
   --color-brand-text: var(--brand-text);
+  --color-scrim: var(--scrim);
   --font-sans: var(--font-inter), system-ui, sans-serif;
   --font-serif: var(--font-newsreader), Georgia, serif;
 }

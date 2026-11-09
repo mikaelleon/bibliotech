@@ -1,13 +1,20 @@
-/** A reading list is read through. A collection is a named group. Both live inside Library. */
-export type CollectionKind = "reading_list" | "collection";
-
+/** A named shelf inside Library. A book can sit in several. */
 export type CollectionGroup = {
   id: string;
   name: string;
-  kind: CollectionKind;
   bookIds: string[];
 };
 
-export function kindLabel(kind: CollectionKind): string {
-  return kind === "reading_list" ? "Reading list" : "Collection";
-}
+/** Where a book sat inside a collection, so Undo can put it back. */
+export type Membership = {
+  bookId: string;
+  collectionId: string;
+  position: number;
+};
+
+export type ReadingProgress = {
+  bookId: string;
+  /** 0 to 1. */
+  progress: number;
+  updatedAt: string;
+};
