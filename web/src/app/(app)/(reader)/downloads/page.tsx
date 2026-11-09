@@ -3,18 +3,16 @@ import Link from "next/link";
 import { DownloadHistory } from "@/components/download-history";
 import { PageHeader } from "@/components/page-header";
 import { Button } from "@/components/ui/button";
-import { listCatalog } from "@/lib/catalog";
 import { getSession } from "@/lib/session";
 
-export const metadata = { title: "Downloads" };
+export const metadata = { title: "Download history" };
 
 export default async function DownloadsPage() {
-  const catalogPromise = listCatalog();
   const session = await getSession();
   if (session.kind !== "user" || session.role === "admin") {
     return (
       <main className="mx-auto w-full max-w-[1200px] px-4 py-6 md:px-8 md:py-8">
-        <PageHeader title="Downloads" lede="An account keeps the books you download." />
+        <PageHeader title="Download history" lede="An account keeps the books you download." />
         <Button asChild className="mt-6">
           <Link href="/register">Register</Link>
         </Button>
@@ -22,16 +20,14 @@ export default async function DownloadsPage() {
     );
   }
 
-  const catalog = await catalogPromise;
-
   return (
     <main className="mx-auto w-full max-w-[1200px] px-4 py-6 md:px-8 md:py-8">
       <PageHeader
-        title="Downloads"
-        lede="Every book this account has downloaded."
+        title="Download history"
+        lede="Newest first. Saving a book again does not use another download."
       />
       <div id="history" className="mt-8 scroll-mt-24">
-        <DownloadHistory used={session.downloadsUsed} limit={session.downloadLimit} catalog={catalog} />
+        <DownloadHistory used={session.downloadsUsed} limit={session.downloadLimit} />
       </div>
     </main>
   );

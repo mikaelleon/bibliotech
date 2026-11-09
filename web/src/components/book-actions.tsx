@@ -1,8 +1,9 @@
 "use client";
 
-import { BookmarkCheck, BookmarkPlus, Heart } from "lucide-react";
+import { Heart } from "lucide-react";
 import { useRef } from "react";
 
+import { AddToLibrary } from "@/components/add-to-library";
 import { useShelf } from "@/components/shelf-provider";
 import { Swap } from "@/components/swap";
 import { durConfirm, easeOut, prefersReducedMotion } from "@/lib/motion";
@@ -20,14 +21,8 @@ import { cn } from "@/lib/utils";
  */
 export function BookActions({ bookId }: { bookId: string }) {
   const shelf = useShelf();
-  const inLibrary = shelf.signedIn && shelf.has("library", bookId);
   const favorite = shelf.signedIn && shelf.has("favorites", bookId);
   const heartRef = useRef<HTMLSpanElement>(null);
-
-  function toggleLibrary() {
-    if (!shelf.signedIn) return shelf.promptSignUp("library");
-    void shelf.set("library", bookId, !inLibrary);
-  }
 
   function toggleFavorite() {
     if (!shelf.signedIn) return shelf.promptSignUp("favorites");
@@ -42,30 +37,7 @@ export function BookActions({ bookId }: { bookId: string }) {
 
   return (
     <div className="flex flex-wrap gap-2" role="group" aria-label="Save this book">
-      <button
-        type="button"
-        // The name matches the visible label exactly; the hidden state's text stays out of it.
-        aria-label={inLibrary ? "In Library" : "Add to Library"}
-        onClick={toggleLibrary}
-        className={cn(
-          base,
-          inLibrary ? "border-primary bg-primary text-primary-foreground" : "border-border bg-card text-foreground hover:bg-background",
-        )}
-      >
-        <Swap
-          index={inLibrary ? 1 : 0}
-          items={[
-            <>
-              <BookmarkPlus size={16} strokeWidth={1.5} aria-hidden />
-              Add to Library
-            </>,
-            <>
-              <BookmarkCheck size={16} strokeWidth={1.5} aria-hidden />
-              In Library
-            </>,
-          ]}
-        />
-      </button>
+      <AddToLibrary bookId={bookId} title="this book" appearance="label" />
       <button
         type="button"
         aria-label={favorite ? "Favorited" : "Favorite"}

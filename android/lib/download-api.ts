@@ -65,12 +65,14 @@ export async function flushReading(userId: string): Promise<void> {
   }
 }
 
-export async function downloadHistory(): Promise<{ id: string; title: string; author: string; firstDownloadedAt: string; times: number }[]> {
+export async function downloadHistory(): Promise<{ id: string; title: string; author: string; firstDownloadedAt: string; lastDownloadedAt?: string; times: number; device?: string | null }[]> {
   const { data } = await supabase.auth.getSession();
   const token = data.session?.access_token;
   if (!api || !token) return [];
   const response = await fetch(`${api}/api/downloads`, { headers: { authorization: `Bearer ${token}` } });
   if (!response.ok) return [];
-  const body = (await response.json()) as { downloads: { id: string; title: string; author: string; firstDownloadedAt: string; times: number }[] };
+  const body = (await response.json()) as {
+    downloads: { id: string; title: string; author: string; firstDownloadedAt: string; lastDownloadedAt?: string; times: number; device?: string | null }[];
+  };
   return body.downloads;
 }

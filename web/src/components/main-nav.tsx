@@ -80,7 +80,7 @@ export function mainNav(session: Session, compact: boolean): NavItem[] {
     },
     {
       href: "/downloads",
-      label: "Downloads",
+      label: compact ? "Downloads" : "Download history",
       icon: Download,
       locked: guest,
       current: (path) => path === "/downloads" || path.startsWith("/downloads/"),

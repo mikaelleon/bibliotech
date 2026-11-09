@@ -5,6 +5,7 @@ type HistoryRow = {
   first_downloaded_at: string;
   last_downloaded_at: string;
   times_downloaded: number;
+  last_device_label: string | null;
   books: { slug: string; title: string; author: string } | { slug: string; title: string; author: string }[] | null;
 };
 
@@ -19,7 +20,7 @@ export async function GET(request: Request) {
 
   const { data, error, count } = await user.supabase
     .from("downloads")
-    .select("first_downloaded_at, last_downloaded_at, times_downloaded, books(slug, title, author)", { count: "exact" })
+    .select("first_downloaded_at, last_downloaded_at, times_downloaded, last_device_label, books(slug, title, author)", { count: "exact" })
     .eq("user_id", user.id)
     .order("last_downloaded_at", { ascending: false })
     .range(from, from + pageSize - 1);
@@ -36,6 +37,7 @@ export async function GET(request: Request) {
         firstDownloadedAt: row.first_downloaded_at,
         lastDownloadedAt: row.last_downloaded_at,
         times: row.times_downloaded,
+        device: row.last_device_label,
       },
     ];
   });

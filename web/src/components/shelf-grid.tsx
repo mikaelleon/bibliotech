@@ -18,7 +18,21 @@ import { cn } from "@/lib/utils";
  * while that card is still leaving. The card control matches the page (heart on Favorites,
  * bookmark on Library). The Library card shows a heart and a download mark.
  */
-export function ShelfGrid({ shelf: kind, books, empty }: { shelf: Shelf; books: Book[]; empty: ReactNode }) {
+export function ShelfGrid({
+  shelf: kind,
+  books,
+  empty,
+  selecting = false,
+  selected,
+  onToggle,
+}: {
+  shelf: Shelf;
+  books: Book[];
+  empty: ReactNode;
+  selecting?: boolean;
+  selected?: ReadonlySet<string>;
+  onToggle?: (id: string) => void;
+}) {
   const shelf = useShelf();
   const [saved, setSaved] = useState<Set<string>>(new Set());
   useEffect(() => {
@@ -79,8 +93,11 @@ export function ShelfGrid({ shelf: kind, books, empty }: { shelf: Shelf; books: 
               <BookCard
                 book={book}
                 showCategory
+                selecting={selecting}
+                selected={selected?.has(book.id)}
+                onToggleSelect={() => onToggle?.(book.id)}
                 corner={
-                  kind === "library" ? (
+                  selecting ? undefined : kind === "library" ? (
                     <BookMarks bookId={book.id} title={book.title} downloaded={saved.has(book.id)} />
                   ) : (
                     <FavoriteButton bookId={book.id} title={book.title} />

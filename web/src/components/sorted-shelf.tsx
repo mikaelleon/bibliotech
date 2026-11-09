@@ -21,6 +21,9 @@ export function SortedShelf({
   empty,
   belowHeader,
   footer,
+  selecting,
+  selected,
+  onToggle,
 }: {
   title: string;
   lede?: ReactNode;
@@ -31,6 +34,9 @@ export function SortedShelf({
   empty: ReactNode;
   belowHeader?: ReactNode;
   footer?: ReactNode;
+  selecting?: boolean;
+  selected?: ReadonlySet<string>;
+  onToggle?: (id: string) => void;
 }) {
   const [current, setCurrent] = useState(sort);
   const [seen, setSeen] = useState(sort);
@@ -60,7 +66,7 @@ export function SortedShelf({
         }
       />
       {belowHeader}
-      <ShelfGrid shelf={shelf} books={ordered} empty={empty} />
+      <ShelfGrid shelf={shelf} books={ordered} empty={empty} selecting={selecting} selected={selected} onToggle={onToggle} />
       {footer}
     </>
   );

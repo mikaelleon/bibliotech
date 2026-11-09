@@ -62,7 +62,7 @@ export default function ProfileScreen() {
         </View>
         {quota ? <Text style={styles.note}>{quotaNote(quota)}</Text> : null}
         <View style={styles.actions}>
-          <Button label="Downloads" href={"/downloads" as Href} variant="outline" />
+          <Button label="Download history" href={"/downloads" as Href} variant="outline" />
         </View>
       </View>
       <View style={styles.card}>

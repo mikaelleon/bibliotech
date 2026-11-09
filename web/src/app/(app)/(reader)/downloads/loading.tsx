@@ -1,5 +1,5 @@
-import { GridLoading } from "@/components/page-loading";
+import { FormLoading } from "@/components/page-loading";
 
 export default function Loading() {
-  return <GridLoading label="Loading downloads" />;
+  return <FormLoading label="Loading download history" />;
 }

@@ -8,6 +8,7 @@ import { BookCover } from "@/components/BookCover";
 import { Button } from "@/components/Button";
 import { EmptyState } from "@/components/EmptyState";
 import { ShelfButtons } from "@/components/ShelfButtons";
+import { AddToLibraryModal } from "@/components/AddToLibraryModal";
 import { SignUpPrompt, type ShelfKind } from "@/components/SignUpPrompt";
 import { DownloadActions } from "@/components/DownloadActions";
 import { FadeIn } from "@/components/FadeIn";
@@ -37,6 +38,7 @@ export default function BookScreen() {
 function BookBody({ id }: { id: string }) {
   const { session, favoriteIds, libraryIds, setFavorite, setInLibrary } = useSession();
   const [asking, setAsking] = useState<ShelfKind | null>(null);
+  const [adding, setAdding] = useState(false);
   const book = getBook(id);
   if (!book) return null;
   const summary = book.summaryShort ?? book.summary;
@@ -85,7 +87,10 @@ function BookBody({ id }: { id: string }) {
           signedIn={signedIn}
           inLibrary={inLibrary}
           favorite={favorite}
-          onLibrary={() => setInLibrary(book.id, !inLibrary)}
+          onLibrary={() => {
+            if (inLibrary) setInLibrary(book.id, false);
+            else setAdding(true);
+          }}
           onFavorite={() => setFavorite(book.id, !favorite)}
           onLocked={setAsking}
         />
@@ -102,6 +107,13 @@ function BookBody({ id }: { id: string }) {
         />
       </FadeIn>
       <SignUpPrompt kind={asking} onClose={() => setAsking(null)} />
+      <AddToLibraryModal
+        visible={adding}
+        userId={session.kind === "user" ? session.id : ""}
+        bookId={book.id}
+        onClose={() => setAdding(false)}
+        onAdded={() => setInLibrary(book.id, true)}
+      />
     </ScrollView>
   );
 }

@@ -8,7 +8,7 @@ import { BookMarks } from "@/components/book-marks";
 import { useShelf } from "@/components/shelf-provider";
 import { Button } from "@/components/ui/button";
 import { bookGridClass } from "@/lib/book-grid-class";
-import { removeAllSaved, removeSavedBook, savedBooks, type SavedBook } from "@/lib/offline-books";
+import { savedBooks, type SavedBook } from "@/lib/offline-books";
 import type { Book, Category } from "@/lib/types";
 
 type HistoryItem = {
@@ -16,7 +16,9 @@ type HistoryItem = {
   title: string;
   author: string;
   firstDownloadedAt: string;
+  lastDownloadedAt: string;
   times: number;
+  device: string | null;
 };
 
 function dateLabel(value: string): string {
@@ -45,17 +47,15 @@ function coverBook(id: string, title: string, author: string, catalog: Book[]): 
   );
 }
 
-/** Account record of downloads, newest first. Files on this device live in Library. */
-export function DownloadHistory({ used, limit, catalog }: { used: number; limit: number; catalog: Book[] }) {
+/** Account record of downloads, newest first. A repeat save does not use another download. */
+export function DownloadHistory({ used, limit }: { used: number; limit: number }) {
   const { userId } = useShelf();
   const [rows, setRows] = useState<HistoryItem[]>([]);
-  const [local, setLocal] = useState<SavedBook[]>([]);
   const [offline, setOffline] = useState(false);
   const [ready, setReady] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   async function reload() {
-    setLocal(userId ? await savedBooks(userId) : []);
     if (typeof navigator !== "undefined" && navigator.onLine === false) {
       setOffline(true);
       setReady(true);
@@ -87,8 +87,7 @@ export function DownloadHistory({ used, limit, catalog }: { used: number; limit:
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userId]);
 
-  const onDevice = new Set(local.map((item) => item.bookId));
-  const ordered = [...rows].sort((a, b) => Date.parse(b.firstDownloadedAt) - Date.parse(a.firstDownloadedAt));
+  const ordered = [...rows].sort((a, b) => Date.parse(b.lastDownloadedAt || b.firstDownloadedAt) - Date.parse(a.lastDownloadedAt || a.firstDownloadedAt));
   return (
     <div className="grid gap-4">
       <p className="text-sm leading-5 text-muted-foreground">{used} / {limit}</p>
@@ -108,72 +107,88 @@ export function DownloadHistory({ used, limit, catalog }: { used: number; limit:
         </div>
       ) : null}
       {!offline && ordered.length > 0 ? (
-        <ul className={bookGridClass}>
-          {ordered.map((item) => {
-            const book = coverBook(item.id, item.title, item.author, catalog);
-            const here = onDevice.has(item.id);
+        <ol className="m-0 grid list-none p-0">
+          {ordered.map((item, index) => {
+            const when = item.lastDownloadedAt || item.firstDownloadedAt;
+            const again = item.times > 1 && item.firstDownloadedAt && item.firstDownloadedAt !== item.lastDownloadedAt;
             return (
-              <li key={item.id} className="min-w-0">
-                <BookCard
-                  book={book}
-                  showCategory
-                  href={here ? `/read/${item.id}` : `/books/${item.id}`}
-                  corner={<BookMarks bookId={item.id} title={item.title} downloaded={here} />}
-                  extra={<p className="text-xs leading-4 text-muted-foreground">{dateLabel(item.firstDownloadedAt)} · {item.times} {item.times === 1 ? "time" : "times"}</p>}
-                />
+              <li key={item.id} className="grid grid-cols-[12px_1fr] gap-x-4">
+                <div className="flex flex-col items-center">
+                  <span aria-hidden className="mt-1 size-3 shrink-0 rounded-full bg-brand" />
+                  {index < ordered.length - 1 ? <span aria-hidden className="mt-1 w-px flex-1 bg-border" /> : null}
+                </div>
+                <div className={index < ordered.length - 1 ? "pb-8" : undefined}>
+                  <time dateTime={when} className="text-xs leading-4 font-medium text-muted-foreground">{dateLabel(when)}</time>
+                  <div className="mt-2 rounded-xl bg-card px-4 py-3">
+                    <Link href={`/books/${item.id}`} className="text-sm font-medium text-inherit no-underline">{item.title}</Link>
+                    <p className="text-sm text-muted-foreground">{item.author}</p>
+                    <p className="mt-1 text-sm text-muted-foreground">{item.device ? `On ${item.device}` : "Device not recorded"}{item.times > 1 ? ` · ${item.times} times` : ""}</p>
+                    {again ? <p className="text-xs leading-4 text-muted-foreground">First downloaded {dateLabel(item.firstDownloadedAt)}. Saving it again does not use a download.</p> : null}
+                  </div>
+                </div>
               </li>
             );
           })}
-        </ul>
+        </ol>
       ) : null}
     </div>
   );
 }
 
-/** Books saved in this browser. They are listed from Library. Removing one frees space and does not refund a download. */
-export function DeviceDownloads({ ids, catalog }: { ids?: string[]; catalog: Book[] }) {
+/** Books saved in this browser. Removing one frees space and does not refund a download. */
+export function DeviceDownloads({
+  ids,
+  catalog,
+  selecting = false,
+  selected,
+  onToggle,
+  note = false,
+  refresh = 0,
+}: {
+  ids?: string[];
+  catalog: Book[];
+  selecting?: boolean;
+  selected?: ReadonlySet<string>;
+  onToggle?: (id: string) => void;
+  note?: boolean;
+  refresh?: number;
+}) {
   const { userId } = useShelf();
   const [local, setLocal] = useState<SavedBook[]>([]);
-  const [confirm, setConfirm] = useState(false);
   const [ready, setReady] = useState(false);
-  const [space, setSpace] = useState<string | null>(null);
 
   async function reload() {
     const rows = userId ? await savedBooks(userId) : [];
     setLocal(rows);
     setReady(true);
-    if (navigator.storage?.estimate) {
-      const estimate = await navigator.storage.estimate();
-      const used = estimate.usage ?? 0;
-      const quota = estimate.quota ?? 0;
-      setSpace(`${(used / (1024 * 1024)).toFixed(1)} MB used of ${(quota / (1024 * 1024)).toFixed(0)} MB`);
-    }
   }
 
   useEffect(() => {
     const timer = window.setTimeout(() => void reload(), 0);
     return () => window.clearTimeout(timer);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [userId]);
+  }, [userId, refresh]);
 
-  const total = local.reduce((sum, item) => sum + item.size, 0);
   const shown = ids ? local.filter((item) => ids.includes(item.bookId)) : local;
 
   return (
     <div className="grid gap-4">
       {!ready ? null : (
         <>
-      <p className="text-sm leading-5 text-muted-foreground">
-        {(total / (1024 * 1024)).toFixed(1)} MB of books. Removing a book frees space and does not refund a download.
-        {space ? ` ${space}.` : ""} A browser may clear this storage. A book it clears stays in download history, and you can save it again free.
-      </p>
+      {note && shown.length > 0 ? (
+        <p className="text-sm leading-5 text-muted-foreground">
+          Removing a saved book frees space. It does not refund a download, and the book stays in download history.
+        </p>
+      ) : null}
       {shown.length === 0 ? (
+        ids ? null : (
         <div className="max-w-[560px] py-8">
           <h2 className="section-title">Nothing on this device yet</h2>
           <div className="mt-6">
             <Button asChild variant="outline"><Link href="/browse">Browse books</Link></Button>
           </div>
         </div>
+        )
       ) : (
         <ul className={bookGridClass}>
           {shown.map((item) => {
@@ -184,28 +199,16 @@ export function DeviceDownloads({ ids, catalog }: { ids?: string[]; catalog: Boo
                   book={book}
                   showCategory
                   href={`/read/${item.bookId}`}
-                  corner={<BookMarks bookId={item.bookId} title={item.meta.title} downloaded />}
+                  selecting={selecting}
+                  selected={selected?.has(item.bookId)}
+                  onToggleSelect={() => onToggle?.(item.bookId)}
+                  corner={selecting ? undefined : <BookMarks bookId={item.bookId} title={item.meta.title} downloaded />}
                 />
-                <div className="mt-3">
-                  <Button variant="outline" onClick={() => { if (userId) void removeSavedBook(userId, item.bookId).then(reload); }}>Remove</Button>
-                </div>
               </li>
             );
           })}
         </ul>
       )}
-      {shown.length > 0 ? (
-        confirm ? (
-          <div className="flex gap-2">
-            <Button onClick={() => { if (!userId) return; void removeAllSaved(userId).then(() => { setConfirm(false); return reload(); }); }}>Remove all</Button>
-            <Button variant="outline" onClick={() => setConfirm(false)}>Cancel</Button>
-          </div>
-        ) : (
-          <div>
-            <Button variant="outline" onClick={() => setConfirm(true)}>Remove all</Button>
-          </div>
-        )
-      ) : null}
         </>
       )}
     </div>

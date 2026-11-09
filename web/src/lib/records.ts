@@ -110,6 +110,8 @@ export async function setInLibrary(userId: string, slug: string, on: boolean, ad
   } else {
     const { error } = await supabase.from("library_items").delete().eq("user_id", userId).eq("book_id", bookId);
     if (error) throw new Error(`Could not remove from Library: ${error.message}`);
+    // A list is a subset of the shelf. Leaving the shelf drops the book from every group.
+    await supabase.from("collection_items").delete().eq("book_id", bookId);
   }
   return true;
 }

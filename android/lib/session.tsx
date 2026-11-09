@@ -3,6 +3,7 @@ import * as SecureStore from "expo-secure-store";
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { AppState, Platform } from "react-native";
 
+import { removeBookFromGroups } from "@/lib/collections";
 import { disposableMessage, isDisposableEmail } from "@/lib/disposable-domains";
 import { GUEST_LIMIT, USER_LIMIT } from "@/lib/quota";
 import { forgetUser } from "@/lib/local-books";
@@ -343,6 +344,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
         setLibraryIds((current) => setIn(current, bookId, on, at));
         void persistShelf("library_items", bookId, on).then((ok) => {
           if (!ok) setLibraryIds(before);
+          else if (!on) void removeBookFromGroups(bookId);
         });
       },
       async rename(name) {

@@ -114,7 +114,7 @@ export function DownloadActions(props: Props) {
                 ? `You've used all ${props.limit} downloads this month.`
                 : "You've used all 5 downloads this month. Verify your email to unlock 5 more."}
             </Text>
-            <Button label="Downloads" variant="outline" onPress={() => { setQuotaOn(false); router.push("/downloads" as Href); }} />
+            <Button label="Download history" variant="outline" onPress={() => { setQuotaOn(false); router.push("/downloads" as Href); }} />
           </View>
         </View>
       </Modal>

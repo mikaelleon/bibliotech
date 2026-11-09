@@ -184,6 +184,69 @@ export async function setFavoriteAction(bookId: string, on: boolean, at?: number
   return { ok: true, on };
 }
 
+export type FileTarget = { collectionId?: string; name?: string; kind?: "reading_list" | "collection" };
+
+/** Adds the book to Library, and to a reading list or collection when one is chosen. */
+export async function fileInLibraryAction(bookId: string, target: FileTarget = {}): Promise<{ ok: true } | { ok: false; message: string }> {
+  const userId = await readerId();
+  if (!userId) return { ok: false, message: "Log in to keep a Library." };
+  try {
+    if (!(await setInLibrary(userId, bookId, true))) return { ok: false, message: "That book isn't in the catalog." };
+    const name = target.name?.trim();
+    if (name && target.kind) {
+      const { createCollection, addBookToCollection } = await import("@/lib/collections");
+      const created = await createCollection(userId, name, target.kind);
+      if ("error" in created) return { ok: false, message: created.error };
+      if (!(await addBookToCollection(userId, created.id, bookId))) return { ok: false, message: "The book is in your Library, but it couldn't be filed." };
+    } else if (target.collectionId) {
+      const { addBookToCollection } = await import("@/lib/collections");
+      if (!(await addBookToCollection(userId, target.collectionId, bookId))) {
+        return { ok: false, message: "The book is in your Library, but it couldn't be filed." };
+      }
+    }
+  } catch (error) {
+    console.error(error);
+    return { ok: false, message: "We couldn't update your Library. Try again." };
+  }
+  revalidatePath("/", "layout");
+  return { ok: true };
+}
+
+export async function listMyCollectionsAction(): Promise<import("@/lib/collection").CollectionGroup[]> {
+  const userId = await readerId();
+  if (!userId) return [];
+  const { listCollections } = await import("@/lib/collections");
+  return listCollections(userId);
+}
+
+export async function createGroupAction(name: string, kind: "reading_list" | "collection"): Promise<{ ok: true; id: string } | { ok: false; message: string }> {
+  const userId = await readerId();
+  if (!userId) return { ok: false, message: "Log in to keep a Library." };
+  const { createCollection } = await import("@/lib/collections");
+  const created = await createCollection(userId, name, kind);
+  if ("error" in created) return { ok: false, message: created.error };
+  revalidatePath("/library");
+  return { ok: true, id: created.id };
+}
+
+export async function deleteGroupAction(id: string): Promise<boolean> {
+  const userId = await readerId();
+  if (!userId) return false;
+  const { deleteCollection } = await import("@/lib/collections");
+  const ok = await deleteCollection(userId, id);
+  if (ok) revalidatePath("/library");
+  return ok;
+}
+
+export async function removeFromGroupsAction(bookIds: string[], kind: "reading_list" | "collection"): Promise<boolean> {
+  const userId = await readerId();
+  if (!userId) return false;
+  const { removeBooksFromKind } = await import("@/lib/collections");
+  const ok = await removeBooksFromKind(userId, bookIds, kind);
+  if (ok) revalidatePath("/library");
+  return ok;
+}
+
 /** Adds the book to, or removes it from, Library. Never uses a download. */
 export async function setLibraryAction(bookId: string, on: boolean, addedAt?: string): Promise<ShelfResult> {
   const userId = await readerId();
