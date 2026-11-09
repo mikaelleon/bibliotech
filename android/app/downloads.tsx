@@ -4,19 +4,11 @@ import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { Button } from "@/components/Button";
-import { downloadHistory } from "@/lib/download-api";
+import { downloadHistory, requestDownload, type HistoryItem } from "@/lib/download-api";
+import { readEpub } from "@/lib/epub";
+import { downloadBookFile, localBooks, rememberBook } from "@/lib/local-books";
 import { useSession } from "@/lib/session";
 import { colors, font } from "@/theme/tokens";
-
-type HistoryItem = {
-  id: string;
-  title: string;
-  author: string;
-  firstDownloadedAt: string;
-  lastDownloadedAt?: string;
-  times: number;
-  device?: string | null;
-};
 
 function dateLabel(value: string): string {
   const date = new Date(value);
@@ -24,18 +16,73 @@ function dateLabel(value: string): string {
   return date.toLocaleString("en-US", { month: "short", day: "numeric", year: "numeric", hour: "numeric", minute: "2-digit" });
 }
 
+function deviceLine(devices: string[]): string {
+  if (devices.length === 0) return "Device not recorded";
+  if (devices.length === 1) return `On ${devices[0]}`;
+  return `On ${devices.slice(0, -1).join(", ")} and ${devices[devices.length - 1]}`;
+}
+
 export default function DownloadsScreen() {
   const router = useRouter();
   const { session } = useSession();
+  const userId = session.kind === "user" ? session.id : "";
   const [history, setHistory] = useState<HistoryItem[]>([]);
   const [failed, setFailed] = useState(false);
+  const [onDevice, setOnDevice] = useState<Set<string>>(() => new Set(localBooks(userId).map((item) => item.bookId)));
+  const [saving, setSaving] = useState<string | null>(null);
+  const [rowError, setRowError] = useState<{ id: string; message: string } | null>(null);
   const used = session.kind === "user" ? session.downloadsUsed : 0;
   const limit = session.kind === "user" ? session.downloadLimit : 0;
   const ordered = [...history].sort((a, b) => Date.parse(b.lastDownloadedAt || b.firstDownloadedAt) - Date.parse(a.lastDownloadedAt || a.firstDownloadedAt));
 
   useEffect(() => {
-    void downloadHistory().then(setHistory).catch(() => setFailed(true));
-  }, []);
+    let live = true;
+    void downloadHistory()
+      .then((rows) => {
+        if (!live) return;
+        setHistory(rows);
+        setOnDevice(new Set(localBooks(userId).map((item) => item.bookId)));
+        setFailed(false);
+      })
+      .catch(() => {
+        if (live) setFailed(true);
+      });
+    return () => {
+      live = false;
+    };
+  }, [userId]);
+
+  async function saveOnDevice(item: HistoryItem) {
+    setSaving(item.id);
+    setRowError(null);
+    const { status, body } = await requestDownload(item.id, true);
+    if (status !== 200 || !body.url) {
+      setSaving(null);
+      setRowError({ id: item.id, message: body.error?.message ?? "The download didn't start." });
+      return;
+    }
+    try {
+      const file = await downloadBookFile(body.url, userId, item.id, () => undefined);
+      const bytes = await file.arrayBuffer();
+      await readEpub(bytes.slice(0));
+      rememberBook({
+        userId,
+        bookId: item.id,
+        path: file.uri,
+        size: bytes.byteLength,
+        savedAt: new Date().toISOString(),
+        title: item.title,
+        author: item.author,
+        category: item.category,
+      });
+      setOnDevice(new Set(localBooks(userId).map((row) => row.bookId)));
+      const rows = await downloadHistory();
+      setHistory(rows);
+    } catch (cause) {
+      setRowError({ id: item.id, message: cause instanceof Error ? cause.message : "Saving the file failed. Try again." });
+    }
+    setSaving(null);
+  }
 
   return (
     <SafeAreaView style={styles.safe}>
@@ -54,6 +101,7 @@ export default function DownloadsScreen() {
         {ordered.map((item, index) => {
           const when = item.lastDownloadedAt || item.firstDownloadedAt;
           const again = item.times > 1 && item.firstDownloadedAt !== item.lastDownloadedAt;
+          const here = onDevice.has(item.id);
           return (
             <View key={item.id} style={styles.event}>
               <View style={styles.rail}>
@@ -61,13 +109,17 @@ export default function DownloadsScreen() {
                 {index < ordered.length - 1 ? <View style={styles.line} /> : null}
               </View>
               <View style={styles.body}>
-                <Text style={styles.when}>{dateLabel(when)}</Text>
+                <Text style={styles.when}>Last downloaded {dateLabel(when)}</Text>
                 <Pressable onPress={() => router.push(`/book/${item.id}` as never)}>
                   <Text style={styles.book}>{item.title}</Text>
                 </Pressable>
                 <Text style={styles.note}>{item.author}</Text>
-                <Text style={styles.note}>{item.device ? `On ${item.device}` : "Device not recorded"}{item.times > 1 ? ` · ${item.times} times` : ""}</Text>
+                <Text style={styles.note}>{deviceLine(item.devices)}{item.times > 1 ? ` · ${item.times} times` : ""}</Text>
                 {again ? <Text style={styles.note}>First downloaded {dateLabel(item.firstDownloadedAt)}.</Text> : null}
+                {here ? <Text style={styles.note}>On this device</Text> : (
+                  <Button label={saving === item.id ? "Downloading" : "Download"} disabled={saving !== null} variant="outline" onPress={() => void saveOnDevice(item)} />
+                )}
+                {rowError?.id === item.id ? <Text style={styles.note}>{rowError.message}</Text> : null}
               </View>
             </View>
           );

@@ -6,6 +6,7 @@ type HistoryRow = {
   last_downloaded_at: string;
   times_downloaded: number;
   last_device_label: string | null;
+  devices: string[] | null;
   books: { slug: string; title: string; author: string } | { slug: string; title: string; author: string }[] | null;
 };
 
@@ -18,12 +19,21 @@ export async function GET(request: Request) {
   const pageSize = Math.min(50, Math.max(1, Number(new URL(request.url).searchParams.get("pageSize") ?? "50") || 50));
   const from = (page - 1) * pageSize;
 
-  const { data, error, count } = await user.supabase
+  const withDevices = await user.supabase
     .from("downloads")
-    .select("first_downloaded_at, last_downloaded_at, times_downloaded, last_device_label, books(slug, title, author)", { count: "exact" })
+    .select("first_downloaded_at, last_downloaded_at, times_downloaded, last_device_label, devices, books(slug, title, author)", { count: "exact" })
     .eq("user_id", user.id)
     .order("last_downloaded_at", { ascending: false })
     .range(from, from + pageSize - 1);
+  const loaded = withDevices.error?.message?.includes("devices")
+    ? await user.supabase
+        .from("downloads")
+        .select("first_downloaded_at, last_downloaded_at, times_downloaded, last_device_label, books(slug, title, author)", { count: "exact" })
+        .eq("user_id", user.id)
+        .order("last_downloaded_at", { ascending: false })
+        .range(from, from + pageSize - 1)
+    : withDevices;
+  const { data, error, count } = loaded;
   if (error) return apiError(500, "HISTORY_UNAVAILABLE", "We couldn't load your downloads.");
 
   const downloads = ((data ?? []) as HistoryRow[]).flatMap((row) => {
@@ -38,6 +48,7 @@ export async function GET(request: Request) {
         lastDownloadedAt: row.last_downloaded_at,
         times: row.times_downloaded,
         device: row.last_device_label,
+        devices: row.devices?.length ? row.devices : row.last_device_label ? [row.last_device_label] : [],
       },
     ];
   });

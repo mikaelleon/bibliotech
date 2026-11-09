@@ -1,6 +1,7 @@
 "use client";
 
 import { ArrowRight, CircleAlert } from "lucide-react";
+import Link from "next/link";
 import { useActionState, useState } from "react";
 
 import { Field } from "@/components/field";
@@ -14,6 +15,7 @@ export function RegisterForm({ next }: { next: string | null }) {
   const [name, setName] = useState(state?.values?.name ?? "");
   const [email, setEmail] = useState(state?.values?.email ?? "");
   const [password, setPassword] = useState("");
+  const [terms, setTerms] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [touched, setTouched] = useState({ name: false, email: false, password: false });
 
@@ -33,12 +35,16 @@ export function RegisterForm({ next }: { next: string | null }) {
     emailStillRejected ??
     (showEmail && !emailPattern.test(email.trim()) ? "Enter a valid email, like name@example.com." : undefined);
   const passwordError = showPassword ? (passwordProblem(password) ?? undefined) : undefined;
+  const termsError = submitted && !terms ? "Agree to the Terms and Conditions and Privacy Policy." : state?.errors?.terms;
 
   return (
     <form
       action={action}
       className="mt-6 grid gap-4"
-      onSubmit={() => setSubmitted(true)}
+      onSubmit={(event) => {
+        setSubmitted(true);
+        if (!terms) event.preventDefault();
+      }}
     >
       {next ? <input type="hidden" name="next" value={next} /> : null}
       <Field
@@ -71,6 +77,25 @@ export function RegisterForm({ next }: { next: string | null }) {
         hint="At least 8 characters."
         error={passwordError}
       />
+      <label className="flex items-start gap-3 text-sm leading-5">
+        <input
+          type="checkbox"
+          name="terms"
+          checked={terms}
+          onChange={(event) => setTerms(event.target.checked)}
+          className="mt-0.5 size-4"
+        />
+        <span>
+          I agree to the <Link href="/terms" className="text-brand-text underline">Terms and Conditions</Link> and{" "}
+          <Link href="/privacy" className="text-brand-text underline">Privacy Policy</Link>.
+        </span>
+      </label>
+      {termsError ? (
+        <p className="flex items-center gap-1 text-sm leading-5 text-brand-text" role="alert">
+          <CircleAlert size={16} strokeWidth={1.5} aria-hidden />
+          {termsError}
+        </p>
+      ) : null}
       {state?.errors?.form ? (
         <p className="flex items-center gap-1 text-sm leading-5 text-brand-text" role="alert">
           <CircleAlert size={16} strokeWidth={1.5} aria-hidden />

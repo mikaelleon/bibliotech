@@ -16,7 +16,7 @@ import { sendMessage, sendVerification } from "@/lib/verification";
 export type LoginState = { error?: string } | null;
 
 export type RegisterState = {
-  errors?: { name?: string; email?: string; password?: string; form?: string };
+  errors?: { name?: string; email?: string; password?: string; terms?: string; form?: string };
   values?: { name: string; email: string };
 } | null;
 
@@ -65,7 +65,8 @@ export async function registerAction(
   else if (isDisposableEmail(email)) errors.email = disposableMessage;
   const problem = passwordProblem(password);
   if (problem) errors.password = problem;
-  if (errors.name || errors.email || errors.password) return { errors, values: { name, email } };
+  if (formData.get("terms") !== "on") errors.terms = "Agree to the Terms and Conditions and Privacy Policy.";
+  if (errors.name || errors.email || errors.password || errors.terms) return { errors, values: { name, email } };
 
   const ipKey = `register:ip:${await clientIp()}`;
   const wait = blockedFor(ipKey, limits.register);

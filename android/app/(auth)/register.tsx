@@ -1,9 +1,10 @@
-import { ArrowRight } from "lucide-react-native";
-import { useRouter } from "expo-router";
+import { ArrowRight, Check } from "lucide-react-native";
+import { useRouter, type Href } from "expo-router";
 import { useState } from "react";
 import {
   KeyboardAvoidingView,
   Platform,
+  Pressable,
   ScrollView,
   StyleSheet,
   Text,
@@ -26,6 +27,8 @@ export default function RegisterScreen() {
   const [nameError, setNameError] = useState("");
   const [emailError, setEmailError] = useState("");
   const [passwordError, setPasswordError] = useState("");
+  const [terms, setTerms] = useState(false);
+  const [termsError, setTermsError] = useState("");
   const [formError, setFormError] = useState("");
   const [busy, setBusy] = useState(false);
   const [submitted, setSubmitted] = useState(false);
@@ -39,11 +42,13 @@ export default function RegisterScreen() {
       ? ""
       : "Enter a valid email, like name@example.com.";
     const nextPassword = password.length >= 8 ? "" : "Use at least 8 characters.";
+    const nextTerms = terms ? "" : "Agree to the Terms and Conditions and Privacy Policy.";
     setNameError(nextName);
     setEmailError(nextEmail);
     setPasswordError(nextPassword);
+    setTermsError(nextTerms);
     setFormError("");
-    if (nextName || nextEmail || nextPassword) {
+    if (nextName || nextEmail || nextPassword || nextTerms) {
       setBusy(false);
       return;
     }
@@ -93,6 +98,31 @@ export default function RegisterScreen() {
               error={submitted ? passwordError : ""}
               hint="At least 8 characters."
             />
+            <View style={styles.terms}>
+              <Pressable
+                accessibilityRole="checkbox"
+                accessibilityState={{ checked: terms }}
+                accessibilityLabel="I agree to the Terms and Conditions and Privacy Policy"
+                onPress={() => setTerms((current) => !current)}
+                style={[styles.box, terms && styles.boxOn]}
+              >
+                {terms ? <Check color={colors.onPrimary} size={14} strokeWidth={2} /> : null}
+              </Pressable>
+              <Text style={styles.termsText}>
+                I agree to the{" "}
+                <Text accessibilityRole="link" onPress={() => router.push("/terms" as unknown as Href)} style={styles.inline}>
+                  Terms and Conditions
+                </Text>
+                {" "}and{" "}
+                <Text accessibilityRole="link" onPress={() => router.push("/privacy" as unknown as Href)} style={styles.inline}>
+                  Privacy Policy
+                </Text>
+                .
+              </Text>
+            </View>
+            {submitted && termsError ? (
+              <Text accessibilityRole="alert" style={styles.error}>{termsError}</Text>
+            ) : null}
             {formError && !emailError ? (
               <Text accessibilityRole="alert" style={styles.error}>
                 {formError}
@@ -158,6 +188,33 @@ const styles = StyleSheet.create({
     fontSize: 14,
     lineHeight: 20,
     color: colors.atext,
+  },
+  terms: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    gap: 12,
+  },
+  box: {
+    width: 20,
+    height: 20,
+    marginTop: 2,
+    borderWidth: 1,
+    borderColor: colors.line,
+    borderRadius: 4,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: colors.surface,
+  },
+  boxOn: {
+    backgroundColor: colors.primary,
+    borderColor: colors.primary,
+  },
+  termsText: {
+    flex: 1,
+    fontFamily: font.sans,
+    fontSize: 14,
+    lineHeight: 20,
+    color: colors.ink,
   },
   switch: {
     marginTop: 24,

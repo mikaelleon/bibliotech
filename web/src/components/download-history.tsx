@@ -18,7 +18,14 @@ type HistoryItem = {
   lastDownloadedAt: string;
   times: number;
   device: string | null;
+  devices: string[];
 };
+
+function deviceLine(devices: string[]): string {
+  if (devices.length === 0) return "Device not recorded";
+  if (devices.length === 1) return `On ${devices[0]}`;
+  return `On ${devices.slice(0, -1).join(", ")} and ${devices[devices.length - 1]}`;
+}
 
 function dateLabel(value: string): string {
   return new Date(value).toLocaleString("en-US", {
@@ -119,7 +126,8 @@ export function DownloadHistory({ used, limit }: { used: number; limit: number }
                   <div className="mt-2 rounded-xl bg-card px-4 py-3">
                     <Link href={`/books/${item.id}`} className="text-sm font-medium text-inherit no-underline">{item.title}</Link>
                     <p className="text-sm text-muted-foreground">{item.author}</p>
-                    <p className="mt-1 text-sm text-muted-foreground">{item.device ? `On ${item.device}` : "Device not recorded"}{item.times > 1 ? ` · ${item.times} times` : ""}</p>
+                    <p className="mt-1 text-sm text-muted-foreground">Last downloaded {dateLabel(when)}</p>
+                    <p className="text-sm text-muted-foreground">{deviceLine(item.devices ?? (item.device ? [item.device] : []))}{item.times > 1 ? ` · ${item.times} times` : ""}</p>
                     {again ? <p className="text-xs leading-4 text-muted-foreground">First downloaded {dateLabel(item.firstDownloadedAt)}. Saving it again does not use a download.</p> : null}
                   </div>
                 </div>
