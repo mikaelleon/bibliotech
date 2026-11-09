@@ -3,11 +3,13 @@ import Link from "next/link";
 import { DownloadHistory } from "@/components/download-history";
 import { PageHeader } from "@/components/page-header";
 import { Button } from "@/components/ui/button";
+import { listCatalog } from "@/lib/catalog";
 import { getSession } from "@/lib/session";
 
 export const metadata = { title: "Downloads" };
 
 export default async function DownloadsPage() {
+  const catalogPromise = listCatalog();
   const session = await getSession();
   if (session.kind !== "user" || session.role === "admin") {
     return (
@@ -20,6 +22,8 @@ export default async function DownloadsPage() {
     );
   }
 
+  const catalog = await catalogPromise;
+
   return (
     <main className="mx-auto w-full max-w-[1200px] px-4 py-6 md:px-8 md:py-8">
       <PageHeader
@@ -27,7 +31,7 @@ export default async function DownloadsPage() {
         lede="Every book this account has downloaded."
       />
       <div id="history" className="mt-8 scroll-mt-24">
-        <DownloadHistory used={session.downloadsUsed} limit={session.downloadLimit} />
+        <DownloadHistory used={session.downloadsUsed} limit={session.downloadLimit} catalog={catalog} />
       </div>
     </main>
   );

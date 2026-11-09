@@ -219,7 +219,7 @@ p {
   --dur-panel-exit: 200ms;
   --dur-drawer: 300ms;
   --dur-drawer-exit: 240ms;
-  --dur-page: 250ms;
+  --dur-page: 120ms;
   --dur-move: 220ms;
   --dur-confirm: 320ms;
   --dur-reveal: 400ms;
@@ -293,7 +293,7 @@ p {
 }
 
 .nav-progress[data-state="loading"] {
-  animation: nav-progress 2400ms var(--ease-out) 120ms both;
+  animation: nav-progress 900ms var(--ease-out) 80ms both;
 }
 
 .nav-progress[data-state="done"] {
@@ -313,18 +313,10 @@ p {
 }
 
 .stagger > *:nth-child(1) { animation-delay: calc(var(--stagger-start, 0ms) + 0ms); }
-.stagger > *:nth-child(2) { animation-delay: calc(var(--stagger-start, 0ms) + 30ms); }
-.stagger > *:nth-child(3) { animation-delay: calc(var(--stagger-start, 0ms) + 60ms); }
-.stagger > *:nth-child(4) { animation-delay: calc(var(--stagger-start, 0ms) + 90ms); }
-.stagger > *:nth-child(5) { animation-delay: calc(var(--stagger-start, 0ms) + 120ms); }
-.stagger > *:nth-child(6) { animation-delay: calc(var(--stagger-start, 0ms) + 150ms); }
-.stagger > *:nth-child(7) { animation-delay: calc(var(--stagger-start, 0ms) + 180ms); }
-.stagger > *:nth-child(8) { animation-delay: calc(var(--stagger-start, 0ms) + 210ms); }
-.stagger > *:nth-child(9) { animation-delay: calc(var(--stagger-start, 0ms) + 240ms); }
-.stagger > *:nth-child(10) { animation-delay: calc(var(--stagger-start, 0ms) + 270ms); }
-.stagger > *:nth-child(11) { animation-delay: calc(var(--stagger-start, 0ms) + 300ms); }
-.stagger > *:nth-child(12) { animation-delay: calc(var(--stagger-start, 0ms) + 330ms); }
-.stagger > *:nth-child(n + 13) { animation-delay: calc(var(--stagger-start, 0ms) + 360ms); }
+.stagger > *:nth-child(2) { animation-delay: calc(var(--stagger-start, 0ms) + 16ms); }
+.stagger > *:nth-child(3) { animation-delay: calc(var(--stagger-start, 0ms) + 32ms); }
+.stagger > *:nth-child(4) { animation-delay: calc(var(--stagger-start, 0ms) + 48ms); }
+.stagger > *:nth-child(n + 5) { animation-delay: calc(var(--stagger-start, 0ms) + 64ms); }
 
 .menu-pop[data-state="open"] {
   transform-origin: var(--radix-dropdown-menu-content-transform-origin);
@@ -447,11 +439,9 @@ p {
 @keyframes page-enter {
   from {
     opacity: 0;
-    transform: translateY(8px);
   }
   to {
     opacity: 1;
-    transform: none;
   }
 }
 

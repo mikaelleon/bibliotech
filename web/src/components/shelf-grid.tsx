@@ -3,12 +3,12 @@
 import { useEffect, useState, type ReactNode } from "react";
 
 import { BookCard } from "@/components/book-card";
-import { OnDeviceNote } from "@/components/on-device-note";
+import { BookMarks } from "@/components/book-marks";
 import { FavoriteButton } from "@/components/favorite-button";
-import { LibraryButton } from "@/components/library-button";
 import { useShelf, type Shelf } from "@/components/shelf-provider";
 import { bookGridClass } from "@/lib/book-grid-class";
 import { durPanelExit } from "@/lib/motion";
+import { savedBooks } from "@/lib/offline-books";
 import type { Book } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
@@ -16,10 +16,20 @@ import { cn } from "@/lib/utils";
  * The Favorites or Library page grid. It follows the shared shelf: a removed card fades and shrinks
  * out, Undo brings it back in its old slot, and when the last one goes the empty state fades in
  * while that card is still leaving. The card control matches the page (heart on Favorites,
- * bookmark on Library).
+ * bookmark on Library). The Library card shows a heart and a download mark.
  */
 export function ShelfGrid({ shelf: kind, books, empty }: { shelf: Shelf; books: Book[]; empty: ReactNode }) {
   const shelf = useShelf();
+  const [saved, setSaved] = useState<Set<string>>(new Set());
+  useEffect(() => {
+    let live = true;
+    void savedBooks(shelf.userId ?? "").then((rows) => {
+      if (live) setSaved(new Set(rows.map((row) => row.bookId)));
+    });
+    return () => {
+      live = false;
+    };
+  }, [shelf.userId]);
   // Every book this page has shown, in page order, so an Undo returns a card to the same slot.
   const [known, setKnown] = useState(books);
   const [seenBooks, setSeenBooks] = useState(books);
@@ -71,12 +81,11 @@ export function ShelfGrid({ shelf: kind, books, empty }: { shelf: Shelf; books: 
                 showCategory
                 corner={
                   kind === "library" ? (
-                    <LibraryButton bookId={book.id} title={book.title} />
+                    <BookMarks bookId={book.id} title={book.title} downloaded={saved.has(book.id)} />
                   ) : (
                     <FavoriteButton bookId={book.id} title={book.title} />
                   )
                 }
-                extra={kind === "library" ? <OnDeviceNote bookId={book.id} /> : undefined}
               />
             </li>
           ))}

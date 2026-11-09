@@ -36,8 +36,9 @@ export default async function BrowsePage({
     redirect(`/search?${next.toString()}`);
   }
 
+  const catalogPromise = listCatalog();
   const session = await getSession();
-  const catalog = await listCatalog();
+  const catalog = await catalogPromise;
   const library = session.kind === "user" ? await listLibrary(session.id) : [];
 
   return (

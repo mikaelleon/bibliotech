@@ -1,12 +1,16 @@
-import { useRouter, type Href } from "expo-router";
+import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { Button } from "@/components/Button";
+import { BookCard } from "@/components/BookCard";
+import { CardMarks } from "@/components/CardMarks";
 import { downloadHistory } from "@/lib/download-api";
+import { getBook } from "@/lib/books";
 import { localBooks } from "@/lib/local-books";
 import { useSession } from "@/lib/session";
+import type { Book } from "@/lib/types";
 import { colors, font } from "@/theme/tokens";
 
 type HistoryItem = { id: string; title: string; author: string; firstDownloadedAt: string; times: number };
@@ -46,25 +50,30 @@ export default function DownloadsScreen() {
             <Button label="Browse books" href="/browse" variant="outline" />
           </View>
         ) : null}
-        {ordered.map((item, index) => (
-          <View key={item.id} style={styles.event}>
-            <View style={styles.rail}>
-              <View style={styles.dot} />
-              {index < ordered.length - 1 ? <View style={styles.line} /> : null}
-            </View>
-            <View style={styles.body}>
-              <Text style={styles.when}>{dateLabel(item.firstDownloadedAt)}</Text>
-              <Text style={styles.book}>{item.title}</Text>
-              <Text style={styles.note}>
-                {item.author} · {item.times} {item.times === 1 ? "time" : "times"}
-              </Text>
-              <Text style={styles.note}>{onDevice.has(item.id) ? "On this device" : "Downloaded before, not on this device"}</Text>
-              {onDevice.has(item.id)
-                ? <Button label="Read" onPress={() => router.push(`/read/${item.id}` as Href)} />
-                : <Button label="Download again" href={`/book/${item.id}` as Href} variant="outline" />}
-            </View>
+        {ordered.length > 0 ? (
+          <View style={styles.grid}>
+            {ordered.map((item) => {
+              const book: Book = getBook(item.id) ?? {
+                id: item.id,
+                title: item.title,
+                author: item.author,
+                category: "Fiction",
+                language: "English",
+                license: "Public domain",
+                sourceName: "",
+                sourceUrl: "",
+                summary: "",
+              };
+              const here = onDevice.has(item.id);
+              return (
+                <View key={item.id} style={styles.cell}>
+                  <BookCard book={book} showCategory corner={<CardMarks book={book} downloaded={here} />} />
+                  <Text style={styles.when}>{dateLabel(item.firstDownloadedAt)} · {item.times} {item.times === 1 ? "time" : "times"}</Text>
+                </View>
+              );
+            })}
           </View>
-        ))}
+        ) : null}
       </ScrollView>
     </SafeAreaView>
   );
@@ -77,12 +86,9 @@ const styles = StyleSheet.create({
   title: { fontFamily: font.title, fontSize: 32, lineHeight: 40, color: colors.ink },
   book: { fontFamily: font.medium, fontSize: 16, lineHeight: 24, color: colors.ink },
   note: { fontFamily: font.sans, fontSize: 14, lineHeight: 20, color: colors.muted },
-  when: { fontFamily: font.medium, fontSize: 12, lineHeight: 16, color: colors.muted },
+  when: { fontFamily: font.medium, fontSize: 12, lineHeight: 16, color: colors.muted, marginTop: 8 },
   empty: { fontFamily: font.title, fontSize: 22, lineHeight: 28, color: colors.ink },
   link: { fontFamily: font.medium, fontSize: 14, color: colors.atext, minHeight: 44 },
-  event: { flexDirection: "row", gap: 12 },
-  rail: { width: 12, alignItems: "center" },
-  dot: { width: 12, height: 12, borderRadius: 6, backgroundColor: colors.accent, marginTop: 2 },
-  line: { width: 2, flex: 1, backgroundColor: colors.line, marginTop: 4 },
-  body: { flex: 1, gap: 8, paddingBottom: 16 },
+  grid: { flexDirection: "row", flexWrap: "wrap", gap: 16 },
+  cell: { width: "47%" },
 });

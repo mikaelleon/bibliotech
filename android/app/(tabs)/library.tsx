@@ -1,12 +1,10 @@
 import { useNetworkState } from "expo-network";
-import { useRouter, type Href } from "expo-router";
 import { Library } from "lucide-react-native";
-import { useCallback, useState } from "react";
+import { useState } from "react";
 import { FlatList, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 
 import { BookCard } from "@/components/BookCard";
-import { LibraryButton } from "@/components/LibraryButton";
-import { Toast, type ToastItem } from "@/components/Toast";
+import { CardMarks } from "@/components/CardMarks";
 import { FadeIn, useFreshList } from "@/components/FadeIn";
 import { Button } from "@/components/Button";
 import { EmptyState } from "@/components/EmptyState";
@@ -16,21 +14,18 @@ import { getBook } from "@/lib/books";
 import { useCatalogBooks } from "@/lib/catalog";
 import { forgetBook, forgetUser, localBooks, type LocalBook } from "@/lib/local-books";
 import { useSession } from "@/lib/session";
+import type { Book } from "@/lib/types";
 import { colors, font, radius } from "@/theme/tokens";
 
 type ViewName = "library" | "downloaded";
 
 export default function LibraryScreen() {
-  const router = useRouter();
-  const { session, libraryIds, setInLibrary } = useSession();
+  const { session, libraryIds } = useSession();
   const fresh = useFreshList();
-  const [notice, setNotice] = useState<ToastItem | null>(null);
-  const [nextId, setNextId] = useState(1);
   const [view, setView] = useState<ViewName>("library");
   const [confirm, setConfirm] = useState(false);
   const userId = session.kind === "user" ? session.id : "";
   const [local, setLocal] = useState<LocalBook[]>(() => localBooks(userId));
-  const dismiss = useCallback(() => setNotice(null), []);
   useCatalogBooks();
   const network = useNetworkState();
   if (session.kind !== "user") return <LockedPanel title="Library" />;
@@ -47,21 +42,42 @@ export default function LibraryScreen() {
     setLocal(localBooks(userId));
   }
 
-  function remove(bookId: string) {
-    const at = libraryIds.indexOf(bookId);
-    setInLibrary(bookId, false);
-    setNotice({
-      id: nextId,
-      message: "Removed from Library",
-      actionLabel: "Undo",
-      onAction: () => setInLibrary(bookId, true, at),
-    });
-    setNextId((id) => id + 1);
+  function asBook(item: LocalBook): Book {
+    return getBook(item.bookId) ?? {
+      id: item.bookId,
+      title: item.title,
+      author: item.author,
+      category: "Fiction",
+      language: "English",
+      license: "Public domain",
+      sourceName: "",
+      sourceUrl: "",
+      summary: "",
+    };
+  }
+
+  function deviceGrid(items: LocalBook[]) {
+    return (
+      <View style={styles.grid}>
+        {items.map((item) => {
+          const book = asBook(item);
+          return (
+            <View key={item.bookId} style={styles.gridCell}>
+              <BookCard book={book} showCategory corner={<CardMarks book={book} downloaded />} />
+              <Button label="Remove" variant="outline" onPress={() => { forgetBook(userId, item.bookId); reload(); }} />
+            </View>
+          );
+        })}
+      </View>
+    );
   }
 
   const header = (
     <View style={styles.header}>
-      <PageHeader title="Library" lede={view === "library" ? count : "Books saved on this device."} />
+      <PageHeader
+        title="Library"
+        lede={view === "downloaded" || (books.length === 0 && local.length > 0) ? "Books saved on this device." : count}
+      />
       <ViewToggle value={view} onChange={setView} />
     </View>
   );
@@ -76,6 +92,7 @@ export default function LibraryScreen() {
           contentContainerStyle={styles.page}
           ListHeaderComponent={header}
           ListEmptyComponent={
+            local.length > 0 ? deviceGrid(local) : (
             <EmptyState
               icon={<Library color={colors.muted} size={24} strokeWidth={1.5} />}
               title="Your Library is empty"
@@ -83,12 +100,12 @@ export default function LibraryScreen() {
             >
               Open a book and choose Add to Library. It doesn’t use a download.
             </EmptyState>
+            )
           }
           columnWrapperStyle={books.length > 0 ? styles.row : undefined}
           renderItem={({ item, index }) => (
             <FadeIn index={index} skip={!fresh} style={styles.cell}>
-              <BookCard book={item} corner={<LibraryButton title={item.title} active onPress={() => remove(item.id)} />} />
-              {onDevice.has(item.id) ? <Text style={styles.device}>On this device</Text> : null}
+              <BookCard book={item} showCategory corner={<CardMarks book={item} downloaded={onDevice.has(item.id)} />} />
             </FadeIn>
           )}
         />
@@ -105,14 +122,7 @@ export default function LibraryScreen() {
               A download saves the book here. It stays in download history if this device clears it.
             </EmptyState>
           ) : (
-            local.map((item) => (
-              <View key={item.bookId} style={styles.deviceRow}>
-                <Text style={styles.book}>{item.title}</Text>
-                <Text style={styles.note}>{item.author} · {(item.size / (1024 * 1024)).toFixed(1)} MB</Text>
-                <Button label="Read" onPress={() => router.push(`/read/${item.bookId}` as Href)} />
-                <Button label="Remove" variant="outline" onPress={() => { forgetBook(userId, item.bookId); reload(); }} />
-              </View>
-            ))
+            deviceGrid(local)
           )}
           {local.length > 0 && !confirm ? <Button label="Remove all" variant="outline" onPress={() => setConfirm(true)} /> : null}
           {confirm ? (
@@ -123,7 +133,6 @@ export default function LibraryScreen() {
           ) : null}
         </ScrollView>
       )}
-      <Toast item={notice} onDone={dismiss} />
     </View>
   );
 }
@@ -171,16 +180,12 @@ const styles = StyleSheet.create({
   cell: {
     flex: 1,
   },
-  device: {
-    fontFamily: font.sans,
-    fontSize: 12,
-    lineHeight: 16,
-    color: colors.muted,
-    marginTop: 4,
-  },
+  grid: { flexDirection: "row", flexWrap: "wrap", gap: 16 },
+  gridCell: { width: "47%", gap: 8 },
   note: { fontFamily: font.sans, fontSize: 14, lineHeight: 20, color: colors.muted },
   book: { fontFamily: font.medium, fontSize: 16, lineHeight: 24, color: colors.ink },
   deviceRow: { gap: 8 },
+  deviceBlock: { gap: 16 },
   toggle: { flexDirection: "row", gap: 8 },
   toggleItem: {
     minHeight: 44,

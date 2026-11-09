@@ -1,18 +1,19 @@
 "use client";
 
-import { useState, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 
 import { DeviceDownloads } from "@/components/download-history";
 import { PageHeader } from "@/components/page-header";
 import { SortedShelf } from "@/components/sorted-shelf";
-import type { Shelf } from "@/components/shelf-provider";
+import { useShelf, type Shelf } from "@/components/shelf-provider";
+import { savedBooks, type SavedBook } from "@/lib/offline-books";
 import { useIndicator } from "@/lib/use-indicator";
 import type { Book } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
 type View = "library" | "downloaded";
 
-/** Library shelf, or the books saved in this browser. */
+/** Library shelf, with the books saved in this browser shown on the same page. */
 export function LibraryViews({
   lede,
   books,
@@ -20,6 +21,7 @@ export function LibraryViews({
   options,
   shelf,
   empty,
+  catalog,
 }: {
   lede: ReactNode;
   books: Book[];
@@ -27,16 +29,34 @@ export function LibraryViews({
   options: { value: string; label: string }[];
   shelf: Shelf;
   empty: ReactNode;
+  catalog: Book[];
 }) {
+  const { userId } = useShelf();
   const [view, setView] = useState<View>("library");
+  const [local, setLocal] = useState<SavedBook[] | null>(null);
   const toggle = <ViewToggle value={view} onChange={setView} />;
+
+  useEffect(() => {
+    let live = true;
+    void savedBooks(userId ?? "").then((rows) => {
+      if (live) setLocal(rows);
+    });
+    return () => {
+      live = false;
+    };
+  }, [userId]);
+
+  const shelfIds = new Set(books.map((book) => book.id));
+  const onDevice = (local ?? []).filter((item) => !shelfIds.has(item.bookId));
+  const shelfEmpty = books.length === 0;
+  const deviceInstead = local !== null && shelfEmpty && local.length > 0;
 
   if (view === "downloaded") {
     return (
       <>
         <PageHeader title="Library" lede="Books saved in this browser." />
         {toggle}
-        <DeviceDownloads />
+        <DeviceDownloads catalog={catalog} />
       </>
     );
   }
@@ -44,13 +64,14 @@ export function LibraryViews({
   return (
     <SortedShelf
       title="Library"
-      lede={lede}
+      lede={deviceInstead ? "Books saved in this browser." : lede}
       books={books}
       sort={sort}
       options={options}
       shelf={shelf}
-      empty={empty}
+      empty={deviceInstead ? <DeviceDownloads catalog={catalog} /> : local === null ? null : empty}
       belowHeader={toggle}
+      footer={!shelfEmpty && onDevice.length > 0 ? <DeviceDownloads ids={onDevice.map((item) => item.bookId)} catalog={catalog} /> : null}
     />
   );
 }

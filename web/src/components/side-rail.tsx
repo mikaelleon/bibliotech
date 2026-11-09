@@ -26,6 +26,7 @@ export function SideRail({ session }: { session: Session }) {
         const link = (
           <Link
             href={item.href}
+            prefetch
             aria-label={label}
             aria-current={current ? "page" : undefined}
             data-indicator-target={current}

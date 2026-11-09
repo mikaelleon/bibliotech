@@ -33,7 +33,7 @@ export default function TabLayout() {
         <Tabs
           backBehavior="initialRoute"
           tabBar={() => (blocked ? null : <TabBar />)}
-          screenOptions={{ headerShown: false }}
+          screenOptions={{ headerShown: false, animation: "fade" }}
         >
           <Tabs.Screen name="browse" options={{ title: "Browse" }} />
           <Tabs.Screen name="library" options={{ title: "Library" }} />

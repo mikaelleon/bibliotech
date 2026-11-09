@@ -1,5 +1,7 @@
 import "server-only";
 
+import { cache } from "react";
+
 import { getBooks, setRemoteCatalog, type Book } from "@/lib/books";
 import { createClient } from "@/lib/supabase/server";
 import { CATEGORIES, type Category } from "@/lib/types";
@@ -48,18 +50,33 @@ function toBook(row: Row): Book {
   };
 }
 
+const CATALOG_TTL_MS = 60_000;
+let catalogCache: { at: number; books: Book[] } | null = null;
+
 /**
  * Catalog from `books`. Falls back to the static list when the database is empty or unreachable,
  * so the app still opens before the importer has run.
+ * Repeated calls in one render share one query, and the result is reused for a minute so
+ * moving between screens does not wait on the catalog again.
  */
-export async function listCatalog(): Promise<Book[]> {
+export const listCatalog = cache(async function listCatalog(): Promise<Book[]> {
+  if (catalogCache && Date.now() - catalogCache.at < CATALOG_TTL_MS) {
+    setRemoteCatalog(catalogCache.books);
+    return getBooks();
+  }
+  const loaded = await loadCatalog();
+  if (loaded.remote) catalogCache = { at: Date.now(), books: loaded.books };
+  return loaded.books;
+});
+
+async function loadCatalog(): Promise<{ books: Book[]; remote: boolean }> {
   try {
     const supabase = await createClient();
     const { data, error } = await supabase.from("books").select("*").order("title", { ascending: true });
-    if (error || !data?.length) return setAndReturn([]);
-    return setAndReturn((data as Row[]).map(toBook));
+    if (error || !data?.length) return { books: setAndReturn([]), remote: false };
+    return { books: setAndReturn((data as Row[]).map(toBook)), remote: true };
   } catch {
-    return setAndReturn([]);
+    return { books: setAndReturn([]), remote: false };
   }
 }
 

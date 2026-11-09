@@ -3,9 +3,13 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
+import { BookCard } from "@/components/book-card";
+import { BookMarks } from "@/components/book-marks";
 import { useShelf } from "@/components/shelf-provider";
 import { Button } from "@/components/ui/button";
+import { bookGridClass } from "@/lib/book-grid-class";
 import { removeAllSaved, removeSavedBook, savedBooks, type SavedBook } from "@/lib/offline-books";
+import type { Book, Category } from "@/lib/types";
 
 type HistoryItem = {
   id: string;
@@ -25,8 +29,24 @@ function dateLabel(value: string): string {
   });
 }
 
+function coverBook(id: string, title: string, author: string, catalog: Book[]): Book {
+  return (
+    catalog.find((book) => book.id === id) ?? {
+      id,
+      title,
+      author,
+      category: "Fiction" as Category,
+      language: "English",
+      license: "Public domain",
+      sourceName: "",
+      sourceUrl: "",
+      summary: "",
+    }
+  );
+}
+
 /** Account record of downloads, newest first. Files on this device live in Library. */
-export function DownloadHistory({ used, limit }: { used: number; limit: number }) {
+export function DownloadHistory({ used, limit, catalog }: { used: number; limit: number; catalog: Book[] }) {
   const { userId } = useShelf();
   const [rows, setRows] = useState<HistoryItem[]>([]);
   const [local, setLocal] = useState<SavedBook[]>([]);
@@ -88,36 +108,30 @@ export function DownloadHistory({ used, limit }: { used: number; limit: number }
         </div>
       ) : null}
       {!offline && ordered.length > 0 ? (
-        <ol className="m-0 grid list-none p-0">
-          {ordered.map((item, index) => (
-            <li key={item.id} className="grid grid-cols-[12px_1fr] gap-x-4">
-              <div className="flex flex-col items-center">
-                <span aria-hidden className="mt-1 size-3 shrink-0 rounded-full bg-brand" />
-                {index < ordered.length - 1 ? <span aria-hidden className="mt-1 w-px flex-1 bg-border" /> : null}
-              </div>
-              <div className={index < ordered.length - 1 ? "pb-8" : undefined}>
-                <time dateTime={item.firstDownloadedAt} className="text-xs leading-4 font-medium text-muted-foreground">{dateLabel(item.firstDownloadedAt)}</time>
-                <div className="mt-2 flex flex-wrap items-center justify-between gap-3 rounded-xl bg-card px-4 py-3">
-                  <div>
-                    <p className="text-sm font-medium">{item.title}</p>
-                    <p className="text-sm text-muted-foreground">{item.author} · {item.times} {item.times === 1 ? "time" : "times"}</p>
-                    <p className="text-xs text-muted-foreground">{onDevice.has(item.id) ? "On this device" : "Downloaded before, not on this device"}</p>
-                  </div>
-                  <div className="flex gap-2">
-                    {onDevice.has(item.id) ? <Button asChild><Link href={`/read/${item.id}`}>Read</Link></Button> : <Button asChild variant="outline"><Link href={`/books/${item.id}`}>Download again</Link></Button>}
-                  </div>
-                </div>
-              </div>
-            </li>
-          ))}
-        </ol>
+        <ul className={bookGridClass}>
+          {ordered.map((item) => {
+            const book = coverBook(item.id, item.title, item.author, catalog);
+            const here = onDevice.has(item.id);
+            return (
+              <li key={item.id} className="min-w-0">
+                <BookCard
+                  book={book}
+                  showCategory
+                  href={here ? `/read/${item.id}` : `/books/${item.id}`}
+                  corner={<BookMarks bookId={item.id} title={item.title} downloaded={here} />}
+                  extra={<p className="text-xs leading-4 text-muted-foreground">{dateLabel(item.firstDownloadedAt)} · {item.times} {item.times === 1 ? "time" : "times"}</p>}
+                />
+              </li>
+            );
+          })}
+        </ul>
       ) : null}
     </div>
   );
 }
 
 /** Books saved in this browser. They are listed from Library. Removing one frees space and does not refund a download. */
-export function DeviceDownloads({ ids }: { ids?: string[] }) {
+export function DeviceDownloads({ ids, catalog }: { ids?: string[]; catalog: Book[] }) {
   const { userId } = useShelf();
   const [local, setLocal] = useState<SavedBook[]>([]);
   const [confirm, setConfirm] = useState(false);
@@ -161,19 +175,23 @@ export function DeviceDownloads({ ids }: { ids?: string[] }) {
           </div>
         </div>
       ) : (
-        <ul className="grid gap-3">
-          {shown.map((item) => (
-            <li key={item.bookId} className="flex flex-wrap items-center justify-between gap-3 rounded-xl bg-card px-4 py-3">
-              <div>
-                <p className="text-sm font-medium">{item.meta.title}</p>
-                <p className="text-sm text-muted-foreground">{item.meta.author} · {(item.size / (1024 * 1024)).toFixed(1)} MB</p>
-              </div>
-              <div className="flex gap-2">
-                <Button asChild><Link href={`/read/${item.bookId}`}>Read</Link></Button>
-                <Button variant="outline" onClick={() => { if (userId) void removeSavedBook(userId, item.bookId).then(reload); }}>Remove</Button>
-              </div>
-            </li>
-          ))}
+        <ul className={bookGridClass}>
+          {shown.map((item) => {
+            const book = coverBook(item.bookId, item.meta.title, item.meta.author, catalog);
+            return (
+              <li key={item.bookId} className="min-w-0">
+                <BookCard
+                  book={book}
+                  showCategory
+                  href={`/read/${item.bookId}`}
+                  corner={<BookMarks bookId={item.bookId} title={item.meta.title} downloaded />}
+                />
+                <div className="mt-3">
+                  <Button variant="outline" onClick={() => { if (userId) void removeSavedBook(userId, item.bookId).then(reload); }}>Remove</Button>
+                </div>
+              </li>
+            );
+          })}
         </ul>
       )}
       {shown.length > 0 ? (

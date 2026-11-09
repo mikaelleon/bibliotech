@@ -31,6 +31,7 @@ export function TabBar({ session }: { session: Session }) {
           <Link
             key={item.href}
             href={item.href}
+            prefetch
             aria-label={accessible}
             aria-current={current ? "page" : undefined}
             className={cn(

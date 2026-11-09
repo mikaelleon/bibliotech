@@ -80,7 +80,7 @@ export default function RootLayout() {
         <StatusBar style="dark" />
         <ReadyGate fontsDone={loaded || Boolean(error)}>
           <RoleGate>
-            <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: colors.bg } }}>
+            <Stack screenOptions={{ headerShown: false, animation: "fade", animationDuration: 160, contentStyle: { backgroundColor: colors.bg } }}>
               <Stack.Screen name="index" />
               <Stack.Screen name="(auth)" />
               <Stack.Screen name="(tabs)" />
