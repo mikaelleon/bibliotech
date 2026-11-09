@@ -108,6 +108,7 @@ export function FeaturedShelf({ books }: { books: Book[] }) {
               // Phones: the covers share the width (10:7:7), so the shelf never scrolls sideways.
               // From md the covers have fixed sizes and the arrows hug the shelf.
               className="flex min-w-0 flex-1 items-start gap-4 md:flex-initial md:gap-6"
+              data-guest-shelf
               onMouseLeave={() => {
                 hoverIntent.cancel();
                 setPreviewId(null);

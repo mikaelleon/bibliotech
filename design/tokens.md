@@ -1,4 +1,4 @@
-# E-Library AI tokens
+# Bibliotech tokens
 
 Shared values. Web maps these to CSS variables. Android maps them in `theme/tokens.ts`. Light is the default. The theme toggle switches to dark.
 

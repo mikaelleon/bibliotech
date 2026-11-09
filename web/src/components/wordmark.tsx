@@ -1,9 +1,26 @@
 import Link from "next/link";
 
-export function Wordmark({ href = "/" }: { href?: string }) {
+import { cn } from "@/lib/utils";
+
+/** Brand mark. The accent dot matches the verification email. Newsreader stays on book titles. */
+export function Wordmark({
+  href = "/",
+  mark = "brand",
+  className,
+}: {
+  href?: string;
+  mark?: string;
+  className?: string;
+}) {
   return (
-    <Link href={href} className="serif inline-flex min-h-11 items-center text-xl leading-7 font-normal no-underline">
-      E-Library AI
+    <Link
+      href={href}
+      aria-label="Bibliotech"
+      data-wordmark={mark}
+      className={cn("inline-flex min-h-11 items-center text-xl leading-7 font-semibold no-underline", className)}
+    >
+      Bibliotech
+      <span className="text-brand" aria-hidden="true">.</span>
     </Link>
   );
 }

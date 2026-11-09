@@ -40,6 +40,7 @@ function db() {
 
 /** Version 2 keys every row by account. A tab still holding version 1 blocks the upgrade, so this fails instead of spinning. */
 function openLibrary(): Promise<IDBPDatabase<LibraryDb>> {
+  // IndexedDB name stays "elib-offline". Renaming it would hide books already saved on this device.
   const opened = openDB<LibraryDb>("elib-offline", 2, {
     upgrade(next) {
       if (next.objectStoreNames.contains("books")) next.deleteObjectStore("books");
@@ -57,7 +58,7 @@ function openLibrary(): Promise<IDBPDatabase<LibraryDb>> {
   let timer: ReturnType<typeof setTimeout> | undefined;
   const stalled = new Promise<never>((_, reject) => {
     timer = setTimeout(() => {
-      reject(new Error("Close other E-Library tabs and try again. It will not use another download."));
+      reject(new Error("Close other Bibliotech tabs and try again. It will not use another download."));
     }, 4000);
   });
   return Promise.race([opened, stalled]).finally(() => clearTimeout(timer));

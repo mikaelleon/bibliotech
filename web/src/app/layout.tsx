@@ -22,8 +22,8 @@ const newsreader = Newsreader({
 });
 
 export const metadata: Metadata = {
-  title: { default: "E-Library AI", template: "%s · E-Library AI" },
-  description: "Search free, legally downloadable books.",
+  title: { default: "Bibliotech", template: "%s · Bibliotech" },
+  description: "Bibliotech is a free digital library. Read public-domain books, download them, and keep them.",
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {

@@ -7,7 +7,9 @@ export function Wordmark() {
   return (
     <View accessibilityRole="header" style={styles.row}>
       <BookOpen color={colors.ink} size={20} strokeWidth={1.5} />
-      <Text style={styles.name}>E-Library AI</Text>
+      <Text style={styles.name}>
+        Bibliotech<Text style={styles.dot}>.</Text>
+      </Text>
     </View>
   );
 }
@@ -21,9 +23,12 @@ const styles = StyleSheet.create({
     alignSelf: "flex-start",
   },
   name: {
-    fontFamily: font.serif,
+    fontFamily: font.title,
     fontSize: 20,
     lineHeight: 28,
     color: colors.ink,
+  },
+  dot: {
+    color: colors.accent,
   },
 });

@@ -1,6 +1,6 @@
 # Prompt: motion, micro-interactions, and empty states
 
-Use this file as the instruction prompt for an agent (or a person) implementing motion and empty states in E-Library AI. Work in `web/` first, then `android/`. Read the whole file before editing.
+Use this file as the instruction prompt for an agent (or a person) implementing motion and empty states in Bibliotech. Work in `web/` first, then `android/`. Read the whole file before editing.
 
 ## 1. Goal
 

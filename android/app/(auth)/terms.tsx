@@ -11,7 +11,7 @@ export default function TermsScreen() {
       <ScrollView contentContainerStyle={styles.page}>
         <Pressable onPress={() => router.back()}><Text style={styles.back}>Back</Text></Pressable>
         <Text style={styles.title}>Terms and Conditions</Text>
-        <Text style={styles.body}>An E-Library AI account is for reading the catalog. The books offered for download are in the public domain.</Text>
+        <Text style={styles.body}>A Bibliotech account is for reading the catalog. The books offered for download are in the public domain.</Text>
         <Text style={styles.body}>The first time you save a book, it uses one download. Saving that same book again, on this device or another, does not use another download. Removing a file from a device does not give the download back.</Text>
         <Text style={styles.body}>A new account can save 5 books in a month. Verifying the email raises that to 10. The count resets each month.</Text>
         <Text style={styles.body}>

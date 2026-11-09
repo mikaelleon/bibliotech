@@ -1,6 +1,8 @@
 import Link from "next/link";
 
+import { About } from "@/components/about";
 import { BookCard } from "@/components/book-card";
+import { GuestLink } from "@/components/guest-link";
 import { SearchBar } from "@/components/search-bar";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Button } from "@/components/ui/button";
@@ -16,11 +18,14 @@ export default async function LandingPage() {
   const science = getPopularScienceBooks();
 
   return (
-    <div className="min-h-screen bg-background">
+    <div data-landing className="min-h-screen bg-background">
       <header className="sticky top-0 z-30 bg-card">
         <div className="mx-auto flex max-w-[1200px] items-center justify-between gap-2 px-4 py-3 md:px-8">
           <Wordmark />
           <nav aria-label="Account" className="flex shrink-0 items-center gap-1 md:gap-2">
+            <a href="#about" className="inline-flex min-h-11 items-center px-2 text-sm leading-5 no-underline">
+              About
+            </a>
             <ThemeToggle compact />
             <Button asChild variant="outline" className="px-4 md:px-6">
               <Link href="/login">Log in</Link>
@@ -42,22 +47,24 @@ export default async function LandingPage() {
           <SearchBar large action={landingSearchAction} className="mt-6 max-w-none" />
         </div>
 
-        <nav aria-label="Categories" className="mt-6">
+        <About />
+
+        <nav aria-label="Categories" className="mt-8">
           <ul className="flex flex-wrap items-center gap-2">
             {CATEGORIES.map((category) => (
               <li key={category}>
-                <Link
+                <GuestLink
                   href={`/guest?next=${encodeURIComponent(`/browse?category=${category}`)}`}
                   className="inline-flex min-h-11 items-center rounded-full bg-card px-4 text-sm leading-5 no-underline"
                 >
                   {category}
-                </Link>
+                </GuestLink>
               </li>
             ))}
             <li>
-              <Link href="/guest" className="inline-flex min-h-11 items-center text-sm leading-5 text-brand-text underline">
+              <GuestLink href="/guest" className="inline-flex min-h-11 items-center text-sm leading-5 text-brand-text underline">
                 Browse all as a guest
-              </Link>
+              </GuestLink>
             </li>
           </ul>
         </nav>

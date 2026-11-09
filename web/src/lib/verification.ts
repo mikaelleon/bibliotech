@@ -4,6 +4,7 @@ import { createHash, randomBytes } from "crypto";
 
 import { appOrigin } from "@/lib/app-origin";
 import { sendEmail } from "@/lib/email";
+import { verifyEmailHtml } from "@/lib/email-template";
 import { createAdminClient } from "@/lib/supabase/admin";
 
 const TOKEN_TTL_MS = 24 * 60 * 60_000;
@@ -73,7 +74,7 @@ export async function sendVerification(userId: string, email: string): Promise<S
     to: email,
     subject: "Verify your email for Bibliotech",
     text: `Open this link to verify your email and raise your download limit from 5 to 10 a month:\n\n${link}\n\nThe link works once and expires in 24 hours. If you didn't create an account, ignore this email.`,
-    html: `<p>Open this link to verify your email and raise your download limit from 5 to 10 a month:</p><p><a href="${link}">Verify my email</a></p><p>The link works once and expires in 24 hours. If you didn't create an account, ignore this email.</p>`,
+    html: verifyEmailHtml(link),
   });
   if (!sent.ok) {
     // Don't count a link the user never received against their cooldown or daily limit.
