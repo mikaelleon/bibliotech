@@ -1,91 +1,71 @@
 "use client";
 
-import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { useTransition } from "react";
 
 import { AdminUsersFilters } from "@/components/admin-users-filters";
 import { AdminUsersTable, type UserRow } from "@/components/admin-users-table";
 import { EmptyRow } from "@/components/empty-row";
 import { Pagination } from "@/components/pagination";
-import { replaceSearch } from "@/lib/replace-search";
 
-const pageSize = 25;
+function href(next: { q?: string; role?: string; type?: string; page?: number }): string {
+  const params = new URLSearchParams();
+  if (next.q) params.set("q", next.q);
+  if (next.role) params.set("role", next.role);
+  if (next.type) params.set("type", next.type);
+  if (next.page && next.page > 1) params.set("page", String(next.page));
+  const query = params.toString();
+  return query ? `/admin/users?${query}` : "/admin/users";
+}
 
-/** Role, type, and search filter the users table without sending the page back to the top. */
+/**
+ * One page of users, already filtered in SQL. Search, role, type and paging change the URL,
+ * and the server returns the next page. The browser never holds the whole user list.
+ */
 export function AdminUsersBrowser({
   rows,
+  total,
+  pageSize,
   query,
   role,
   type,
   page,
 }: {
   rows: UserRow[];
+  total: number;
+  pageSize: number;
   query: string;
   role?: string;
   type?: string;
   page: number;
 }) {
-  const [currentQuery, setQuery] = useState(query);
-  const [currentRole, setRole] = useState(role ?? "");
-  const [currentType, setType] = useState(type ?? "");
-  const [currentPage, setPage] = useState(page);
-  const [formKey, setFormKey] = useState(0);
-  const signature = `${query}|${role ?? ""}|${type ?? ""}|${page}`;
-  const [seen, setSeen] = useState(signature);
-  if (seen !== signature) {
-    setSeen(signature);
-    setQuery(query);
-    setRole(role ?? "");
-    setType(type ?? "");
-    setPage(page);
-    setFormKey((key) => key + 1);
-  }
+  const router = useRouter();
+  const [pending, startTransition] = useTransition();
+  const signature = `${query}|${role ?? ""}|${type ?? ""}`;
 
-  const needle = currentQuery.trim().toLowerCase();
-  const matches = rows.filter((user) => {
-    if (currentRole && user.role !== currentRole) return false;
-    if (currentType === "registered" && user.tier !== "Registered") return false;
-    if (currentType === "guest" && user.tier !== "Guest (unverified)") return false;
-    if (!needle) return true;
-    return user.name.toLowerCase().includes(needle) || user.email.toLowerCase().includes(needle);
-  });
-  const visible = matches.slice((currentPage - 1) * pageSize, currentPage * pageSize);
-
-  function apply(next: { q: string; role: string; type: string }) {
-    setQuery(next.q);
-    setRole(next.role);
-    setType(next.type);
-    setPage(1);
-    replaceSearch({ q: next.q || null, role: next.role || null, type: next.type || null, page: null });
-  }
-
-  function clear() {
-    setQuery("");
-    setRole("");
-    setType("");
-    setPage(1);
-    setFormKey((key) => key + 1);
-    replaceSearch({ q: null, role: null, type: null, page: null });
-  }
-
-  function selectPage(next: number) {
-    setPage(next);
-    replaceSearch({ page: next > 1 ? String(next) : null });
-    window.scrollTo(0, 0);
+  function go(next: { q?: string; role?: string; type?: string; page?: number }) {
+    startTransition(() => router.replace(href(next), { scroll: false }));
   }
 
   return (
     <>
-      <AdminUsersFilters key={formKey} query={currentQuery} role={currentRole || undefined} type={currentType || undefined} onApply={apply} />
-      <div>
+      <AdminUsersFilters
+        key={signature}
+        query={query}
+        role={role}
+        type={type}
+        onApply={(next) => go({ q: next.q, role: next.role, type: next.type })}
+      />
+      <div aria-busy={pending} className={pending ? "opacity-60" : undefined}>
         <AdminUsersTable
-          rows={visible}
+          rows={rows}
           empty={
-            currentType === "guest" ? (
-              <EmptyRow title="No unverified accounts" onClear={clear} clearLabel="Show all users" />
-            ) : currentQuery ? (
-              <EmptyRow title={`No users match “${currentQuery}”`} onClear={clear} />
-            ) : currentRole ? (
-              <EmptyRow title="No users with that role" onClear={clear} clearLabel="Show all users" />
+            type === "guest" ? (
+              <EmptyRow title="No unverified accounts" onClear={() => go({})} clearLabel="Show all users" />
+            ) : query ? (
+              <EmptyRow title={`No users match “${query}”`} onClear={() => go({})} />
+            ) : role ? (
+              <EmptyRow title="No users with that role" onClear={() => go({})} clearLabel="Show all users" />
             ) : (
               "No users yet"
             )
@@ -93,12 +73,15 @@ export function AdminUsersBrowser({
         />
         <div className="overflow-hidden rounded-b-xl border border-t-0 border-border bg-card">
           <Pagination
-            page={currentPage}
+            page={page}
             pageSize={pageSize}
-            total={matches.length}
+            total={total}
             pathname="/admin/users"
-            params={{ q: currentQuery || undefined, role: currentRole || undefined, type: currentType || undefined }}
-            onPage={selectPage}
+            params={{ q: query || undefined, role, type }}
+            onPage={(next) => {
+              go({ q: query, role, type, page: next });
+              window.scrollTo(0, 0);
+            }}
           />
         </div>
       </div>

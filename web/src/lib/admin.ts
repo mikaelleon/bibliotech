@@ -1,8 +1,7 @@
 import "server-only";
 
 import { listCatalog } from "@/lib/catalog";
-import { countByCategory, listFavoriteIds, listLibrary } from "@/lib/records";
-import { createAdminClient } from "@/lib/supabase/admin";
+import { countByCategory } from "@/lib/records";
 import { createClient } from "@/lib/supabase/server";
 import type { Session } from "@/lib/types";
 
@@ -42,15 +41,31 @@ function joinedLabel(iso: string): string {
 }
 
 /**
- * Every account, through admin_list_users (security definer, checks is_admin() itself).
- * Called as the signed-in admin, so the database refuses anyone else even if this check is skipped.
- * Small catalogue of users for now; Phase 2 step 8 moves filters and paging into SQL.
+ * One page of accounts, through admin_list_users (security definer, checks is_admin() itself).
+ * Search, role, type and paging all run in SQL, so the browser never receives more than one page.
  */
-async function allUsers(): Promise<UserListRow[]> {
+async function usersPage(
+  search: string,
+  limit: number,
+  offset: number,
+  filters?: { role?: "user" | "admin"; type?: "registered" | "guest" },
+): Promise<UserListRow[]> {
   const supabase = await createClient();
-  const { data, error } = await supabase.rpc("admin_list_users", { search: null, lim: 1000, off: 0 });
+  const { data, error } = await supabase.rpc("admin_list_users", {
+    search: search.trim() || null,
+    lim: limit,
+    off: offset,
+    p_role: filters?.role ?? null,
+    p_type: filters?.type ?? null,
+  });
   if (error) throw new Error(`Could not load users: ${error.message}`);
   return (data ?? []) as UserListRow[];
+}
+
+/** "d***@gmail.com". Activity feeds on the dashboard never show a full address. */
+export function maskEmail(email: string): string {
+  const [local = "", domain = ""] = email.split("@");
+  return domain ? `${local.slice(0, 1)}***@${domain}` : `${local.slice(0, 1)}***`;
 }
 
 function nameOf(row: UserListRow): string {
@@ -72,7 +87,7 @@ export async function adminStats(session: Session, days = 30) {
   assertAdmin(session);
   const span = days === 7 || days === 90 ? days : 30;
   const supabase = await createClient();
-  const [{ data, error }, users] = await Promise.all([supabase.rpc("admin_stats"), allUsers()]);
+  const [{ data, error }, latest] = await Promise.all([supabase.rpc("admin_stats"), usersPage("", 5, 0)]);
   if (error) throw new Error(`Could not load stats: ${error.message}`);
   const stats = data as StatsRow;
   const catalog = await listCatalog();
@@ -80,7 +95,7 @@ export async function adminStats(session: Session, days = 30) {
 
   return {
     books: catalog.length,
-    registeredUsers: stats.registeredUsers ?? users.length,
+    registeredUsers: stats.registeredUsers ?? 0,
     guestUsers: stats.guestUsers ?? 0,
     downloads: stats.downloads ?? 0,
     repeatDownloads: stats.repeatDownloads ?? 0,
@@ -96,13 +111,12 @@ export async function adminStats(session: Session, days = 30) {
     downloadsPerDay: lastDays(span).map((point) => ({ ...point, count: perDay.get(point.date) ?? 0 })),
     missingCovers: catalog.filter((book) => !book.coverUrl).length,
     missingLicenses: catalog.filter((book) => book.license.trim() === "").length,
-    latestUsers: users.slice(0, 5).map((user) => ({
+    latestUsers: latest.map((user) => ({
       id: user.id,
       name: nameOf(user),
-      email: user.email,
+      email: maskEmail(user.email),
       role: user.role,
     })),
-    adminCount: users.filter((user) => user.role === "admin").length,
   };
 }
 
@@ -125,17 +139,10 @@ export async function adminListUsers(
   filters?: { role?: "user" | "admin"; type?: "registered" | "guest" },
 ) {
   assertAdmin(session);
-  const needle = search.trim().toLowerCase();
-  const users = (await allUsers()).filter((user) => {
-    if (filters?.role && user.role !== filters.role) return false;
-    // Type follows the tier model: Registered = verified email, Guest = signed up, not verified.
-    if (filters?.type && user.tier !== filters.type) return false;
-    if (!needle) return true;
-    return nameOf(user).toLowerCase().includes(needle) || user.email.toLowerCase().includes(needle);
-  });
+  const users = await usersPage(search, limit, offset, filters);
   return {
-    total: users.length,
-    rows: users.slice(offset, offset + limit).map((user) => ({
+    total: Number(users[0]?.total_count ?? 0),
+    rows: users.map((user) => ({
       id: user.id,
       email: user.email,
       name: nameOf(user),
@@ -149,19 +156,35 @@ export async function adminListUsers(
   };
 }
 
-/** One account with its shelf counts, for the admin user page. */
+type UserDetailRow = {
+  id: string;
+  email: string;
+  display_name: string | null;
+  role: string;
+  email_verified_at: string | null;
+  tier: UserListRow["tier"];
+  downloads_used: number;
+  download_limit: number;
+  resets_at: string | null;
+  favorites: number;
+  library_items: number;
+  admin_count: number;
+};
+
+/**
+ * One account with shelf counts, for the admin user page. admin_get_user returns counts only,
+ * never what is on the shelves, and writes an audit row for the view.
+ */
 export async function adminGetUser(session: Session, id: string) {
   assertAdmin(session);
-  const users = await allUsers();
-  const user = users.find((item) => item.id === id);
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc("admin_get_user", { p_user: id });
+  if (error) throw new Error(`Could not load user: ${error.message}`);
+  const user = data as UserDetailRow | null;
   if (!user) return null;
-  // RLS limits shelves to their owner, so reading another user's rows needs the secret key.
-  // Safe here: assertAdmin above, and admin_list_users already confirmed is_admin() in SQL.
-  const admin = createAdminClient();
-  const [favorites, library] = await Promise.all([listFavoriteIds(user.id, admin), listLibrary(user.id, "added", admin)]);
   return {
     id: user.id,
-    name: nameOf(user),
+    name: user.display_name || user.email.split("@")[0] || "Reader",
     email: user.email,
     role: user.role === "admin" ? ("admin" as const) : ("user" as const),
     tier: tierLabel(user.tier),
@@ -169,9 +192,9 @@ export async function adminGetUser(session: Session, id: string) {
     downloadsUsed: user.downloads_used,
     downloadLimit: user.download_limit,
     resetsAt: user.resets_at,
-    favorites: favorites.length,
-    libraryItems: library.length,
-    adminCount: users.filter((item) => item.role === "admin").length,
+    favorites: Number(user.favorites),
+    libraryItems: Number(user.library_items),
+    adminCount: Number(user.admin_count),
   };
 }
 
@@ -198,6 +221,35 @@ export async function adminListDownloads(session: Session, limit: number, offset
       book: row.book_title,
       date: row.last_downloaded_at,
       times: row.times_downloaded,
+    })),
+  };
+}
+
+type AuditRow = {
+  created_at: string;
+  admin_label: string;
+  action: string;
+  target_label: string | null;
+  total_count: number;
+};
+
+const actionLabels: Record<string, string> = { view_user: "Viewed account" };
+
+/** What admins looked at or changed. Identities are masked in SQL. */
+export async function adminListAudit(session: Session, limit: number, offset: number) {
+  assertAdmin(session);
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc("admin_list_audit", { lim: limit, off: offset });
+  if (error) throw new Error(`Could not load activity: ${error.message}`);
+  const list = (data ?? []) as AuditRow[];
+  return {
+    total: Number(list[0]?.total_count ?? 0),
+    rows: list.map((row, index) => ({
+      id: `${row.created_at}-${offset + index}`,
+      at: row.created_at,
+      admin: row.admin_label,
+      action: actionLabels[row.action] ?? row.action,
+      target: row.target_label ?? "",
     })),
   };
 }
