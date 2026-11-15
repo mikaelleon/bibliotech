@@ -7,7 +7,7 @@ import { PageHeader } from "@/components/page-header";
 import { Pagination } from "@/components/pagination";
 import { RangeTabs } from "@/components/range-tabs";
 import { StatRow } from "@/components/stat-row";
-import { adminListDownloads, adminStats, isAdminSession } from "@/lib/admin";
+import { adminInsights, adminListDownloads, adminStats, isAdminSession } from "@/lib/admin";
 import { getSession } from "@/lib/session";
 
 export const metadata = { title: "Analytics" };
@@ -26,7 +26,7 @@ export default async function AnalyticsPage({
   const params = await searchParams;
   const requested = Number(params.range ?? "30");
   const days = requested === 7 || requested === 90 ? requested : 30;
-  const stats = await adminStats(session, days);
+  const [stats, insights] = await Promise.all([adminStats(session, days), adminInsights(session, days)]);
   const requestedPage = Number(params.page ?? "1");
   const page = Number.isFinite(requestedPage) && requestedPage > 0 ? Math.floor(requestedPage) : 1;
   const downloads = await adminListDownloads(session, PAGE_SIZE, (page - 1) * PAGE_SIZE);
@@ -44,6 +44,38 @@ export default async function AnalyticsPage({
         ]}
       />
       <DownloadChart points={stats.downloadsPerDay} days={days} />
+      <DownloadChart points={insights.signupsPerDay} days={days} noun="Signups" id="signups-chart" />
+      <section aria-labelledby="funnel" className="grid gap-6">
+        <h2 id="funnel" className="text-xl leading-7 font-medium">
+          From signup to first download
+        </h2>
+        <BarList
+          items={[
+            { label: "Signed up", count: insights.funnel.signedUp },
+            { label: "Verified email", count: insights.funnel.verified },
+            { label: "Downloaded a book", count: insights.funnel.downloaded },
+          ]}
+        />
+      </section>
+      <StatRow
+        items={[
+          {
+            label: "At download limit",
+            value: String(insights.quota.atLimit),
+            context: `${insights.quota.nearLimit} more are at 80% or more. ${insights.quota.readers} readers in all`,
+          },
+          {
+            label: `Active readers, ${days} days`,
+            value: String(insights.reading.activeReaders),
+            context: `${insights.reading.booksRead} different books opened`,
+          },
+          {
+            label: "Books with a file",
+            value: `${insights.catalog.withFile} of ${insights.catalog.total}`,
+            context: `${insights.catalog.withoutCover} have no cover`,
+          },
+        ]}
+      />
       <div className="grid gap-6 md:grid-cols-2 md:gap-12">
         <section aria-labelledby="by-category">
           <h2 id="by-category" className="text-xl leading-7 font-medium">

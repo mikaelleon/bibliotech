@@ -273,3 +273,31 @@ export async function adminListAudit(session: Session, limit: number, offset: nu
     })),
   };
 }
+
+type InsightsRow = {
+  signupsPerDay?: { date: string; count: number }[];
+  signupsInRange?: number;
+  funnel?: { signedUp: number; verified: number; downloaded: number };
+  quota?: { readers: number; atLimit: number; nearLimit: number };
+  catalog?: { total: number; withFile: number; withoutCover: number };
+  reading?: { activeReaders: number; booksRead: number };
+};
+
+/** Aggregates for the Analytics page. No names or emails. */
+export async function adminInsights(session: Session, days = 30) {
+  assertAdmin(session);
+  const span = days === 7 || days === 90 ? days : 30;
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc("admin_insights", { p_days: span });
+  if (error) throw new Error(`Could not load insights: ${error.message}`);
+  const row = (data ?? {}) as InsightsRow;
+  const perDay = new Map((row.signupsPerDay ?? []).map((point) => [point.date, point.count]));
+  return {
+    signupsPerDay: lastDays(span).map((point) => ({ ...point, count: perDay.get(point.date) ?? 0 })),
+    signupsInRange: row.signupsInRange ?? 0,
+    funnel: row.funnel ?? { signedUp: 0, verified: 0, downloaded: 0 },
+    quota: row.quota ?? { readers: 0, atLimit: 0, nearLimit: 0 },
+    catalog: row.catalog ?? { total: 0, withFile: 0, withoutCover: 0 },
+    reading: row.reading ?? { activeReaders: 0, booksRead: 0 },
+  };
+}

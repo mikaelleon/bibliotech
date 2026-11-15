@@ -17,10 +17,17 @@ function barPath(x: number, y: number, width: number, height: number): string {
 export function DownloadChart({
   points,
   days = 30,
+  noun = "Downloads",
+  id = "downloads-30",
 }: {
   points: { date: string; count: number }[];
   days?: number;
+  /** Capitalised plural, for example "Downloads" or "Signups". */
+  noun?: string;
+  /** Unique per chart on a page. */
+  id?: string;
 }) {
+  const lower = noun.toLowerCase();
   const max = points.reduce((highest, point) => Math.max(highest, point.count), 0);
   const width = 600;
   const height = 140;
@@ -30,11 +37,11 @@ export function DownloadChart({
   const last = points[points.length - 1];
 
   return (
-    <section aria-labelledby="downloads-30">
-      <h2 id="downloads-30" className="text-xl leading-7 font-medium">
-        Downloads in the last {days} days
+    <section aria-labelledby={id}>
+      <h2 id={id} className="text-xl leading-7 font-medium">
+        {noun} in the last {days} days
       </h2>
-      {/* The frame stays even with no data, so nothing jumps when the first download arrives. */}
+      {/* The frame stays even with no data, so nothing jumps when the first one arrives. */}
       <div className="relative mt-6">
         <p className="text-right text-xs leading-4 text-muted-foreground">{max}</p>
         <svg viewBox={`0 0 ${width} ${height}`} className="mt-2 h-40 w-full" role="img" aria-hidden="true">
@@ -72,16 +79,16 @@ export function DownloadChart({
         ) : null}
         {max === 0 ? (
           <p className="absolute inset-x-0 top-1/2 -translate-y-1/2 text-center text-sm leading-5 text-muted-foreground">
-            No downloads yet
+            No {lower} yet
           </p>
         ) : null}
       </div>
       <table className="sr-only">
-        <caption>Downloads per day for the last {days} days</caption>
+        <caption>{noun} per day for the last {days} days</caption>
         <thead>
           <tr>
             <th>Date</th>
-            <th>Downloads</th>
+            <th>{noun}</th>
           </tr>
         </thead>
         <tbody>
