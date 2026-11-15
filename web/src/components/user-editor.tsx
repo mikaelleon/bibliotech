@@ -7,10 +7,11 @@ import { Dialog } from "@/components/dialog";
 import { Field } from "@/components/field";
 import { Button } from "@/components/ui/button";
 import { Select } from "@/components/ui/select";
-import { setUserRole } from "@/lib/admin-actions";
+import { deleteUser, sendUserPasswordReset, setUserDisabled, setUserRole } from "@/lib/admin-actions";
 
 type UserEditorProps = {
   id: string;
+  disabled: boolean;
   name: string;
   email: string;
   role: "user" | "admin";
@@ -28,6 +29,7 @@ type UserEditorProps = {
 /** Review and the danger section. Writes arrive in Phase 2, and the safeguards are already visible. */
 export function UserEditor({
   id,
+  disabled: accountDisabled,
   name,
   email,
   role,
@@ -47,6 +49,24 @@ export function UserEditor({
   const [saved, setSaved] = useState(false);
   const [pending, startTransition] = useTransition();
   const router = useRouter();
+
+  const [notice, setNotice] = useState<string | null>(null);
+  const [actionError, setActionError] = useState<string | null>(null);
+
+  function run(task: () => Promise<{ ok: boolean; error?: string }>, done: string, after?: () => void) {
+    setNotice(null);
+    setActionError(null);
+    startTransition(async () => {
+      const result = await task();
+      if (!result.ok) {
+        setActionError(result.error ?? "Something went wrong. Try again.");
+        return;
+      }
+      setNotice(done);
+      after?.();
+      router.refresh();
+    });
+  }
 
   function saveRole() {
     setRoleError(null);
@@ -94,13 +114,34 @@ export function UserEditor({
           <Button type="button" onClick={saveRole} disabled={blocked || pending || nextRole === role}>
             {pending ? "Saving" : "Save role"}
           </Button>
-          <Button type="button" variant="outline" disabled>
+          <Button
+            type="button"
+            variant="outline"
+            disabled={pending}
+            onClick={() => run(() => sendUserPasswordReset(id), "Password reset email sent.")}
+          >
             Send password reset
           </Button>
-          <Button type="button" variant="outline" disabled>
-            Disable account
+          <Button
+            type="button"
+            variant="outline"
+            disabled={self || pending}
+            onClick={() =>
+              run(() => setUserDisabled(id, !accountDisabled), accountDisabled ? "Account enabled." : "Account disabled.")
+            }
+          >
+            {accountDisabled ? "Enable account" : "Disable account"}
           </Button>
         </div>
+        {actionError ? (
+          <p role="alert" className="mt-4 text-sm leading-5 text-brand-text">
+            {actionError}
+          </p>
+        ) : notice ? (
+          <p role="status" className="mt-4 text-sm leading-5 text-muted-foreground">
+            {notice}
+          </p>
+        ) : null}
         {roleError ? (
           <p role="alert" className="mt-4 text-sm leading-5 text-brand-text">
             {roleError}
@@ -110,9 +151,11 @@ export function UserEditor({
             Role saved.
           </p>
         ) : null}
-        <p className="mt-4 text-sm leading-5 text-muted-foreground">
-          Display name, password reset and disabling accounts arrive later.
-        </p>
+        {accountDisabled ? (
+          <p className="mt-4 text-sm leading-5 text-muted-foreground">
+            This account is disabled. It cannot sign in. A session that is already open ends within the hour.
+          </p>
+        ) : null}
       </section>
       <section className="rounded-xl bg-card p-8" aria-labelledby="usage">
         <h2 id="usage" className="text-xl leading-7 font-medium">
@@ -174,8 +217,21 @@ export function UserEditor({
                   <Button type="button" variant="outline" onClick={() => setOpen(false)}>
                     Cancel
                   </Button>
-                  <Button type="button" disabled>
-                    Delete
+                  <Button
+                    type="button"
+                    disabled={pending}
+                    onClick={() =>
+                      run(
+                        () => deleteUser(id),
+                        "Account deleted.",
+                        () => {
+                          setOpen(false);
+                          router.push("/admin/users");
+                        },
+                      )
+                    }
+                  >
+                    {pending ? "Deleting" : "Delete"}
                   </Button>
                 </>
               }
@@ -183,7 +239,11 @@ export function UserEditor({
               <p>
                 This removes {email}, their favorites, and their library items. Download records stay for analytics.
               </p>
-              <p className="mt-2 text-sm leading-5 text-muted-foreground">Arrives in Phase 2.</p>
+              {actionError ? (
+                <p role="alert" className="mt-2 text-sm leading-5 text-brand-text">
+                  {actionError}
+                </p>
+              ) : null}
             </Dialog>
           </>
         )}

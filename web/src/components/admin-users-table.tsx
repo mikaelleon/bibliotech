@@ -49,6 +49,7 @@ export function AdminUsersTable({
         },
         { key: "role", header: "Role", cell: (user) => <RoleBadge role={user.role} /> },
         { key: "tier", header: "Type", cell: (user) => user.tier },
+        { key: "status", header: "Status", cell: (user) => user.status },
         { key: "joined", header: "Joined", cell: (user) => <span className="text-muted-foreground">{user.joined}</span> },
         {
           key: "downloads",

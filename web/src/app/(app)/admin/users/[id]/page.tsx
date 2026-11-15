@@ -24,6 +24,7 @@ export default async function UserDetailPage({ params }: { params: Promise<{ id:
       <PageHeader title={user.name} lede={user.email} />
       <UserEditor
         id={user.id}
+        disabled={user.disabled}
         name={user.name}
         email={user.email}
         role={user.role}

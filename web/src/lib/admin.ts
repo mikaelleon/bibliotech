@@ -27,6 +27,7 @@ type UserListRow = {
   downloads_used: number;
   download_limit: number;
   resets_at: string | null;
+  disabled: boolean;
   total_count: number;
 };
 
@@ -157,7 +158,7 @@ export async function adminListUsers(
       joined: joinedLabel(user.created_at),
       downloadsUsed: user.downloads_used,
       downloadLimit: user.download_limit,
-      status: "Active",
+      status: user.disabled ? "Disabled" : "Active",
     })),
   };
 }
@@ -172,6 +173,7 @@ type UserDetailRow = {
   downloads_used: number;
   download_limit: number;
   resets_at: string | null;
+  disabled: boolean;
   favorites: number;
   library_items: number;
   admin_count: number;
@@ -198,6 +200,7 @@ export async function adminGetUser(session: Session, id: string) {
     downloadsUsed: user.downloads_used,
     downloadLimit: user.download_limit,
     resetsAt: user.resets_at,
+    disabled: Boolean(user.disabled),
     favorites: Number(user.favorites),
     libraryItems: Number(user.library_items),
     adminCount: Number(user.admin_count),
@@ -245,6 +248,11 @@ const actionLabels: Record<string, string> = {
   create_book: "Added book",
   update_book: "Edited book",
   delete_book: "Deleted book",
+  disable_user: "Disabled account",
+  enable_user: "Enabled account",
+  reset_password: "Sent password reset",
+  delete_user: "Deleted account",
+  create_user: "Created account",
 };
 
 /** What admins looked at or changed. Identities are masked in SQL. */
