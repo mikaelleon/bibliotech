@@ -2,7 +2,8 @@
 
 import { Search, X } from "lucide-react";
 import Link from "next/link";
-import { useSyncExternalStore } from "react";
+import { useRouter } from "next/navigation";
+import { useEffect, useId, useRef, useState, useSyncExternalStore } from "react";
 
 import { ShortcutHint } from "@/components/shortcut-hint";
 import { cn } from "@/lib/utils";
@@ -21,6 +22,8 @@ type SearchBarProps = {
   action?: (formData: FormData) => void | Promise<void>;
   className?: string;
 };
+
+type Suggestion = { id: string; title: string; author: string };
 
 function subscribe(onChange: () => void) {
   const media = window.matchMedia("(min-width: 1024px)");
@@ -46,6 +49,56 @@ export function SearchBar({
   const showClear = query.length > 0 && Boolean(clearHref);
   const showHint = wide && !showClear;
 
+  const router = useRouter();
+  const listId = useId();
+  const [text, setText] = useState(query);
+  const [items, setItems] = useState<Suggestion[]>([]);
+  const [open, setOpen] = useState(false);
+  const [active, setActive] = useState(-1);
+  const blurTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    const term = text.trim();
+    if (!term) return;
+    const controller = new AbortController();
+    const timer = setTimeout(async () => {
+      try {
+        const res = await fetch(`/api/suggest?q=${encodeURIComponent(term)}`, { signal: controller.signal });
+        if (!res.ok) return;
+        const data = (await res.json()) as { suggestions?: Suggestion[] };
+        setItems(data.suggestions ?? []);
+        setActive(-1);
+      } catch {
+        /* aborted or offline: keep the last list */
+      }
+    }, 150);
+    return () => {
+      clearTimeout(timer);
+      controller.abort();
+    };
+  }, [text]);
+
+  const visible = open && text.trim().length > 0 ? items : [];
+
+  function onKeyDown(event: React.KeyboardEvent<HTMLInputElement>) {
+    if (event.key === "Escape") {
+      setOpen(false);
+      return;
+    }
+    if (visible.length === 0) return;
+    if (event.key === "ArrowDown") {
+      event.preventDefault();
+      setActive((i) => (i + 1) % visible.length);
+    } else if (event.key === "ArrowUp") {
+      event.preventDefault();
+      setActive((i) => (i <= 0 ? visible.length - 1 : i - 1));
+    } else if (event.key === "Enter" && active >= 0) {
+      event.preventDefault();
+      setOpen(false);
+      router.push(`/books/${visible[active].id}`);
+    }
+  }
+
   return (
     <form
       action={action ?? "/search"}
@@ -66,7 +119,24 @@ export function SearchBar({
       <input
         id={large ? "landing-search" : "site-search"}
         name="q"
-        defaultValue={query}
+        value={text}
+        onChange={(event) => {
+          setText(event.target.value);
+          setOpen(true);
+        }}
+        onFocus={() => {
+          if (blurTimer.current) clearTimeout(blurTimer.current);
+          setOpen(true);
+        }}
+        onBlur={() => {
+          blurTimer.current = setTimeout(() => setOpen(false), 120);
+        }}
+        onKeyDown={onKeyDown}
+        role="combobox"
+        aria-expanded={visible.length > 0}
+        aria-controls={listId}
+        aria-autocomplete="list"
+        aria-activedescendant={active >= 0 ? `${listId}-${active}` : undefined}
         placeholder={placeholder}
         enterKeyHint="search"
         autoComplete="off"
@@ -89,6 +159,35 @@ export function SearchBar({
         </Link>
       ) : showHint ? (
         <ShortcutHint large={large} />
+      ) : null}
+      {visible.length > 0 ? (
+        <ul
+          id={listId}
+          role="listbox"
+          className="absolute left-0 right-0 top-full z-50 mt-1 overflow-hidden rounded-xl border border-border bg-card py-1 shadow-lg"
+        >
+          {visible.map((item, index) => (
+            <li
+              key={item.id}
+              id={`${listId}-${index}`}
+              role="option"
+              aria-selected={index === active}
+            >
+              <Link
+                href={`/books/${item.id}`}
+                onClick={() => setOpen(false)}
+                onMouseEnter={() => setActive(index)}
+                className={cn(
+                  "flex min-h-11 flex-col justify-center px-4 py-1.5 text-inherit no-underline",
+                  index === active && "bg-muted",
+                )}
+              >
+                <span className="truncate text-sm font-medium text-foreground">{item.title}</span>
+                <span className="truncate text-xs text-muted-foreground">{item.author}</span>
+              </Link>
+            </li>
+          ))}
+        </ul>
       ) : null}
     </form>
   );
