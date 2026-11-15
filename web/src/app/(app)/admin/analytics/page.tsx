@@ -1,19 +1,24 @@
+import Link from "next/link";
+
 import { AdminDownloadsTable } from "@/components/admin-downloads-table";
 import { BarList } from "@/components/bar-list";
 import { DownloadChart } from "@/components/download-chart";
 import { PageHeader } from "@/components/page-header";
+import { Pagination } from "@/components/pagination";
 import { RangeTabs } from "@/components/range-tabs";
+import { StatRow } from "@/components/stat-row";
 import { adminListDownloads, adminStats, isAdminSession } from "@/lib/admin";
 import { getSession } from "@/lib/session";
 
 export const metadata = { title: "Analytics" };
 
 const ranges = [7, 30, 90] as const;
+const PAGE_SIZE = 25;
 
 export default async function AnalyticsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ range?: string }>;
+  searchParams: Promise<{ range?: string; page?: string }>;
 }) {
   const session = await getSession();
   if (!isAdminSession(session)) return null;
@@ -22,12 +27,22 @@ export default async function AnalyticsPage({
   const requested = Number(params.range ?? "30");
   const days = requested === 7 || requested === 90 ? requested : 30;
   const stats = await adminStats(session, days);
-  const downloads = await adminListDownloads(session, 25, 0);
+  const requestedPage = Number(params.page ?? "1");
+  const page = Number.isFinite(requestedPage) && requestedPage > 0 ? Math.floor(requestedPage) : 1;
+  const downloads = await adminListDownloads(session, PAGE_SIZE, (page - 1) * PAGE_SIZE);
+  const topTotal = stats.downloads || 1;
 
   return (
     <main className="mx-auto flex w-full max-w-[1200px] flex-col gap-10 px-4 py-6 md:px-8 md:py-8">
       <PageHeader title="Analytics" />
       <RangeTabs ranges={ranges} days={days} />
+      <StatRow
+        items={[
+          { label: `New downloads, ${days} days`, value: String(stats.downloadsInRange), context: "First time a reader saved a book" },
+          { label: "Books downloaded", value: String(stats.downloads), context: "One per reader and book" },
+          { label: "All saves", value: String(stats.downloadEvents), context: `${stats.repeatDownloads} were repeat saves` },
+        ]}
+      />
       <DownloadChart points={stats.downloadsPerDay} days={days} />
       <div className="grid gap-6 md:grid-cols-2 md:gap-12">
         <section aria-labelledby="by-category">
@@ -47,11 +62,20 @@ export default async function AnalyticsPage({
           ) : (
             <ol className="mt-6 grid gap-3">
               {stats.mostDownloaded.map((item, index) => (
-                <li key={item.title} className="flex justify-between gap-4 text-sm leading-5">
+                <li key={item.id || item.title} className="flex justify-between gap-4 text-sm leading-5">
                   <span>
-                    {index + 1}. {item.title}
+                    {index + 1}.{" "}
+                    {item.id ? (
+                      <Link href={`/books/${item.id}`} className="text-inherit underline">
+                        {item.title}
+                      </Link>
+                    ) : (
+                      item.title
+                    )}
                   </span>
-                  <span className="text-muted-foreground">{item.count}</span>
+                  <span className="text-muted-foreground">
+                    {item.count} ({Math.round((item.count / topTotal) * 100)}%)
+                  </span>
                 </li>
               ))}
             </ol>
@@ -62,7 +86,18 @@ export default async function AnalyticsPage({
         <h2 id="download-activity" className="text-xl leading-7 font-medium">
           Download activity
         </h2>
-        <AdminDownloadsTable rows={downloads.rows} />
+        <div>
+          <AdminDownloadsTable rows={downloads.rows} />
+          <div className="overflow-hidden rounded-b-xl border border-t-0 border-border bg-card">
+            <Pagination
+              page={page}
+              pageSize={PAGE_SIZE}
+              total={downloads.total}
+              pathname="/admin/analytics"
+              params={{ range: days === 30 ? undefined : String(days) }}
+            />
+          </div>
+        </div>
       </section>
     </main>
   );

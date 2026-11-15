@@ -24,8 +24,8 @@ export default async function AdminPage() {
       <StatRow
         items={[
           { label: "Books", value: String(stats.books), context: "In the catalog" },
-          { label: "Registered users", value: String(stats.registeredUsers), context: `Verified email. ${stats.guestUsers} unverified` },
-          { label: "Downloads", value: String(stats.downloads), context: `${stats.downloadsLast30Days} in the last 30 days` },
+          { label: "Verified users", value: String(stats.registeredUsers), context: `${stats.guestUsers} not verified yet` },
+          { label: "Books downloaded", value: String(stats.downloads), context: `${stats.downloadsLast30Days} new in 30 days. ${stats.repeatDownloads} repeat saves` },
         ]}
       />
       <section aria-labelledby="needs-attention">

@@ -76,9 +76,11 @@ type StatsRow = {
   registeredUsers: number;
   guestUsers: number;
   downloads: number;
+  downloadEvents: number;
   repeatDownloads: number;
   downloadsLast30Days: number;
-  mostDownloaded: { title: string; count: number }[];
+  downloadsInRange: number;
+  mostDownloaded: { id: string; title: string; count: number }[];
   recentDownloads: { who: string; book: string; at: string }[];
   downloadsPerDay: { date: string; count: number }[];
 };
@@ -87,7 +89,7 @@ export async function adminStats(session: Session, days = 30) {
   assertAdmin(session);
   const span = days === 7 || days === 90 ? days : 30;
   const supabase = await createClient();
-  const [{ data, error }, latest] = await Promise.all([supabase.rpc("admin_stats"), usersPage("", 5, 0)]);
+  const [{ data, error }, latest] = await Promise.all([supabase.rpc("admin_stats", { p_days: span }), usersPage("", 5, 0)]);
   if (error) throw new Error(`Could not load stats: ${error.message}`);
   const stats = data as StatsRow;
   const catalog = await listCatalog();
@@ -97,9 +99,13 @@ export async function adminStats(session: Session, days = 30) {
     books: catalog.length,
     registeredUsers: stats.registeredUsers ?? 0,
     guestUsers: stats.guestUsers ?? 0,
+    /** One per reader and book. */
     downloads: stats.downloads ?? 0,
+    /** Every save, repeats included. */
+    downloadEvents: stats.downloadEvents ?? stats.downloads ?? 0,
     repeatDownloads: stats.repeatDownloads ?? 0,
     downloadsLast30Days: stats.downloadsLast30Days ?? 0,
+    downloadsInRange: stats.downloadsInRange ?? 0,
     booksByCategory: await countByCategory(),
     mostDownloaded: stats.mostDownloaded ?? [],
     recentDownloads: (stats.recentDownloads ?? []).map((row, index) => ({
@@ -120,7 +126,7 @@ export async function adminStats(session: Session, days = 30) {
   };
 }
 
-/** One point for each day in the range, oldest first. admin_stats covers the last 30 days. */
+/** One point for each day in the range, oldest first. admin_stats returns the same span. */
 function lastDays(count: number): { date: string; count: number }[] {
   const points: { date: string; count: number }[] = [];
   const now = new Date();
