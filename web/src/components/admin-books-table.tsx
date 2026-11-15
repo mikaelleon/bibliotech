@@ -4,7 +4,8 @@ import type { ReactNode } from "react";
 
 import { Ellipsis } from "lucide-react";
 import Link from "next/link";
-import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { useState, useTransition } from "react";
 
 import { BookCover } from "@/components/book-cover";
 import { DataTable, type DataColumn } from "@/components/data-table";
@@ -16,6 +17,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { deleteBook } from "@/lib/admin-actions";
 import type { Book } from "@/lib/types";
 
 export function AdminBooksTable({ books, empty = "No books yet" }: { books: Book[]; empty?: ReactNode }) {
@@ -82,6 +84,22 @@ export function AdminBooksTable({ books, empty = "No books yet" }: { books: Book
 
 function BookRowMenu({ book }: { book: Book }) {
   const [open, setOpen] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [pending, startTransition] = useTransition();
+  const router = useRouter();
+
+  function remove() {
+    setError(null);
+    startTransition(async () => {
+      const result = await deleteBook(book.id);
+      if (!result.ok) {
+        setError(result.error);
+        return;
+      }
+      setOpen(false);
+      router.refresh();
+    });
+  }
 
   return (
     <>
@@ -114,14 +132,18 @@ function BookRowMenu({ book }: { book: Book }) {
             <Button type="button" variant="outline" onClick={() => setOpen(false)}>
               Cancel
             </Button>
-            <Button type="button" disabled>
-              Delete
+            <Button type="button" onClick={remove} disabled={pending}>
+              {pending ? "Deleting" : "Delete"}
             </Button>
           </>
         }
       >
         <p>This removes {book.title} from the catalog.</p>
-        <p className="mt-2 text-sm leading-5 text-muted-foreground">Arrives in Phase 2.</p>
+        {error ? (
+          <p role="alert" className="mt-2 text-sm leading-5 text-brand-text">
+            {error}
+          </p>
+        ) : null}
       </Dialog>
     </>
   );

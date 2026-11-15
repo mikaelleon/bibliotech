@@ -54,6 +54,12 @@ function toBook(row: Row): Book {
 const CATALOG_TTL_MS = 60_000;
 let catalogCache: { at: number; books: Book[] } | null = null;
 
+/** Drop the one-minute cache after an admin edit, so the next read sees it. */
+export function invalidateCatalog(): void {
+  catalogCache = null;
+  setRemoteCatalog([]);
+}
+
 /**
  * Catalog from `books`. Falls back to the static list when the database is empty or unreachable,
  * so the app still opens before the importer has run.

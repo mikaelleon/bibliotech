@@ -1,15 +1,17 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { useState, useTransition } from "react";
 
 import { BookCover } from "@/components/book-cover";
 import { Field } from "@/components/field";
 import { Button } from "@/components/ui/button";
 import { Select } from "@/components/ui/select";
+import { saveBook } from "@/lib/admin-actions";
 import { CATEGORIES, type Book } from "@/lib/types";
 
-type Errors = Partial<Record<"title" | "author" | "category" | "license" | "coverUrl" | "sourceUrl" | "downloadUrl", string>>;
+type Errors = Partial<Record<"title" | "author" | "category" | "license" | "coverUrl" | "sourceUrl", string>>;
 
 function required(value: string): string | undefined {
   return value.trim() ? undefined : "This field is required.";
@@ -31,9 +33,45 @@ export function BookForm({ book }: { book?: Book }) {
   const [source, setSource] = useState(book?.sourceName ?? "");
   const [license, setLicense] = useState(book?.license ?? "");
   const [sourceUrl, setSourceUrl] = useState(book?.sourceUrl ?? "");
-  const [downloadUrl, setDownloadUrl] = useState("");
   const [language, setLanguage] = useState(book?.language ?? "English");
   const [errors, setErrors] = useState<Errors>({});
+  const [formError, setFormError] = useState<string | null>(null);
+  const [pending, startTransition] = useTransition();
+  const router = useRouter();
+
+  function submit() {
+    const next: Errors = {
+      title: required(title),
+      author: required(author),
+      category: required(category),
+      license: required(license),
+      coverUrl: urlError(coverUrl),
+      sourceUrl: urlError(sourceUrl),
+    };
+    setErrors(next);
+    if (Object.values(next).some(Boolean)) return;
+    setFormError(null);
+    startTransition(async () => {
+      const result = await saveBook({
+        slug: book?.id,
+        title,
+        author,
+        category,
+        language,
+        license,
+        sourceName: source,
+        sourceUrl,
+        summary: description,
+        coverUrl,
+      });
+      if (!result.ok) {
+        setFormError(result.error);
+        return;
+      }
+      router.push("/admin/books");
+      router.refresh();
+    });
+  }
 
   function setError(field: keyof Errors, message: string | undefined) {
     setErrors((current) => ({ ...current, [field]: message }));
@@ -44,6 +82,7 @@ export function BookForm({ book }: { book?: Book }) {
       className="grid max-w-[640px] gap-4"
       onSubmit={(event) => {
         event.preventDefault();
+        submit();
       }}
     >
       {book ? (
@@ -120,24 +159,20 @@ export function BookForm({ book }: { book?: Book }) {
         onBlur={(event) => setError("sourceUrl", urlError(event.currentTarget.value))}
         error={errors.sourceUrl}
       />
-      <Field
-        label="Download URL"
-        name="downloadUrl"
-        value={downloadUrl}
-        onChange={setDownloadUrl}
-        onBlur={(event) => setError("downloadUrl", urlError(event.currentTarget.value))}
-        error={errors.downloadUrl}
-      />
       <Field label="Language" name="language" value={language} onChange={setLanguage} />
       <div className="mt-2 flex flex-wrap justify-end gap-2">
         <Button asChild variant="outline">
           <Link href="/admin/books">Back to books</Link>
         </Button>
-        <Button type="submit" disabled>
-          Save
+        <Button type="submit" disabled={pending}>
+          {pending ? "Saving" : "Save"}
         </Button>
       </div>
-      <p className="text-sm leading-5 text-muted-foreground">Arrives in Phase 2.</p>
+      {formError ? (
+        <p role="alert" className="text-sm leading-5 text-brand-text">
+          {formError}
+        </p>
+      ) : null}
     </form>
   );
 }

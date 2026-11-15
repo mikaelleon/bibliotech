@@ -239,7 +239,13 @@ type AuditRow = {
   total_count: number;
 };
 
-const actionLabels: Record<string, string> = { view_user: "Viewed account" };
+const actionLabels: Record<string, string> = {
+  view_user: "Viewed account",
+  set_role: "Changed role",
+  create_book: "Added book",
+  update_book: "Edited book",
+  delete_book: "Deleted book",
+};
 
 /** What admins looked at or changed. Identities are masked in SQL. */
 export async function adminListAudit(session: Session, limit: number, offset: number) {

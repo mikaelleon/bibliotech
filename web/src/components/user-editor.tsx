@@ -1,13 +1,16 @@
 "use client";
 
-import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { useState, useTransition } from "react";
 
 import { Dialog } from "@/components/dialog";
 import { Field } from "@/components/field";
 import { Button } from "@/components/ui/button";
 import { Select } from "@/components/ui/select";
+import { setUserRole } from "@/lib/admin-actions";
 
 type UserEditorProps = {
+  id: string;
   name: string;
   email: string;
   role: "user" | "admin";
@@ -24,6 +27,7 @@ type UserEditorProps = {
 
 /** Review and the danger section. Writes arrive in Phase 2, and the safeguards are already visible. */
 export function UserEditor({
+  id,
   name,
   email,
   role,
@@ -38,6 +42,25 @@ export function UserEditor({
   lastAdmin,
 }: UserEditorProps) {
   const [open, setOpen] = useState(false);
+  const [nextRole, setNextRole] = useState<"user" | "admin">(role);
+  const [roleError, setRoleError] = useState<string | null>(null);
+  const [saved, setSaved] = useState(false);
+  const [pending, startTransition] = useTransition();
+  const router = useRouter();
+
+  function saveRole() {
+    setRoleError(null);
+    setSaved(false);
+    startTransition(async () => {
+      const result = await setUserRole(id, nextRole);
+      if (!result.ok) {
+        setRoleError(result.error);
+        return;
+      }
+      setSaved(true);
+      router.refresh();
+    });
+  }
   const blocked = self || lastAdmin;
   const blockReason = self
     ? "You cannot delete, disable, or demote your own account."
@@ -54,7 +77,13 @@ export function UserEditor({
           <Field label="Email" name="email" value={email} readOnly />
           <label className="grid gap-2 text-sm leading-5" htmlFor="role">
             Role
-            <Select id="role" name="role" defaultValue={role} disabled={blocked}>
+            <Select
+              id="role"
+              name="role"
+              value={nextRole}
+              onChange={(event) => setNextRole(event.target.value === "admin" ? "admin" : "user")}
+              disabled={blocked}
+            >
               <option value="user">Reader</option>
               <option value="admin">Administrator</option>
             </Select>
@@ -62,8 +91,8 @@ export function UserEditor({
           {blocked ? <p className="text-sm leading-5 text-muted-foreground">{blockReason}</p> : null}
         </div>
         <div className="mt-4 flex flex-wrap gap-2">
-          <Button type="button" disabled>
-            Save
+          <Button type="button" onClick={saveRole} disabled={blocked || pending || nextRole === role}>
+            {pending ? "Saving" : "Save role"}
           </Button>
           <Button type="button" variant="outline" disabled>
             Send password reset
@@ -72,7 +101,18 @@ export function UserEditor({
             Disable account
           </Button>
         </div>
-        <p className="mt-4 text-sm leading-5 text-muted-foreground">Arrives in Phase 2.</p>
+        {roleError ? (
+          <p role="alert" className="mt-4 text-sm leading-5 text-brand-text">
+            {roleError}
+          </p>
+        ) : saved ? (
+          <p role="status" className="mt-4 text-sm leading-5 text-muted-foreground">
+            Role saved.
+          </p>
+        ) : null}
+        <p className="mt-4 text-sm leading-5 text-muted-foreground">
+          Display name, password reset and disabling accounts arrive later.
+        </p>
       </section>
       <section className="rounded-xl bg-card p-8" aria-labelledby="usage">
         <h2 id="usage" className="text-xl leading-7 font-medium">

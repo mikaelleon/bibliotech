@@ -4,10 +4,12 @@ import { BookForm } from "@/components/book-form";
 import { PageHeader } from "@/components/page-header";
 import { isAdminSession } from "@/lib/admin";
 import { getBook } from "@/lib/books";
+import { listCatalog } from "@/lib/catalog";
 import { getSession } from "@/lib/session";
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
+  await listCatalog();
   const book = getBook(id);
   return { title: book ? `Edit ${book.title}` : "Edit book" };
 }
@@ -16,6 +18,7 @@ export default async function EditBookPage({ params }: { params: Promise<{ id: s
   const session = await getSession();
   if (!isAdminSession(session)) return null;
   const { id } = await params;
+  await listCatalog();
   const book = getBook(id);
   if (!book) notFound();
 

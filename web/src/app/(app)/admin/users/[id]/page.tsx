@@ -23,6 +23,7 @@ export default async function UserDetailPage({ params }: { params: Promise<{ id:
     <main className="mx-auto flex w-full max-w-[1200px] flex-col gap-6 px-4 py-6 md:px-8 md:py-8">
       <PageHeader title={user.name} lede={user.email} />
       <UserEditor
+        id={user.id}
         name={user.name}
         email={user.email}
         role={user.role}
