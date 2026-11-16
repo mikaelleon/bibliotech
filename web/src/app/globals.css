@@ -943,11 +943,18 @@ html.theme-reveal::view-transition-new(root) {
   border-bottom: 1px solid var(--border);
 }
 
-.fl-spine {
+/* The slot never moves, so the hover area stays put while the spine inside it lifts. Without it, a pointer
+   resting on the bottom 8px of a spine lifts it, falls off it, drops it, and flickers. */
+.fl-slot {
   flex: var(--w) 1 0%;
   min-width: 0;
   max-width: 104px;
   height: calc(var(--h) * 1%);
+}
+
+.fl-spine {
+  width: 100%;
+  height: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -959,7 +966,7 @@ html.theme-reveal::view-transition-new(root) {
   cursor: pointer;
   translate: 0 0;
   transition: translate 260ms var(--ease-out);
-  animation: fl-spine-in 560ms var(--ease-out) calc(280ms + var(--k) * 28ms) both;
+  animation: fl-spine-in 560ms var(--ease-out) calc(280ms + min(var(--k), 5) * 40ms) both;
 }
 
 /* The tick every cover draws. On the chosen book it turns the accent color and grows, the second cue next to the lift. */
@@ -1007,7 +1014,7 @@ html.theme-reveal::view-transition-new(root) {
 
 .fl-spine[aria-selected="true"] {
   translate: 0 var(--fl-lift);
-  transition-duration: 480ms;
+  transition-duration: 300ms;
   transition-timing-function: var(--ease-spine);
 }
 
@@ -1016,15 +1023,30 @@ html.theme-reveal::view-transition-new(root) {
 }
 
 @media (hover: hover) {
-  .fl-spine:not([aria-selected="true"]):hover {
+  .fl-slot:hover > .fl-spine:not([aria-selected="true"]) {
     translate: 0 -8px;
     transition-duration: 180ms;
   }
 }
 
-.fl-spine:not([aria-selected="true"]):active {
+.fl-slot:active > .fl-spine:not([aria-selected="true"]) {
   translate: 0 3px;
   transition-duration: 90ms;
+}
+
+/* Moving along the shelf with the arrow keys is fast and repeated, so nothing glides behind the keys. */
+.fl[data-input="key"] .fl-spine,
+.fl[data-input="key"] .fl-spine::before {
+  transition-duration: 0ms;
+}
+
+.fl[data-input="key"] .fl-line[data-state="active"] .fl-w {
+  animation-duration: 120ms;
+  animation-delay: 0ms;
+}
+
+.fl[data-input="key"] .fl-line[data-state="leaving"] {
+  animation-duration: 80ms;
 }
 
 @keyframes fl-spine-in {
@@ -1076,7 +1098,7 @@ html.theme-reveal::view-transition-new(root) {
     mask-image: linear-gradient(90deg, transparent 0, #000 16px, #000 calc(100% - 24px), transparent 100%);
   }
   .fl-shelf::-webkit-scrollbar { display: none; }
-  .fl-spine {
+  .fl-slot {
     flex: none;
     width: max(44px, calc(var(--w) * 48px));
     max-width: none;
@@ -1095,7 +1117,9 @@ html.theme-reveal::view-transition-new(root) {
     animation-delay: 0ms;
   }
   .fl-line[data-state="leaving"] { animation: fl-line-fade 120ms linear both; }
-  .fl-by { animation: elib-fade 160ms linear both; }
+  .fl-by,
+  .fl-swap,
+  .fl-search { animation: elib-fade 160ms linear both; }
   .fl-spine { animation: none; transition: none; }
 }
 

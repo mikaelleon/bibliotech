@@ -82,6 +82,7 @@ export function FirstLines({ items, start, search }: { items: ShelfItem[]; start
   const [tick, setTick] = useState(0);
   const [steps, setSteps] = useState(0);
   const [hold, setHold] = useState(false);
+  const [input, setInput] = useState<"pointer" | "key">("pointer");
   const reduced = useSyncExternalStore(subscribeMotion, reducedMotion, () => false);
   const current = useRef(start);
   const touched = useRef(false);
@@ -160,6 +161,7 @@ export function FirstLines({ items, start, search }: { items: ShelfItem[]; start
     else if (event.key === "End") next = last;
     if (next < 0) return;
     event.preventDefault();
+    setInput("key");
     select(next);
     tabs.current[next]?.focus({ preventScroll: true });
   }
@@ -170,7 +172,11 @@ export function FirstLines({ items, start, search }: { items: ShelfItem[]; start
     <section
       aria-labelledby="fl-heading"
       className="fl"
-      onPointerDownCapture={touch}
+      data-input={input}
+      onPointerDownCapture={() => {
+        setInput("pointer");
+        touch();
+      }}
       onFocusCapture={touch}
       onKeyDownCapture={touch}
       onPointerEnter={(event) => {
@@ -241,34 +247,32 @@ export function FirstLines({ items, start, search }: { items: ShelfItem[]; start
         }}
       >
         {items.map((item, position) => (
-          <button
+          <div
             key={item.slug}
-            ref={(node) => {
-              tabs.current[position] = node;
-            }}
-            type="button"
-            role="tab"
-            id={`${panelId}-tab-${position}`}
-            aria-selected={position === index}
-            aria-controls={panelId}
-            aria-label={`${item.title}, ${item.author}`}
-            tabIndex={position === index ? 0 : -1}
-            className="fl-spine"
-            style={
-              {
-                "--k": position,
-                "--w": item.width,
-                "--h": item.height,
-                background: item.background,
-                color: item.color,
-              } as CSSProperties
-            }
-            onClick={() => select(position)}
+            role="presentation"
+            className="fl-slot"
+            style={{ "--k": position, "--w": item.width, "--h": item.height } as CSSProperties}
           >
-            <span className="fl-spine-t" aria-hidden>
-              {item.title}
-            </span>
-          </button>
+            <button
+              ref={(node) => {
+                tabs.current[position] = node;
+              }}
+              type="button"
+              role="tab"
+              id={`${panelId}-tab-${position}`}
+              aria-selected={position === index}
+              aria-controls={panelId}
+              aria-label={`${item.title}, ${item.author}`}
+              tabIndex={position === index ? 0 : -1}
+              className="fl-spine"
+              style={{ background: item.background, color: item.color } as CSSProperties}
+              onClick={() => select(position)}
+            >
+              <span className="fl-spine-t" aria-hidden>
+                {item.title}
+              </span>
+            </button>
+          </div>
         ))}
       </div>
     </section>

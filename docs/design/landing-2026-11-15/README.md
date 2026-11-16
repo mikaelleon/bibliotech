@@ -105,6 +105,18 @@ Changes, one reason each:
 
 Checked and left alone: contrast (muted text 5.4:1), tabular numbers on counts, layout shift when Pause disappears (the row has a fixed height), stacking (search suggestions sit above the shelf), focus ring (inset, neutral), press and hover timings, reduced motion. `sweep.mjs` over all 16 lines at six sizes: no problems.
 
+## Round 5: UX and animation pass
+
+Walked the five questions over the shelf, the line change, autoplay, the Open row and the search field. Findings and fixes:
+
+- **Hover flicker (friction).** Hover lifted the spine 8px, so a pointer resting on its bottom 8px left it, dropped it and lifted it again. Each spine now sits in a fixed slot and the slot takes the hover. Measured with the pointer on the bottom 3px: one transition, no repeats.
+- **Keyboard path (friction).** Arrow keys are fast and repeated, so under the keys nothing glides: the spine moves with no transition and the line fades in over 120ms without the word stagger. Pointer input keeps the full motion.
+- **Stagger (polish).** Only the first six spines stagger, 40ms apart; the rest arrive with the sixth (was all sixteen at 28ms).
+- **Lift duration (polish).** 300ms (was 480ms): a move in place stays inside 200 to 300ms.
+- **Reduced motion (friction).** The Open label, the search field and the row now fade only; they still slid 6px.
+
+Left alone on purpose: the load entrance (a marketing hero, once), exits at 180ms against 760ms entrances, the project's own ease-out token instead of the skill's curve, press at 0.97 per the token table. `sweep.mjs`: no problems at four sizes.
+
 ## Open issues
 
 - Spine colors repeat (Moby-Dick sits beside The Yellow Wallpaper, both forest green). The raised spine, the lift and the coral tick carry the choice.
