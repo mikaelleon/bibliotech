@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>D3 Card catalog</title>
+<link rel="stylesheet" href="shared.css">
+<style>
+  .wrap { padding: 0 96px; height: calc(900px - 72px); display: grid; grid-template-columns: 5fr 7fr; gap: 72px; align-items: center; }
+  h1 { font-size: 56px; line-height: 60px; font-weight: 600; max-width: 11ch; }
+  p.lede { color: var(--muted); margin-top: 16px; max-width: 34ch; }
+  .search { margin-top: 32px; }
+  .drawer { position: relative; height: 560px; perspective: 1600px; }
+  .card { position: absolute; left: 0; right: 0; height: 330px; background: #fffdf8; border: 1px solid #e7e2d4; border-radius: 6px; transform-origin: 50% 100%; box-shadow: 0 -1px 0 rgba(31,35,48,.04), 0 10px 24px rgba(31,35,48,.10); padding: 28px 36px 0 84px; overflow: hidden; }
+  .card::before { content: ""; position: absolute; left: 62px; top: 0; bottom: 0; width: 1px; background: var(--brand); opacity: .55; }
+  .card::after { content: ""; position: absolute; inset: 0; background: repeating-linear-gradient(to bottom, transparent 0 35px, rgba(60,90,140,.16) 35px 36px); pointer-events: none; mask: linear-gradient(to bottom, transparent 96px, #000 96px); }
+  .card .hole { position: absolute; left: 50%; bottom: 14px; width: 14px; height: 14px; border-radius: 50%; background: var(--background); box-shadow: inset 0 1px 2px rgba(0,0,0,.25); }
+  .card .tab { position: absolute; top: -26px; width: 64px; height: 26px; background: #f1ead6; border: 1px solid #e0d8c0; border-bottom: 0; border-radius: 6px 6px 0 0; font-size: 13px; display: flex; align-items: center; justify-content: center; color: #6a5f43; }
+  .card .a { font-size: 15px; letter-spacing: .01em; }
+  .card .t { font-family: Newsreader, Georgia, serif; font-size: 36px; line-height: 40px; margin-top: 6px; }
+  .card .m { margin-top: 22px; font-size: 14px; line-height: 36px; color: #4b4f5c; }
+</style></head>
+<body>
+<div class="hdr"><b>Bibliotech<i>.</i></b><nav><a href="#" style="margin-right:8px">About</a><a class="btn out">Log in</a><a class="btn pri">Register</a></nav></div>
+<div class="wrap">
+  <div>
+    <h1>Free public&#8209;domain books</h1>
+    <p class="lede">Read them here, or download one to keep.</p>
+    <div class="search"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input placeholder="Search by title or author"><span class="kbd">Ctrl K</span></div>
+  </div>
+  <div class="drawer" id="drawer"></div>
+</div>
+<script src="shared.js"></script>
+<script>
+  const d = document.getElementById("drawer");
+  const picks = [BOOKS[7], BOOKS[4], BOOKS[2], BOOKS[0]];
+  picks.forEach((b, i) => {
+    const c = document.createElement("div"); c.className = "card";
+    const depth = picks.length - 1 - i;
+    c.style.cssText = `top:${40 + depth * 62}px;transform:rotateX(${depth ? -14 : 0}deg) translateZ(${-depth * 18}px);z-index:${10 - depth}`;
+    c.innerHTML = `<span class="tab" style="left:${20 + i * 74}px">${b.author.split(" ").pop()[0]}</span><div class="a">${b.author.split(" ").slice(-1)[0].toUpperCase()}, ${b.author.split(" ").slice(0, -1).join(" ")}.</div><div class="t">${b.title}</div><div class="m">English · Public domain<br>Project Gutenberg</div><span class="hole"></span>`;
+    d.appendChild(c);
+  });
+</script>
+</body></html>

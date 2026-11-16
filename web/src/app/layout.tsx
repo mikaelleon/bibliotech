@@ -15,13 +15,16 @@ const inter = Inter({
   variable: "--font-inter",
 });
 
+// opsz gives the display cut at hero sizes and a sturdier cut on small covers.
 const newsreader = Newsreader({
   subsets: ["latin"],
-  weight: ["400"],
+  axes: ["opsz"],
   variable: "--font-newsreader",
 });
 
 export const metadata: Metadata = {
+  // Links in emails already use APP_URL. Social previews need the same origin to resolve their image.
+  metadataBase: process.env.APP_URL ? new URL(process.env.APP_URL) : undefined,
   title: { default: "Bibliotech", template: "%s · Bibliotech" },
   description: "Bibliotech is a free digital library. Read public-domain books, download them, and keep them.",
 };

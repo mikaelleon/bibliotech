@@ -1,0 +1,30 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,400;1,6..72,400&display=swap");
+
+:root {
+  --background: #f6f6f5; --foreground: #1f2330; --card: #fff; --primary: #20232f; --primary-fg: #fff;
+  --muted: #63646b; --border: #e4e4e2; --brand: #e2504f; --brand-text: #c23b3e;
+  --shadow-cover: 0 4px 12px rgba(31,35,48,.2);
+  --ease-out: cubic-bezier(.22,1,.36,1);
+}
+* { box-sizing: border-box; margin: 0; }
+html, body { background: var(--background); color: var(--foreground); font-family: Inter, system-ui, sans-serif; font-size: 16px; line-height: 1.5; -webkit-font-smoothing: antialiased; }
+.serif { font-family: Newsreader, Georgia, serif; font-weight: 400; }
+button { font: inherit; color: inherit; background: none; border: 0; cursor: pointer; }
+a { color: inherit; }
+
+.hdr { height: 72px; background: var(--card); display: flex; align-items: center; justify-content: space-between; padding: 0 96px; }
+.hdr b { font-size: 20px; font-weight: 600; } .hdr b i { color: var(--brand); font-style: normal; }
+.hdr nav { display: flex; gap: 12px; align-items: center; font-size: 14px; }
+.btn { height: 44px; padding: 0 24px; border-radius: 999px; display: inline-flex; align-items: center; font-size: 14px; font-weight: 500; text-decoration: none; }
+.btn.out { border: 1px solid var(--border); background: var(--card); }
+.btn.pri { background: var(--primary); color: var(--primary-fg); }
+
+.search { height: 56px; border: 1px solid var(--border); background: var(--card); border-radius: 12px; display: flex; align-items: center; padding: 0 16px; gap: 12px; color: var(--muted); font-size: 16px; }
+.search input { all: unset; flex: 1; color: var(--foreground); }
+.search input::placeholder { color: var(--muted); }
+.kbd { font: 12px ui-monospace, monospace; border: 1px solid var(--border); border-radius: 6px; padding: 2px 6px; }
+
+/* spine */
+.spine { position: relative; flex: none; display: flex; flex-direction: column; align-items: center; justify-content: space-between; padding: 12px 0; border-radius: 3px 3px 0 0; box-shadow: inset -2px 0 0 rgba(0,0,0,.10), inset 2px 0 0 rgba(255,255,255,.08); overflow: hidden; transition: transform .35s var(--ease-out); }
+.spine::before { content: ""; width: 44%; height: 2px; background: currentColor; opacity: .6; }
+.spine .t { writing-mode: vertical-rl; font-family: Newsreader, Georgia, serif; font-size: 17px; line-height: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-height: 78%; }

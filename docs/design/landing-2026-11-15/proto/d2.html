@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>D2 The shelf answers</title>
+<link rel="stylesheet" href="shared.css">
+<style>
+  .wrap { padding: 0 96px; height: calc(900px - 72px); display: flex; flex-direction: column; }
+  .top { display: grid; grid-template-columns: 1fr 520px; gap: 64px; align-items: end; padding-top: 56px; }
+  h1 { font-size: 56px; line-height: 60px; font-weight: 600; max-width: 12ch; }
+  .search { }
+  .note { font-size: 14px; color: var(--muted); margin-top: 12px; }
+  .shelf { margin-top: auto; display: flex; align-items: flex-end; gap: 4px; border-bottom: 1px solid var(--border); height: 470px; overflow: hidden; }
+  .spine { width: auto; }
+  .spine .t { font-size: 24px; }
+  .spine { transition: transform .45s var(--ease-out), opacity .3s, filter .3s; }
+  .spine.dim { opacity: .28; filter: saturate(.4); transform: translateY(60px); }
+  .spine.hit { transform: translateY(-26px); }
+</style></head>
+<body>
+<div class="hdr"><b>Bibliotech<i>.</i></b><nav><a href="#" style="margin-right:8px">About</a><a class="btn out">Log in</a><a class="btn pri">Register</a></nav></div>
+<div class="wrap">
+  <div class="top">
+    <h1>Free public&#8209;domain books</h1>
+    <div><div class="search"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input id="q" value="dickens"><span class="kbd">Ctrl K</span></div>
+    <p class="note" id="note">2 of 242 books on this shelf</p></div>
+  </div>
+  <div class="shelf" id="shelf"></div>
+</div>
+<script src="shared.js"></script>
+<script>
+  const shelf = document.getElementById("shelf"), q = document.getElementById("q"), note = document.getElementById("note");
+  const els = BOOKS.map((b, i) => {
+    const s = document.createElement("a");
+    s.className = "spine";
+    const w = 58 + rnd(b.id, 3) * 44, h = 330 + rnd(b.id, 5) * 120;
+    s.style.cssText = `width:${w}px;height:${h}px;background:${b.background};color:${b.color}`;
+    s.innerHTML = `<span class="t">${b.title}</span>`;
+    shelf.appendChild(s); return s;
+  });
+  function filter() {
+    const n = q.value.trim().toLowerCase(); let hits = 0;
+    BOOKS.forEach((b, i) => { const m = !n || (b.title + " " + b.author).toLowerCase().includes(n); if (m) hits++; els[i].classList.toggle("dim", !m); els[i].classList.toggle("hit", !!n && m); });
+    note.textContent = `${hits} of ${BOOKS.length} books on this shelf`;
+  }
+  q.oninput = filter; filter();
+</script>
+</body></html>

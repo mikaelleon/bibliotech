@@ -28,7 +28,7 @@ Dark covers also draw a 1px hairline: `0 0 0 1px rgba(236,236,234,.12)`.
 
 ## Type
 
-Inter 400 and 500 for UI. Page titles: Inter 600, 28 / 36. Newsreader is for books only: cover titles and the book detail title. No negative letter-spacing.
+Inter 400 and 500 for UI. Page titles: Inter 600, 28 / 36. Newsreader is for books and book text: cover and spine titles, the book detail title, and the first lines on the landing page. It loads with the `opsz` axis, so the browser picks the display cut at large sizes and a sturdier cut on small covers. No negative letter-spacing.
 
 | Role | Size / line-height |
 |---|---|
@@ -40,6 +40,19 @@ Inter 400 and 500 for UI. Page titles: Inter 600, 28 / 36. Newsreader is for boo
 | Title large | 32 / 40 |
 | Display | 40 / 46 |
 | Display large | 56 / 60 |
+
+### Book line (landing hero only)
+
+The first sentence of a book, in Newsreader 400. The size follows the length of the line, so every line fills the stage about the same way. Sizes are `clamp()` on viewport width and, on short screens, on height.
+
+| Length | Size / line-height | Max |
+|---|---|---|
+| Up to 24 characters | 10.4vw / 1.04 | 148 |
+| Up to 60 | 7vw / 1.06 | 96 |
+| Up to 125 | 5vw / 1.1 | 72 |
+| Longer | 4.2vw / 1.12 | 56 |
+
+Display type is the one place with negative tracking: -0.022em at the two largest sizes, -0.012em and -0.008em below, and word space -0.03em. UI text keeps none. An opening quotation mark hangs in the margin. The stems of the first letter sit on the text edge, so the line carries `margin-left: -0.03em`.
 
 ## Space
 

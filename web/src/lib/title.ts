@@ -26,3 +26,13 @@ export function displayTitle(title: string, limit = 72): string {
   if (colon >= 8 && colon <= 80) return clean.slice(0, colon);
   return clean;
 }
+
+/**
+ * The name a reader would say: the title before a subtitle, cut at ": " or "; ".
+ * "Moby-Dick; or, The Whale" becomes "Moby-Dick". A title with no subtitle comes back as it was.
+ */
+export function shortTitle(title: string): string {
+  const clean = cleanTitle(title);
+  const cut = clean.search(/[:;] /);
+  return cut >= 4 ? clean.slice(0, cut) : clean;
+}

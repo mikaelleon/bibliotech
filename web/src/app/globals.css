@@ -356,14 +356,6 @@ html[data-guest-arrive] [data-guest-shelf] > li:nth-child(2) { animation-delay: 
 html[data-guest-arrive] [data-guest-shelf] > li:nth-child(3) { animation-delay: 60ms; }
 html[data-guest-arrive] [data-guest-shelf] > li:nth-child(4) { animation-delay: 90ms; }
 
-.about-pending {
-  opacity: 0;
-}
-
-.rise-in {
-  animation: rise-in var(--dur-panel) var(--ease-out) both;
-}
-
 .guest-leave {
   transform-origin: var(--guest-x, 50%) var(--guest-y, 50%);
   animation: guest-leave var(--dur-panel-exit) var(--ease-in) forwards;
@@ -742,9 +734,7 @@ html.theme-reveal::view-transition-new(root) {
   .sheet-bottom,
   .page-enter,
   .stagger > *,
-  .rise-in,
   .guest-leave,
-  .about-pending,
   .menu-pop,
   .dialog-pop,
   .dialog-pop > *,
@@ -765,10 +755,6 @@ html.theme-reveal::view-transition-new(root) {
   .swap > * {
     animation: none;
     transition: opacity 100ms linear;
-  }
-
-  .about-pending {
-    opacity: 1;
   }
 
   .swap > [data-shown="false"] {
@@ -793,4 +779,328 @@ html.theme-reveal::view-transition-new(root) {
   .press-card:focus-visible img {
     translate: none;
   }
+}
+
+/* ------------------------------------------------------------------ */
+/* Landing: first lines. A book introduces itself in its own words.    */
+/* Type sizes are the book-line scale in design/tokens.md.             */
+
+.fl {
+  --fl-shelf: clamp(184px, 26vh, 272px);
+  --fl-shelf: clamp(184px, 26svh, 272px);
+  --fl-lift: -28px;
+  --ease-spine: cubic-bezier(0.34, 1.32, 0.64, 1);
+  display: flex;
+  flex-direction: column;
+  /* Fill the first screen, but never more than 700px. On a tall display the hero ends where its content ends and the
+     next section starts to show, instead of the extra height turning into empty space above the line. */
+  min-height: min(calc(100vh - 68px), 700px);
+  min-height: min(calc(100svh - 68px), 700px);
+  padding-block: 32px 48px;
+}
+
+.fl-h1 {
+  font-size: 20px;
+  line-height: 28px;
+  font-weight: 500;
+}
+
+.fl-sub {
+  margin-top: 4px;
+  color: var(--muted-foreground);
+}
+
+/* Every line sits in one grid cell, so the stage is as tall as the tallest line and nothing jumps. */
+.fl-stage {
+  flex: 1;
+  display: grid;
+  align-items: end;
+  padding-block: 24px;
+}
+
+.fl-line {
+  grid-area: 1 / 1;
+  align-self: end;
+  /* Large type has side bearings. Pull the stems onto the same edge as the text above and below. */
+  margin: 0 0 0 -0.03em;
+  font-family: var(--font-newsreader), Georgia, serif;
+  font-weight: 400;
+  letter-spacing: 0;
+  /* UI text has no negative tracking. Display type is the exception: tighter as it gets larger, per size below. */
+  word-spacing: -0.03em;
+  text-wrap: balance;
+  hyphens: none;
+  font-kerning: normal;
+  visibility: hidden;
+}
+
+.fl-line[data-state="active"],
+.fl-line[data-state="leaving"] {
+  visibility: visible;
+}
+
+.fl-line[data-size="xl"] { font-size: clamp(56px, 10.4vw, 176px); line-height: 1.04; letter-spacing: -0.022em; }
+.fl-line[data-size="l"] { font-size: clamp(40px, 6vw, 88px); line-height: 1.06; letter-spacing: -0.02em; }
+.fl-line[data-size="m"] { font-size: clamp(30px, 4.4vw, 64px); line-height: 1.1; letter-spacing: -0.012em; }
+.fl-line[data-size="s"] { font-size: clamp(28px, 3.8vw, 52px); line-height: 1.12; letter-spacing: -0.008em; }
+
+/* On a short screen the height limits the size too, so the shelf stays in view. */
+@supports (height: 1svh) {
+  .fl-line[data-size="xl"] { font-size: clamp(56px, min(10.4vw, 19svh), 176px); }
+  .fl-line[data-size="l"] { font-size: clamp(40px, min(6vw, 11.4svh), 88px); }
+  .fl-line[data-size="m"] { font-size: clamp(30px, min(4.4vw, 7.8svh), 64px); }
+  .fl-line[data-size="s"] { font-size: clamp(28px, min(3.8vw, 6.8svh), 52px); }
+}
+
+/* An opening quotation mark hangs in the margin so the letters line up with everything else. */
+.fl-line[data-hang] { text-indent: -0.4em; }
+
+/* text-indent is inherited, and an inline-block starts a new first line. Without the reset every word
+   in a hanging line pulls itself 0.4em to the left and the words pile onto each other. */
+.fl-w {
+  display: inline-block;
+  text-indent: 0;
+}
+
+/* A leaving line keeps its entrance running and fades as a whole, so a line that is interrupted
+   mid-entrance fades from where it is instead of jumping to full opacity first. */
+.fl-line[data-state="active"] .fl-w,
+.fl-line[data-state="leaving"] .fl-w {
+  animation: fl-in 760ms var(--ease-out) both;
+  animation-delay: calc(120ms + var(--i) * var(--step));
+}
+
+.fl-line[data-state="leaving"] {
+  animation: fl-line-out 180ms var(--ease-in) both;
+}
+
+@keyframes fl-in {
+  from { opacity: 0; transform: translateY(0.16em); filter: blur(8px); }
+}
+
+@keyframes fl-line-out {
+  to { opacity: 0; transform: translateY(-0.05em); filter: blur(4px); }
+}
+
+.fl-row {
+  display: grid;
+  gap: 16px;
+  align-items: center;
+}
+
+.fl-by {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0 12px;
+  min-height: 56px;
+}
+
+.fl-author {
+  color: var(--muted-foreground);
+  font-size: 14px;
+  line-height: 20px;
+}
+
+/* A new name fades in where the old one was. The button itself stays put, so the row never empties. */
+.fl-swap {
+  animation: fl-meta 260ms var(--ease-out) both;
+}
+
+.fl-search {
+  animation: fl-meta 360ms var(--ease-out) 160ms both;
+}
+
+.fl-pause {
+  min-height: 44px;
+  padding-inline: 4px;
+  color: var(--muted-foreground);
+  font-size: 14px;
+  line-height: 20px;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+@media (hover: hover) {
+  .fl-pause:hover {
+    color: var(--foreground);
+  }
+}
+
+@keyframes fl-meta {
+  from { opacity: 0; transform: translateY(6px); }
+}
+
+/* The shelf. Spines are the cover palette; the tick at the top is the one every cover draws. */
+.fl-shelf {
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  gap: 3px;
+  height: calc(var(--fl-shelf) + 33px);
+  margin-top: 32px;
+  padding-top: 32px;
+  border-bottom: 1px solid var(--border);
+}
+
+.fl-spine {
+  flex: var(--w) 1 0%;
+  min-width: 0;
+  max-width: 104px;
+  height: calc(var(--h) * 1%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  padding-top: 14px;
+  position: relative;
+  border-radius: 3px 3px 0 0;
+  overflow: hidden;
+  cursor: pointer;
+  translate: 0 0;
+  transition: translate 260ms var(--ease-out);
+  animation: fl-spine-in 560ms var(--ease-out) calc(280ms + var(--k) * 28ms) both;
+}
+
+/* The tick every cover draws. On the chosen book it turns the accent color and grows, the second cue next to the lift. */
+.fl-spine::before {
+  content: "";
+  flex: none;
+  width: 36%;
+  height: 2px;
+  background: currentColor;
+  opacity: 0.6;
+  transition: width 260ms var(--ease-out), background-color 260ms var(--ease-out), opacity 260ms var(--ease-out);
+}
+
+/* A soft edge on each side, so a spine reads as a rounded block and not a flat swatch. */
+.fl-spine::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, rgb(255 255 255 / 0.12), transparent 16%, transparent 84%, rgb(0 0 0 / 0.16));
+  pointer-events: none;
+}
+
+.fl-spine[aria-selected="true"]::before {
+  width: 56%;
+  background: var(--brand);
+  opacity: 1;
+}
+
+/* A long title wraps into a second column instead of being cut. Lines stack right to left, as on a real spine. */
+.fl-spine-t {
+  writing-mode: vertical-rl;
+  font-family: var(--font-newsreader), Georgia, serif;
+  font-size: 18px;
+  line-height: 1.1;
+  max-height: calc(var(--fl-shelf) * var(--h) * 0.01 - 46px);
+  overflow: hidden;
+  text-wrap: balance;
+}
+
+/* The ring sits inside the spine, in the title color, so it reads on every cover color and is never clipped. */
+.fl-spine:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: -5px;
+}
+
+.fl-spine[aria-selected="true"] {
+  translate: 0 var(--fl-lift);
+  transition-duration: 480ms;
+  transition-timing-function: var(--ease-spine);
+}
+
+[data-theme="dark"] .fl-spine {
+  box-shadow: inset 0 0 0 1px rgb(236 236 234 / 0.12);
+}
+
+@media (hover: hover) {
+  .fl-spine:not([aria-selected="true"]):hover {
+    translate: 0 -8px;
+    transition-duration: 180ms;
+  }
+}
+
+.fl-spine:not([aria-selected="true"]):active {
+  translate: 0 3px;
+  transition-duration: 90ms;
+}
+
+@keyframes fl-spine-in {
+  from { opacity: 0; transform: translateY(28px); }
+}
+
+@media (min-width: 900px) {
+  .fl-row {
+    grid-template-columns: minmax(0, 1fr) minmax(320px, 440px);
+    gap: 32px;
+  }
+}
+
+/* A short laptop screen: tighter rhythm and smaller lines, so the shelf is still on the first screen. */
+@media (max-height: 800px) and (min-width: 768px) {
+  .fl {
+    --fl-shelf: clamp(168px, 24vh, 272px);
+    --fl-shelf: clamp(168px, 24svh, 272px);
+    min-height: 0;
+    padding-block: 24px 32px;
+  }
+  .fl-stage { padding-block: 16px; }
+  .fl-shelf { margin-top: 24px; }
+  @supports (height: 1svh) {
+    .fl-line[data-size="xl"] { font-size: clamp(56px, min(10.4vw, 18svh), 176px); }
+    .fl-line[data-size="l"] { font-size: clamp(40px, min(6vw, 11svh), 88px); }
+    .fl-line[data-size="m"] { font-size: clamp(30px, min(4.4vw, 7.6svh), 64px); }
+    .fl-line[data-size="s"] { font-size: clamp(28px, min(3.8vw, 6.6svh), 52px); }
+  }
+}
+
+@media (max-width: 767px) {
+  .fl {
+    --fl-shelf: clamp(168px, 26vh, 208px);
+    --fl-shelf: clamp(168px, 26svh, 208px);
+    min-height: 0;
+    padding-block: 24px 32px;
+  }
+  .fl-stage { padding-block: 24px; }
+  .fl-line[data-size="xl"] { font-size: 17vw; }
+  .fl-shelf {
+    overflow-x: auto;
+    overflow-y: hidden;
+    margin-inline: -16px;
+    padding-inline: 16px;
+    margin-top: 24px;
+    scroll-snap-type: x proximity;
+    scrollbar-width: none;
+    mask-image: linear-gradient(90deg, transparent 0, #000 16px, #000 calc(100% - 24px), transparent 100%);
+  }
+  .fl-shelf::-webkit-scrollbar { display: none; }
+  .fl-spine {
+    flex: none;
+    width: max(44px, calc(var(--w) * 48px));
+    max-width: none;
+    scroll-snap-align: center;
+  }
+}
+
+@keyframes fl-line-fade {
+  to { opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fl-line[data-state="active"] .fl-w,
+  .fl-line[data-state="leaving"] .fl-w {
+    animation: elib-fade 160ms linear both;
+    animation-delay: 0ms;
+  }
+  .fl-line[data-state="leaving"] { animation: fl-line-fade 120ms linear both; }
+  .fl-by { animation: elib-fade 160ms linear both; }
+  .fl-spine { animation: none; transition: none; }
+}
+
+/* Forced colors drop the cover palette, so give each spine an edge and the chosen one a ring. */
+@media (forced-colors: active) {
+  .fl-spine { border: 1px solid CanvasText; }
+  .fl-spine[aria-selected="true"] { outline: 2px solid Highlight; outline-offset: 2px; }
 }

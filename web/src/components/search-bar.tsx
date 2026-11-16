@@ -17,8 +17,12 @@ type SearchBarProps = {
   clearHref?: string;
   /** Landing field is 56px. The shell field is 44px. */
   large?: boolean;
+  /** Placeholder for the wide field. The narrow field always says "Search". */
+  placeholder?: string;
   /** Unused. Width decides the short placeholder, so the hint never overlaps it. */
   compact?: boolean;
+  /** Show the Ctrl K keycap. Off where readers are not likely to know the shortcut. */
+  hint?: boolean;
   action?: (formData: FormData) => void | Promise<void>;
   className?: string;
 };
@@ -41,13 +45,15 @@ export function SearchBar({
   sort = "",
   clearHref,
   large = false,
+  placeholder: widePlaceholder,
+  hint = true,
   action,
   className,
 }: SearchBarProps) {
   const wide = useSyncExternalStore(subscribe, wideEnough, () => false);
-  const placeholder = large || wide ? "Search by title or author" : "Search";
+  const placeholder = large || wide ? (widePlaceholder ?? "Search by title or author") : "Search";
   const showClear = query.length > 0 && Boolean(clearHref);
-  const showHint = wide && !showClear;
+  const showHint = hint && wide && !showClear;
 
   const router = useRouter();
   const listId = useId();
