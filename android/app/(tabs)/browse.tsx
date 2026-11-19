@@ -1,5 +1,5 @@
-import { useLocalSearchParams, useRouter } from "expo-router";
-import { useState } from "react";
+import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
+import { useCallback, useState } from "react";
 import { SearchX } from "lucide-react-native";
 import { FlatList, StyleSheet, Text, useWindowDimensions, View } from "react-native";
 
@@ -14,6 +14,7 @@ import { FeaturedShelf } from "@/components/FeaturedShelf";
 import { VerifyEmailBanner } from "@/components/VerifyEmailBanner";
 import { filterBooks, getBooks } from "@/lib/books";
 import { useCatalogBooks } from "@/lib/catalog";
+import { loadFeaturedScores, useFeaturedBooks } from "@/lib/featured";
 import { CATEGORIES, type Category } from "@/lib/types";
 import { colors, font } from "@/theme/tokens";
 
@@ -29,6 +30,12 @@ export default function BrowseScreen() {
   const rawCategory = typeof params.category === "string" ? params.category : "";
   const category = CATEGORIES.includes(rawCategory as Category) ? rawCategory : undefined;
   const catalog = useCatalogBooks();
+  const featured = useFeaturedBooks();
+  useFocusEffect(
+    useCallback(() => {
+      void loadFeaturedScores();
+    }, []),
+  );
   const books = filterBooks(catalog.length ? catalog : getBooks(), query, category);
   const searching = query.length > 0;
   const scope = `${query}|${category ?? ""}`;
@@ -59,7 +66,7 @@ export default function BrowseScreen() {
           {searching ? (
             <Text style={styles.results}>Results for “{query}”</Text>
           ) : (
-            <FeaturedShelf books={catalog} />
+            <FeaturedShelf books={featured} />
           )}
           <CategoryFilter selected={category} />
         </View>

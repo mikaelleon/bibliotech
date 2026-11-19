@@ -1,3 +1,5 @@
+import { revalidatePath } from "next/cache";
+
 import { apiError, apiJson } from "@/lib/api-response";
 import { clientIp, hit, limits, waitMessage, blockedFor } from "@/lib/rate-limit";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -75,6 +77,8 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
   if (result.status !== "ok" && result.status !== "repeat_ok") {
     return apiError(500, "DOWNLOAD_FAILED", "We couldn't record the download.");
   }
+
+  revalidatePath("/browse");
 
   const signed = await admin.storage.from("books").createSignedUrl(row.file_path, 60);
   if (signed.error || !signed.data?.signedUrl) {

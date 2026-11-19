@@ -12,6 +12,7 @@ import { SafeAreaProvider } from "react-native-safe-area-context";
 import { Button } from "@/components/Button";
 import { EmptyState } from "@/components/EmptyState";
 import { loadRemoteCatalog } from "@/lib/catalog";
+import { loadFeaturedScores } from "@/lib/featured";
 import { SessionProvider, useSession } from "@/lib/session";
 import { colors } from "@/theme/tokens";
 
@@ -72,6 +73,7 @@ export default function RootLayout() {
 
   useEffect(() => {
     void loadRemoteCatalog();
+    void loadFeaturedScores();
   }, []);
 
   return (

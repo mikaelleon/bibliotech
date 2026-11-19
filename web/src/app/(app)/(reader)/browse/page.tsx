@@ -4,8 +4,9 @@ import { BookGrid } from "@/components/book-grid";
 import { CatalogResults } from "@/components/catalog-results";
 import { FeaturedShelf } from "@/components/featured-shelf";
 import { VerifyEmailBanner } from "@/components/verify-email-banner";
-import { getBooks, type BookSort } from "@/lib/books";
+import { type BookSort } from "@/lib/books";
 import { listCatalog } from "@/lib/catalog";
+import { listFeaturedBooks } from "@/lib/featured-books";
 import { listLibrary } from "@/lib/records";
 import { getSession } from "@/lib/session";
 import { CATEGORIES, type Category } from "@/lib/types";
@@ -40,8 +41,10 @@ export default async function BrowsePage({
   }
 
   const catalogPromise = listCatalog();
+  const featuredPromise = listFeaturedBooks();
   const session = await getSession();
   const catalog = await catalogPromise;
+  const featured = await featuredPromise;
   const library = session.kind === "user" ? await listLibrary(session.id) : [];
 
   return (
@@ -49,7 +52,7 @@ export default async function BrowsePage({
       {session.kind === "user" && session.role !== "admin" && !session.verified ? (
         <VerifyEmailBanner email={session.email} />
       ) : null}
-      <FeaturedShelf books={catalog.length ? catalog : getBooks()} />
+      <FeaturedShelf books={featured} />
       {library.length > 0 ? (
         <section aria-label="In your library">
           <h2 className="section-title">In your library</h2>
