@@ -546,4 +546,18 @@ Migration `20261119140000_ai_chats.sql`: `ai_chats` (one row per session) and `a
   (`{ id, title }`) before `done`.
 - **UI:** New chat and History buttons in the panel header. Title is the first question. Deleting
   asks first and cannot be undone. Action cards and follow-up pills are not saved with a chat.
-- Renaming chats and Android are not built.
+- Renaming chats is not built.
+
+## 18. Android client
+
+`android/components/AIAssistant.tsx` has the same features as the web panel: streamed answers, stop
+button, quota hint, confirm cards for shelf changes, follow-up pills, and (verified accounts) saved
+chats with New chat and History. Visitors see a log-in link. Admins never reach the tabs, so they
+have no assistant on Android.
+
+- **Streaming:** `lib/assistant.ts` uses `fetch` from `expo/fetch` (Expo SDK 58), which exposes a
+  streaming body. React Native's global `fetch` would buffer the whole answer.
+- **Auth:** Bearer Supabase access token to `EXPO_PUBLIC_API_URL`. No Gemini key in the app.
+- **Actions:** Confirm runs through `useSession().setInLibrary` / `setFavorite` and
+  `lib/collections.ts`, the same paths as the heart and Library buttons.
+- **Placement:** every tab except Library, as on web.
