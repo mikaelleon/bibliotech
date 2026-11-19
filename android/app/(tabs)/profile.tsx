@@ -1,13 +1,14 @@
 import { LogOut } from "lucide-react-native";
-import { useRouter, type Href } from "expo-router";
+import { useRouter } from "expo-router";
 import { useState } from "react";
 import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
 
 import { Button } from "@/components/Button";
 import { LockedPanel } from "@/components/LockedPanel";
+import { UsagePanel, useAiUsage } from "@/components/UsagePanel";
 import { VerifyEmailBanner } from "@/components/VerifyEmailBanner";
 import { useSession } from "@/lib/session";
-import { quotaFor, quotaNote } from "@/lib/quota";
+import { quotaFor } from "@/lib/quota";
 import { colors, font, radius } from "@/theme/tokens";
 
 export default function ProfileScreen() {
@@ -19,18 +20,15 @@ export default function ProfileScreen() {
   const [nameError, setNameError] = useState<string | null>(null);
   const [passwordError, setPasswordError] = useState<string | null>(null);
   const [saved, setSaved] = useState<string | null>(null);
+  const ai = useAiUsage(session.kind === "user" && session.role !== "admin");
   if (session.kind !== "user") return <LockedPanel title="Profile" />;
 
   const quota = quotaFor(session);
-  const used = quota?.used ?? 0;
-  const limit = quota?.limit ?? 0;
-  const width = `${limit ? Math.max(0, Math.min(100, (used / limit) * 100)) : 0}%` as const;
 
   return (
     <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : undefined} style={styles.flex}>
     <ScrollView contentContainerStyle={styles.page}>
       <Text style={styles.title}>Profile</Text>
-      <Text style={styles.lede}>Your account, downloads, and session.</Text>
       <VerifyEmailBanner />
       <View style={styles.card}>
         <Text style={styles.usage}>Account</Text>
@@ -53,18 +51,13 @@ export default function ProfileScreen() {
         <Text style={styles.label}>Email</Text>
         <Text style={styles.note}>{session.email}</Text>
       </View>
-      <View style={styles.card}>
-        <Text style={styles.usage}>Downloads</Text>
-        <Text style={styles.note}>{session.verified ? "Verified account" : "Guest, email not verified"}</Text>
-        <Text style={styles.meterText}>{used} of {limit} downloads used this month</Text>
-        <View accessibilityElementsHidden style={styles.track}>
-          <View style={[styles.fill, { width }]} />
-        </View>
-        {quota ? <Text style={styles.note}>{quotaNote(quota)}</Text> : null}
-        <View style={styles.actions}>
-          <Button label="Download history" href={"/downloads" as Href} variant="outline" />
-        </View>
-      </View>
+      {quota ? (
+        <UsagePanel
+          verified={session.verified}
+          ai={ai}
+          downloads={{ used: quota.used, limit: quota.limit, resetsAt: quota.resetsAt }}
+        />
+      ) : null}
       <View style={styles.card}>
         <Text style={styles.usage}>Security</Text>
         <Text style={styles.label}>New password</Text>
@@ -131,12 +124,6 @@ const styles = StyleSheet.create({
     lineHeight: 36,
     color: colors.ink,
   },
-  lede: {
-    fontFamily: font.sans,
-    fontSize: 16,
-    lineHeight: 24,
-    color: colors.muted,
-  },
   label: {
     marginTop: 16,
     marginBottom: 8,
@@ -174,10 +161,6 @@ const styles = StyleSheet.create({
     borderRadius: radius.panel,
     padding: 32,
   },
-  actions: {
-    marginTop: 16,
-    gap: 12,
-  },
   usage: {
     fontFamily: font.medium,
     fontSize: 20,
@@ -190,22 +173,5 @@ const styles = StyleSheet.create({
     fontSize: 14,
     lineHeight: 20,
     color: colors.muted,
-  },
-  meterText: {
-    fontFamily: font.sans,
-    fontSize: 14,
-    lineHeight: 20,
-    color: colors.ink,
-  },
-  track: {
-    height: 4,
-    width: 128,
-    borderRadius: 999,
-    backgroundColor: colors.line,
-    overflow: "hidden",
-  },
-  fill: {
-    height: 4,
-    backgroundColor: colors.accent,
   },
 });

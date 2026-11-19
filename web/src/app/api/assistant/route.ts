@@ -26,7 +26,10 @@ type Reservation = {
 };
 
 function clientIpHash(request: Request): string | null | undefined {
-  const salt = process.env.AI_IP_SALT;
+  // AI_IP_SALT is preferred. If a deploy forgot it, derive the salt from another server-only secret
+  // so the assistant keeps working instead of answering 503 to every question.
+  const secret = process.env.AI_IP_SALT || process.env.SUPABASE_SECRET_KEY;
+  const salt = secret ? createHash("sha256").update(`ai-ip:${secret}`).digest("hex") : undefined;
   if (!salt) return process.env.NODE_ENV === "production" ? undefined : null;
   const ip =
     request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || request.headers.get("x-real-ip") || "unknown";
