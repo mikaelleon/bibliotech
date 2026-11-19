@@ -505,3 +505,45 @@ Unit / manual:
   allowed at 5/day.
 - Privacy copy for the free-tier data-use notice.
 - Wasmer deployment (Phase 3): confirm SSE streaming works there before relying on it.
+
+## 16. Search, compare, recommend and manage (added after launch)
+
+Still one Gemini call per question. The prompt now carries the catalog (slug, title, author,
+category, published, language, summary) plus a `<reader_shelf>` block (the caller's Library,
+Favorites and collections, read with their own client so row level security applies).
+
+- **Search, compare, recommend:** prompt rules only. Recommendations prefer books not already in the
+  reader's Library.
+- **Manage:** the model can only *propose* changes, as `[[ACTION: type | slug | name]]` lines before
+  the `[[SUGGEST: ...]]` line. Types: `add_library`, `remove_library`, `favorite`, `unfavorite`,
+  `add_to_collection`, `create_collection`. Downloads, progress, account and admin changes are not
+  available.
+- The server strips these lines from the stream, checks each against the real catalog and shelf
+  (`lib/assistant/actions.ts`: unknown slugs, no-ops and unknown types are dropped, max 3), builds
+  the label from catalog data, and sends an `actions` SSE event.
+- The web UI shows a confirm card per action. **Confirm** runs the same authorized server actions as
+  the heart and Library buttons (`useShelf().set`, `saveCollectionPickerAction`, `createGroupAction`).
+  Nothing runs without the reader's click, and the model never calls anything.
+- Removing from the Library keeps the existing Undo toast.
+
+## 17. Chat history and sessions (registered accounts)
+
+Migration `20261119140000_ai_chats.sql`: `ai_chats` (one row per session) and `ai_chat_messages`.
+
+- **Who:** registered = email-verified accounts. Unverified accounts still chat but nothing is saved,
+  and the panel says to verify their email to save chats. Visitors cannot use the assistant at all.
+- **Privacy change:** this is the one place message text is stored. Only the owner can read it
+  (RLS), the owner can delete one chat or all chats, the panel says so, and chats are purged after
+  90 days without activity (`purge_old_ai_chats()`). Limits: 50 chats per account (oldest dropped),
+  200 messages per chat (`chat_full`, HTTP 409). Message text is never logged.
+- **Writes:** only `append_ai_chat_turn()` (service role, called by `/api/assistant`) writes. The
+  client picks a new uuid for a new chat, so a stopped first question still lands in the right chat.
+  A failed answer is not saved. A storage error never blocks the reply.
+- **History:** for a saved chat the server loads the last turns from the database. The history the
+  client sends is not trusted for registered accounts.
+- **API:** `GET /api/assistant/chats`, `DELETE /api/assistant/chats`, `GET` and `DELETE`
+  `/api/assistant/chats/:id`, all on the caller's own rows. SSE gains a `chat` event
+  (`{ id, title }`) before `done`.
+- **UI:** New chat and History buttons in the panel header. Title is the first question. Deleting
+  asks first and cannot be undone. Action cards and follow-up pills are not saved with a chat.
+- Renaming chats and Android are not built.

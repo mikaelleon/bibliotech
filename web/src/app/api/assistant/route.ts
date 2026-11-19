@@ -1,12 +1,16 @@
 import { createHash } from "node:crypto";
 
 import { apiError } from "@/lib/api-response";
+import { EMPTY_SHELF, parseActions, type ShelfState } from "@/lib/assistant/actions";
 import { getCatalogForAssistant } from "@/lib/assistant/catalog";
+import { chatTitle, isUuid } from "@/lib/assistant/chat";
+import { appendChatTurn, chatIsFull, loadChatHistory } from "@/lib/assistant/chats";
 import { assistantConfig } from "@/lib/assistant/config";
 import { clampHistory, filterMessage, REJECTION_MESSAGES } from "@/lib/assistant/filter";
 import { openGeminiStream, type GeminiOpen } from "@/lib/assistant/gemini";
-import { buildContents, catalogBlock, RefusalStripper, SuggestionStripper, SYSTEM_PROMPT } from "@/lib/assistant/prompt";
+import { buildContents, catalogBlock, RefusalStripper, shelfBlock, SYSTEM_PROMPT, TailStripper } from "@/lib/assistant/prompt";
 import { selectRelevant } from "@/lib/assistant/retrieve";
+import { loadShelf } from "@/lib/assistant/shelf";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { requestUser } from "@/lib/supabase/request";
 
@@ -45,7 +49,7 @@ export async function POST(request: Request) {
 
   const length = Number(request.headers.get("content-length") ?? "0");
   if (length > MAX_BODY_BYTES) return apiError(400, "rejected", REJECTION_MESSAGES.too_long);
-  let body: { message?: unknown; history?: unknown };
+  let body: { message?: unknown; history?: unknown; chatId?: unknown };
   try {
     body = await request.json();
   } catch {
@@ -55,7 +59,8 @@ export async function POST(request: Request) {
   // Free local checks first: a rejected message spends no quota and no Gemini call.
   const filtered = filterMessage(body.message, config.maxMessageChars);
   if (!filtered.ok) return apiError(400, "rejected", REJECTION_MESSAGES[filtered.reason]);
-  const history = clampHistory(body.history, config.maxHistoryTurns, config.maxMessageChars * 4);
+  let history = clampHistory(body.history, config.maxHistoryTurns, config.maxMessageChars * 4);
+  const chatId = isUuid(body.chatId) ? body.chatId.toLowerCase() : null;
 
   const ipHash = clientIpHash(request);
   if (ipHash === undefined) return apiError(503, "assistant_unavailable", "The assistant is not available right now.");
@@ -114,14 +119,39 @@ export async function POST(request: Request) {
         if (error) console.error("assistant: finish_ai_request failed", error.code);
       });
 
+  // Registered accounts keep their chats. For those, the stored chat is the history (the client's
+  // copy is not trusted), and a full chat is refused before any quota is spent on Gemini.
+  const persist = chatId !== null && reservation.tier === "registered";
+  if (persist && chatId) {
+    const stored = await loadChatHistory(user.supabase, chatId, config.maxHistoryTurns);
+    if (stored) {
+      if (chatIsFull(stored.count)) {
+        await finish("failed", config.model);
+        return apiError(409, "chat_full", "This chat is full. Start a new chat.");
+      }
+      history = clampHistory(stored.turns, config.maxHistoryTurns, 4000);
+    }
+  }
+
   // Build the prompt. Past AI_CATALOG_FULL_MAX books, send only the best keyword matches.
   let contents;
+  let titles: ReadonlyMap<string, { title: string }> = new Map();
+  let shelf: ShelfState = EMPTY_SHELF;
   try {
-    const all = await getCatalogForAssistant();
+    // The reader's own shelf is read with their own client, so row level security scopes it.
+    const [all, loadedShelf] = await Promise.all([getCatalogForAssistant(), loadShelf(user.supabase, user.id)]);
+    shelf = loadedShelf;
+    titles = new Map(all.map((b) => [b.slug, { title: b.title }]));
     const tooLarge = all.length > config.catalogFullMax;
     const query = [...history.filter((t) => t.role === "user").map((t) => t.text), filtered.message].join(" ");
     const lines = tooLarge ? selectRelevant(all, query, Math.min(10, config.catalogFullMax)) : all;
-    contents = buildContents(catalogBlock(lines, tooLarge), history, filtered.message);
+    // A shelf change must name a book the model can see, so shelf books always make the cut.
+    const shown = new Set(lines.map((b) => b.slug));
+    const extra = all.filter((b) => !shown.has(b.slug) && (shelf.library.includes(b.slug) || shelf.favorites.includes(b.slug)));
+    const context = `${catalogBlock(tooLarge ? [...lines, ...extra] : lines, tooLarge)}
+
+${shelfBlock(shelf, titles)}`;
+    contents = buildContents(context, history, filtered.message);
   } catch {
     await finish("failed", config.model);
     return apiError(502, "upstream_error", "The assistant couldn't load the library. Try again.");
@@ -156,7 +186,7 @@ export async function POST(request: Request) {
 
   const { stream, model } = opened;
   const stripper = new RefusalStripper();
-  const suggest = new SuggestionStripper();
+  const suggest = new TailStripper();
 
   let clientGone = false;
   const body$ = new ReadableStream<Uint8Array>({
@@ -164,6 +194,7 @@ export async function POST(request: Request) {
       let promptTokens: number | undefined;
       let outputTokens: number | undefined;
       let delivered = false;
+      let reply = "";
       let failed = false;
       const send = (event: string, data: unknown) => {
         if (clientGone) return;
@@ -188,6 +219,7 @@ export async function POST(request: Request) {
           const text = suggest.push(stripper.push(chunk.text));
           if (text) {
             delivered = true;
+            reply += text;
             send("delta", { text });
           }
           if (clientGone) break;
@@ -195,6 +227,7 @@ export async function POST(request: Request) {
         const tail = suggest.push(stripper.flush()) + suggest.flush();
         if (tail) {
           delivered = true;
+          reply += tail;
           send("delta", { text: tail });
         }
       } catch {
@@ -204,12 +237,31 @@ export async function POST(request: Request) {
       // Client left or the stream broke after text started: counted as partial, never as failed.
       const status = clientGone || failed ? (delivered ? "partial" : "failed") : stripper.refused ? "refused" : "ok";
       await finish(status, model, promptTokens, outputTokens);
+
+      // Save the exchange for registered accounts. Nothing is saved for a failed answer, and a
+      // storage problem never blocks the reply.
+      let saved: { id: string; title: string } | null = null;
+      if (persist && chatId && status !== "failed" && reply.trim()) {
+        const result = await appendChatTurn(admin, {
+          userId: user.id,
+          chatId,
+          title: chatTitle(filtered.message),
+          userText: filtered.message,
+          modelText: reply.trim(),
+        });
+        if (result?.status === "ok") saved = { id: chatId, title: result.title ?? chatTitle(filtered.message) };
+      }
+
       if (!clientGone) {
+        if (saved) send("chat", saved);
         if (failed) send("error", { code: "stream_error", message: "The answer was cut off. Try again." });
         // Follow-up pills: each one must pass the same filter a typed question would.
         const suggestions = [...new Set(suggest.suggestions)]
           .filter((item) => filterMessage(item, 60).ok)
           .slice(0, 3);
+        // Proposed shelf changes: checked against the real catalog and shelf, and labelled from them.
+        const actions = stripper.refused || failed ? [] : parseActions(suggest.actions, titles, shelf);
+        if (actions.length) send("actions", { actions });
         if (suggestions.length && !failed) send("suggestions", { suggestions });
         send("done", { quota: await quota(), refused: stripper.refused });
         try {

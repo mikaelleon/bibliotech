@@ -15,7 +15,7 @@ export function assistantConfig() {
     globalRpm: intEnv("AI_GLOBAL_RPM_LIMIT", 24),
     maxMessageChars: intEnv("AI_MAX_MESSAGE_CHARS", 300, 1),
     maxHistoryTurns: intEnv("AI_MAX_HISTORY_TURNS", 6),
-    maxOutputTokens: intEnv("AI_MAX_OUTPUT_TOKENS", 400, 16),
+    maxOutputTokens: intEnv("AI_MAX_OUTPUT_TOKENS", 600, 16),
     burstSeconds: intEnv("AI_BURST_SECONDS", 3),
     ipDaily: intEnv("AI_IP_DAILY_LIMIT", 60),
     catalogFullMax: intEnv("AI_CATALOG_FULL_MAX", 150, 1),

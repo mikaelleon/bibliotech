@@ -226,6 +226,34 @@ p {
   }
 }
 
+/* AI assistant: a new message rises in, follow-up pills arrive 40ms apart. One-shot entrances. */
+@keyframes ai-rise {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.ai-rise {
+  animation: ai-rise var(--dur-move) var(--ease-out) both;
+}
+
+.ai-pill {
+  animation: ai-rise var(--dur-move) var(--ease-out) both;
+  animation-delay: calc(var(--i, 0) * 40ms);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ai-rise,
+  .ai-pill {
+    animation: none;
+  }
+}
+
 :root {
   --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
   --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);

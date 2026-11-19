@@ -17,6 +17,8 @@ type Row = {
   category: string;
   summary: string;
   summary_short: string | null;
+  published: string | null;
+  language: string | null;
 };
 
 /**
@@ -32,7 +34,7 @@ export async function getCatalogForAssistant(): Promise<CatalogLine[]> {
   });
   const { data, error } = await supabase
     .from("books")
-    .select("slug, title, author, category, summary, summary_short")
+    .select("slug, title, author, category, summary, summary_short, published, language")
     .order("title", { ascending: true });
   if (error) throw new Error("catalog_unavailable");
 
@@ -42,6 +44,8 @@ export async function getCatalogForAssistant(): Promise<CatalogLine[]> {
     author: row.author,
     category: row.category,
     summary: row.summary_short?.trim() || row.summary,
+    published: row.published ?? undefined,
+    language: row.language ?? undefined,
   }));
   cache = { at: Date.now(), lines };
   return lines;

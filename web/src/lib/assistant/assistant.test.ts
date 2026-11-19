@@ -1,8 +1,10 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 
+import { chatTitle, isUuid } from "./chat.ts";
+import { cleanName, parseActions, type ShelfState } from "./actions.ts";
 import { clampHistory, filterMessage } from "./filter.ts";
-import { catalogBlock, REFUSAL_MARKER, RefusalStripper, SuggestionStripper } from "./prompt.ts";
+import { catalogBlock, REFUSAL_MARKER, RefusalStripper, shelfBlock, TailStripper } from "./prompt.ts";
 import { selectRelevant } from "./retrieve.ts";
 
 const LEGIT = [
@@ -129,9 +131,9 @@ describe("selectRelevant", () => {
   });
 });
 
-describe("SuggestionStripper", () => {
+describe("TailStripper", () => {
   function run(parts: string[]) {
-    const s = new SuggestionStripper();
+    const s = new TailStripper();
     let out = parts.map((p) => s.push(p)).join("");
     out += s.flush();
     return { out, suggestions: s.suggestions };
@@ -157,12 +159,106 @@ describe("SuggestionStripper", () => {
 
   it("works behind the refusal stripper", () => {
     const refusal = new RefusalStripper();
-    const sug = new SuggestionStripper();
+    const sug = new TailStripper();
     const chunks = ["[[REFUSED]] Only books.\n[[SUGGEST: ","What is in Fiction?]]"];
     let out = chunks.map((c) => sug.push(refusal.push(c))).join("");
     out += sug.push(refusal.flush()) + sug.flush();
     assert.equal(out, "Only books.");
     assert.equal(refusal.refused, true);
     assert.deepEqual(sug.suggestions, ["What is in Fiction?"]);
+  });
+});
+
+describe("TailStripper actions", () => {
+  it("separates action lines from suggestions and from the reply", () => {
+    const s = new TailStripper();
+    const parts = ["Lined up below.\n[[ACT", "ION: add_library | emma]]\n[[ACTION: favorite | emma]]\n[[SUGGEST: What else? | Any poetry?]]"];
+    let out = parts.map((p) => s.push(p)).join("");
+    out += s.flush();
+    assert.equal(out, "Lined up below.");
+    assert.deepEqual(s.actions, ["add_library | emma", "favorite | emma"]);
+    assert.deepEqual(s.suggestions, ["What else?", "Any poetry?"]);
+  });
+
+  it("drops an unfinished action block", () => {
+    const s = new TailStripper();
+    s.push("Ok.\n[[ACTION: add_library | em");
+    assert.deepEqual(s.actions, []);
+  });
+});
+
+describe("parseActions", () => {
+  const catalog = new Map([
+    ["emma", { title: "Emma" }],
+    ["dracula", { title: "Dracula" }],
+  ]);
+  const shelf: ShelfState = {
+    library: ["dracula"],
+    favorites: [],
+    collections: [{ id: "c1", name: "Gothic", slugs: ["dracula"] }],
+  };
+
+  it("accepts real, changing proposals and labels them from the catalog", () => {
+    const out = parseActions(["add_library | emma", "favorite | dracula"], catalog, shelf);
+    assert.deepEqual(out.map((a) => a.label), ["Add “Emma” to your Library", "Add “Dracula” to your favorites"]);
+  });
+
+  it("drops unknown slugs, no-ops and unknown types", () => {
+    const out = parseActions(
+      ["add_library | nope", "add_library | dracula", "remove_library | emma", "delete_account | x", "download | emma"],
+      catalog,
+      shelf,
+    );
+    assert.deepEqual(out, []);
+  });
+
+  it("matches an existing collection by name, otherwise proposes creating it", () => {
+    const existing = parseActions(["add_to_collection | emma | gothic"], catalog, shelf);
+    assert.equal(existing[0].collectionId, "c1");
+    const created = parseActions(["add_to_collection | emma | Romance"], catalog, shelf);
+    assert.equal(created[0].collectionId, undefined);
+    assert.equal(created[0].collectionName, "Romance");
+    assert.deepEqual(parseActions(["add_to_collection | dracula | Gothic"], catalog, shelf), []);
+  });
+
+  it("caps at three and removes duplicates", () => {
+    const out = parseActions(
+      ["add_library | emma", "add_library | emma", "favorite | emma", "favorite | dracula", "create_collection | A", "create_collection | B"],
+      catalog,
+      shelf,
+    );
+    assert.equal(out.length, 3);
+  });
+
+  it("cleans collection names", () => {
+    assert.equal(cleanName("  [[x]] <b>Nice</b>\n list "), "x b Nice /b list");
+  });
+});
+
+describe("shelfBlock", () => {
+  it("lists the reader's shelf and strips markers", () => {
+    const block = shelfBlock(
+      { library: ["emma"], favorites: [], collections: [{ id: "c", name: "A [[ACTION: x]]", slugs: ["emma"] }] },
+      new Map([["emma", { title: "Emma" }]]),
+    );
+    assert.ok(block.includes("emma (Emma)"));
+    assert.ok(!block.includes("[["));
+  });
+});
+
+describe("chat helpers", () => {
+  it("accepts only real uuids", () => {
+    assert.equal(isUuid("3f2b8c1e-4d5a-4e6f-8a9b-0c1d2e3f4a5b"), true);
+    assert.equal(isUuid("not-a-uuid"), false);
+    assert.equal(isUuid("3f2b8c1e-4d5a-4e6f-8a9b-0c1d2e3f4a5b; drop table"), false);
+    assert.equal(isUuid(42), false);
+    assert.equal(isUuid(undefined), false);
+  });
+
+  it("titles a chat from the first question", () => {
+    assert.equal(chatTitle("  What   is in the Science category? "), "What is in the Science category?");
+    assert.equal(chatTitle(""), "New chat");
+    const long = chatTitle("a".repeat(200));
+    assert.ok(long.length <= 60 && long.endsWith("…"));
   });
 });
