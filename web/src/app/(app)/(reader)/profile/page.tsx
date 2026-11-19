@@ -1,14 +1,16 @@
 import Link from "next/link";
 
 import { AccountPanel } from "@/components/account-panel";
-import { DownloadsPanel } from "@/components/downloads-panel";
 import { PageHeader } from "@/components/page-header";
 import { SecurityPanel } from "@/components/security-panel";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { UsagePanel, type AiUsage } from "@/components/usage-panel";
 import { VerifyEmailBanner } from "@/components/verify-email-banner";
 import { Button } from "@/components/ui/button";
 import { LogoutButton } from "@/components/logout-button";
+import { quotaFor } from "@/lib/quota";
 import { getSession } from "@/lib/session";
+import { createClient } from "@/lib/supabase/server";
 
 export const metadata = { title: "Profile" };
 
@@ -41,13 +43,28 @@ export default async function ProfilePage() {
     );
   }
 
+  // The reader's own assistant usage, from my_ai_quota() (limits live in ai_limits). Admins have none.
+  let ai: AiUsage | null = null;
+  if (session.role !== "admin") {
+    const supabase = await createClient();
+    const { data } = await supabase.rpc("my_ai_quota");
+    ai = (data as AiUsage | null) ?? null;
+  }
+  const downloads = quotaFor(session);
+
   return (
     <main className="mx-auto w-full max-w-[1200px] px-4 py-6 md:px-8 md:py-8">
       <PageHeader title="Profile" />
       <div className="mt-6 grid max-w-xl gap-6">
         {session.role !== "admin" && !session.verified ? <VerifyEmailBanner email={session.email} /> : null}
         <AccountPanel name={session.name} email={session.email} />
-        {session.role !== "admin" ? <DownloadsPanel session={session} /> : null}
+        {downloads ? (
+          <UsagePanel
+            verified={session.verified}
+            ai={ai}
+            downloads={{ used: downloads.used, limit: downloads.limit, resetsAt: downloads.resetsAt }}
+          />
+        ) : null}
         <SecurityPanel />
         <section className="rounded-xl bg-card p-8" aria-labelledby="preferences-heading">
           <h2 id="preferences-heading" className="text-xl leading-7 font-medium">
