@@ -6,6 +6,12 @@ export function apiBase(): string | null {
   return value ? value.replace(/\/$/, "") : null;
 }
 
+/** The signed-in user's access token, or null when signed out. */
+export async function accessToken(): Promise<string | null> {
+  const { data } = await supabase.auth.getSession();
+  return data.session?.access_token ?? null;
+}
+
 export type ApiResult<T> = { ok: true; data: T } | { ok: false; status: number; code: string; message: string };
 
 /**
