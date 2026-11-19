@@ -133,7 +133,7 @@ export function AppShell({
           </div>
         </div>
         <TabBar session={session} />
-        {reader && path !== "/library" ? <AIAssistant /> : null}
+        {reader && path !== "/library" ? <AIAssistant session={session} /> : null}
         <CollectionPickerHost />
       </div>
       </ShelfProvider>
