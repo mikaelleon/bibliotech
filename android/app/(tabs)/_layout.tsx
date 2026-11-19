@@ -17,7 +17,8 @@ export default function TabLayout() {
   const { session } = useSession();
   const path = usePathname();
   const blocked = session.kind === "none" || (session.kind === "user" && session.role === "admin");
-  const showAssistant = !blocked && path === "/browse";
+  // Same placement as the web app: every tab except Library, where the button would cover the grid.
+  const showAssistant = !blocked && path !== "/library";
 
   return (
     <View style={styles.root}>
@@ -40,7 +41,8 @@ export default function TabLayout() {
           <Tabs.Screen name="favorites" options={{ title: "Favorites" }} />
           <Tabs.Screen name="profile" options={{ title: "Profile" }} />
         </Tabs>
-        {showAssistant ? <AIAssistant /> : null}
+        {/* Keyed by account, so a different login never sees the last account's chat or quota. */}
+        {showAssistant ? <AIAssistant key={session.kind === "user" ? session.id : session.kind} /> : null}
       </View>
     </View>
   );
