@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useActionState, useState } from "react";
 
 import { Field } from "@/components/field";
+import { PasswordStrength } from "@/components/password-strength";
 import { Swap } from "@/components/swap";
 import { Button } from "@/components/ui/button";
 import { registerAction, type RegisterState } from "@/lib/actions";
@@ -40,10 +41,25 @@ export function RegisterForm({ next }: { next: string | null }) {
   return (
     <form
       action={action}
-      className="mt-6 grid gap-4"
+      className="mt-6 grid gap-5"
+      noValidate
       onSubmit={(event) => {
         setSubmitted(true);
-        if (!terms) event.preventDefault();
+        // Stop at the first problem and put the cursor there; the server re-checks everything.
+        const firstProblem = !name.trim()
+          ? "name"
+          : !emailPattern.test(email.trim())
+            ? "email"
+            : passwordProblem(password)
+              ? "password"
+              : !terms
+                ? "terms"
+                : null;
+        if (firstProblem) {
+          event.preventDefault();
+          const target = event.currentTarget.elements.namedItem(firstProblem);
+          if (target instanceof HTMLElement) target.focus();
+        }
       }}
     >
       {next ? <input type="hidden" name="next" value={next} /> : null}
@@ -76,26 +92,30 @@ export function RegisterForm({ next }: { next: string | null }) {
         onBlur={mark("password")}
         hint="At least 8 characters."
         error={passwordError}
+        meter={<PasswordStrength password={password} />}
       />
-      <label className="flex items-start gap-3 text-sm leading-5">
-        <input
-          type="checkbox"
-          name="terms"
-          checked={terms}
-          onChange={(event) => setTerms(event.target.checked)}
-          className="mt-0.5 size-4"
-        />
-        <span>
-          I agree to the <Link href="/terms" className="text-brand-text underline">Terms and Conditions</Link> and{" "}
-          <Link href="/privacy" className="text-brand-text underline">Privacy Policy</Link>.
-        </span>
-      </label>
-      {termsError ? (
-        <p className="flex items-center gap-1 text-sm leading-5 text-brand-text" role="alert">
-          <CircleAlert size={16} strokeWidth={1.5} aria-hidden />
-          {termsError}
-        </p>
-      ) : null}
+      <div>
+        <label className="flex min-h-11 cursor-pointer -my-1 items-start gap-3 py-3 text-sm leading-5">
+          <input
+            type="checkbox"
+            name="terms"
+            checked={terms}
+            onChange={(event) => setTerms(event.target.checked)}
+            aria-invalid={termsError ? true : undefined}
+            className="size-5 shrink-0 cursor-pointer rounded accent-foreground"
+          />
+          <span>
+            I agree to the <Link href="/terms" className="text-brand-text underline">Terms and Conditions</Link> and{" "}
+            <Link href="/privacy" className="text-brand-text underline">Privacy Policy</Link>.
+          </span>
+        </label>
+        {termsError ? (
+          <p className="flex items-start gap-1 text-sm leading-5 text-brand-text" role="alert">
+            <CircleAlert size={16} strokeWidth={1.5} className="mt-0.5 shrink-0" aria-hidden />
+            {termsError}
+          </p>
+        ) : null}
+      </div>
       {state?.errors?.form ? (
         <p className="flex items-center gap-1 text-sm leading-5 text-brand-text" role="alert">
           <CircleAlert size={16} strokeWidth={1.5} aria-hidden />

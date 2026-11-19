@@ -65,8 +65,7 @@ export function AIAssistant({ hideTriggerOnMobile = false }: { hideTriggerOnMobi
         </div>
         <div className="flex-1 overflow-y-auto px-4 py-4 md:py-6">
           <MessagesSquare size={24} strokeWidth={1.5} aria-hidden className="hidden text-muted-foreground md:block" />
-          <p className="section-title md:mt-4">AI assistant coming in Phase 2</p>
-          <p className="mt-2 text-sm leading-5 text-muted-foreground">
+          <p className="text-sm leading-5 text-muted-foreground md:mt-4">
             It will answer questions about the library and help you pick your next book.
           </p>
           <p className="mt-4 text-sm leading-5 font-medium md:mt-6">Try asking</p>

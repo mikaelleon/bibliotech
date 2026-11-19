@@ -17,7 +17,7 @@ export function LoginForm({ next }: { next: string | null }) {
   const invalid = Boolean(state?.error);
 
   return (
-    <form action={action} className="mt-6 grid gap-4">
+    <form action={action} className="mt-6 grid gap-5">
       {next ? <input type="hidden" name="next" value={next} /> : null}
       <Field
         label="Email"
@@ -37,12 +37,12 @@ export function LoginForm({ next }: { next: string | null }) {
         invalid={invalid}
         describedBy={invalid ? "login-error" : undefined}
         aside={
-          <Link href="/forgot-password" className="mb-1 text-sm leading-5 text-muted-foreground underline">
+          <Link href="/forgot-password" className="relative mb-1 text-sm leading-5 text-muted-foreground underline after:absolute after:-inset-x-2 after:-inset-y-3 after:content-['']">
             Forgot password?
           </Link>
         }
       />
-      <label className="flex min-h-11 cursor-pointer items-center gap-3 text-sm leading-5">
+      <label className="flex min-h-11 cursor-pointer -my-1 items-start gap-3 py-3 text-sm leading-5">
         <input
           type="checkbox"
           name="remember"
@@ -53,7 +53,7 @@ export function LoginForm({ next }: { next: string | null }) {
         <span>
           Keep me signed in
           <span className="block text-xs leading-4 text-muted-foreground">
-            For 30 days. Leave off on a shared computer.
+            For 30 days.
           </span>
         </span>
       </label>

@@ -2,18 +2,17 @@
 
 import { Lock } from "lucide-react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
 
 import { mainNav } from "@/components/main-nav";
 import type { Session } from "@/lib/types";
 import { useIndicator } from "@/lib/use-indicator";
+import { usePendingNav } from "@/lib/use-pending-nav";
 import { cn } from "@/lib/utils";
 
 /** Bottom tabs under 768px. Administrators get the same four operator destinations as the desktop rail. */
 export function TabBar({ session }: { session: Session }) {
-  const path = usePathname();
   const items = mainNav(session, true);
-  const active = items.find((item) => item.current(path))?.href;
+  const { active, isCurrent, onNavigate } = usePendingNav(items);
   const { containerRef, indicatorRef } = useIndicator<HTMLElement>(active);
 
   return (
@@ -24,7 +23,7 @@ export function TabBar({ session }: { session: Session }) {
     >
       <span ref={indicatorRef} aria-hidden className="nav-indicator -z-10 rounded-full bg-brand opacity-0" />
       {items.map((item) => {
-        const current = item.current(path);
+        const current = isCurrent(item);
         const Icon = item.icon;
         const accessible = item.locked ? `${item.label}, requires an account` : item.label;
         return (
@@ -32,6 +31,7 @@ export function TabBar({ session }: { session: Session }) {
             key={item.href}
             href={item.href}
             prefetch
+            onClick={onNavigate(item)}
             aria-label={accessible}
             aria-current={current ? "page" : undefined}
             className={cn(

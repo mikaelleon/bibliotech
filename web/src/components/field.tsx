@@ -23,6 +23,8 @@ type FieldProps = {
   describedBy?: string;
   readOnly?: boolean;
   aside?: ReactNode;
+  /** Sits directly under the input, above the hint and error, so a growing message never separates them. */
+  meter?: ReactNode;
   onBlur?: (event: FocusEvent<HTMLInputElement>) => void;
 };
 
@@ -42,6 +44,7 @@ export function Field({
   describedBy,
   readOnly,
   aside,
+  meter,
   onBlur,
 }: FieldProps) {
   const generatedId = useId();
@@ -92,15 +95,16 @@ export function Field({
           </button>
         ) : null}
       </div>
-      {hint ? (
-        <p id={`${generatedId}-hint`} className="mt-1 text-xs leading-4 text-muted-foreground">
+      {meter}
+      {hint && !error ? (
+        <p id={`${generatedId}-hint`} className="mt-1.5 text-xs leading-4 text-muted-foreground">
           {hint}
         </p>
       ) : null}
       {error ? (
         <p
           id={`${generatedId}-error`}
-          className="mt-1 flex items-center gap-1 text-sm leading-5 text-brand-text"
+          className="mt-1.5 flex items-center gap-1 text-sm leading-5 text-brand-text"
           role="alert"
         >
           <CircleAlert size={16} strokeWidth={1.5} aria-hidden />
@@ -108,7 +112,7 @@ export function Field({
         </p>
       ) : null}
       {success && !error ? (
-        <p className="mt-1 flex items-center gap-1 text-sm leading-5 text-foreground">
+        <p className="mt-1.5 flex items-center gap-1 text-sm leading-5 text-foreground">
           <CheckIcon />
           {success}
         </p>

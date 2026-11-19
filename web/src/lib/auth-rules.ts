@@ -12,6 +12,25 @@ export function passwordProblem(password: string): string | null {
   return null;
 }
 
+const COMMON_PASSWORDS = new Set([
+  "password", "password1", "password123", "12345678", "123456789", "1234567890", "qwerty123",
+  "qwertyuiop", "iloveyou", "letmein1", "welcome1", "admin123", "abc12345", "11111111",
+]);
+
+export type PasswordStrength = { level: 0 | 1 | 2 | 3 | 4; label: string };
+
+/** Advisory only. The server still enforces passwordProblem and nothing else. */
+export function passwordStrength(password: string): PasswordStrength {
+  if (!password) return { level: 0, label: "" };
+  if (password.length < PASSWORD_MIN) return { level: 1, label: "Too short" };
+  const lower = password.toLowerCase();
+  if (COMMON_PASSWORDS.has(lower) || /^(.)\1+$/.test(password)) return { level: 1, label: "Too common" };
+  const classes = [/[a-z]/, /[A-Z]/, /\d/, /[^A-Za-z0-9]/].filter((re) => re.test(password)).length;
+  const points = (password.length >= 12 ? 1 : 0) + (password.length >= 16 ? 1 : 0) + (classes >= 3 ? 1 : 0);
+  const level = (1 + points) as 1 | 2 | 3 | 4;
+  return { level, label: ["Weak", "Fair", "Good", "Strong"][level - 1] };
+}
+
 /** Only same-site paths. Blocks "//evil.com", "/\evil.com" and absolute URLs. */
 export function safeNext(value: unknown): string | null {
   if (typeof value !== "string" || !value.startsWith("/")) return null;

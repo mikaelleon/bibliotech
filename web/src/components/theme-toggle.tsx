@@ -1,11 +1,10 @@
 "use client";
 
 import { Moon, Sun } from "lucide-react";
-import { useSyncExternalStore, type MouseEvent } from "react";
+import { useEffect, useState, useSyncExternalStore, type MouseEvent } from "react";
 
 import { Swap } from "@/components/swap";
-import { durReveal, easeInOut, prefersReducedMotion } from "@/lib/motion";
-import { useIndicator } from "@/lib/use-indicator";
+import { durMove, durReveal, easeInOut, prefersReducedMotion } from "@/lib/motion";
 import { cn } from "@/lib/utils";
 
 type Theme = "light" | "dark";
@@ -76,7 +75,12 @@ function switchTheme(theme: Theme, event: MouseEvent<HTMLElement>) {
 export function ThemeToggle({ compact = false }: { compact?: boolean }) {
   const theme = useSyncExternalStore(subscribe, currentTheme, () => "light" as Theme);
   const dark = theme === "dark";
-  const { containerRef, indicatorRef } = useIndicator<HTMLDivElement>(compact ? undefined : theme);
+  // Hydration can flip the theme right after mount (the server renders light). That jump must not slide.
+  const [armed, setArmed] = useState(false);
+  useEffect(() => {
+    const id = window.setTimeout(() => setArmed(true), 300);
+    return () => window.clearTimeout(id);
+  }, []);
 
   if (compact) {
     return (
@@ -101,21 +105,28 @@ export function ThemeToggle({ compact = false }: { compact?: boolean }) {
 
   return (
     <div
-      ref={containerRef}
       className="relative isolate inline-grid grid-cols-2 rounded-full border border-border p-1"
       role="group"
       aria-label="Theme"
     >
-      <span ref={indicatorRef} aria-hidden className="nav-indicator -z-10 rounded-full bg-foreground opacity-0" />
+      {/* The thumb. Both columns are equal, so it slides exactly one column. Driven by state alone, so a click
+          mid-slide turns it around from where it is. */}
+      <span
+        aria-hidden
+        style={{
+          transform: dark ? "translateX(100%)" : "translateX(0)",
+          transition: armed ? `transform ${durMove}ms ${easeInOut}` : "none",
+        }}
+        className="absolute top-1 bottom-1 left-1 -z-10 w-[calc(50%-4px)] rounded-full bg-foreground motion-reduce:!transition-none"
+      />
       {(["light", "dark"] as const).map((option) => (
         <button
           key={option}
           type="button"
           aria-pressed={theme === option}
-          data-indicator-target={theme === option}
           onClick={(event) => switchTheme(option, event)}
           className={cn(
-            "press h-9 rounded-full px-4 text-sm leading-5 capitalize",
+            "press h-9 rounded-full px-4 text-sm leading-5 capitalize transition-colors duration-150",
             theme === option ? "text-background" : "text-muted-foreground",
           )}
         >

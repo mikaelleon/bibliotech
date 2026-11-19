@@ -96,7 +96,6 @@ export function AIAssistant() {
               </Pressable>
             </View>
             <View style={styles.sheetBody}>
-              <Text style={styles.coming}>AI assistant coming in Phase 2</Text>
               <Text style={styles.note}>
                 It will answer questions about the library and help you pick your next book.
               </Text>
@@ -223,14 +222,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingTop: 16,
   },
-  coming: {
-    fontFamily: font.medium,
-    fontSize: 20,
-    lineHeight: 28,
-    color: colors.ink,
-  },
   note: {
-    marginTop: 8,
     fontFamily: font.sans,
     fontSize: 14,
     lineHeight: 20,

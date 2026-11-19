@@ -1,10 +1,38 @@
 "use client";
 
+import {
+  Baby,
+  BookOpen,
+  Briefcase,
+  Cpu,
+  Feather,
+  FlaskConical,
+  GraduationCap,
+  Hourglass,
+  LayoutGrid,
+  Landmark,
+  Lightbulb,
+  type LucideIcon,
+} from "lucide-react";
 import Link from "next/link";
+import { useEffect, useRef } from "react";
 
 import { CATEGORIES } from "@/lib/types";
-import { useIndicator } from "@/lib/use-indicator";
 import { cn } from "@/lib/utils";
+
+const ICONS: Record<string, LucideIcon> = {
+  All: LayoutGrid,
+  Fiction: BookOpen,
+  Classics: Landmark,
+  Philosophy: Lightbulb,
+  History: Hourglass,
+  Science: FlaskConical,
+  Technology: Cpu,
+  Business: Briefcase,
+  Poetry: Feather,
+  Children: Baby,
+  Education: GraduationCap,
+};
 
 function hrefFor(base: string, category: string | null, query: string, sort: string): string {
   const params = new URLSearchParams();
@@ -16,8 +44,8 @@ function hrefFor(base: string, category: string | null, query: string, sort: str
 }
 
 /**
- * Shareable category chips. The selected fill is one charcoal indicator that slides between chips.
- * Unselected chip fills sit under the indicator, so it stays visible while it moves.
+ * Shareable category chips. Each rests as a 44px icon; the selected one widens to show its name.
+ * The label opens with a grid-column transition, so only the chosen chip ever takes more room.
  */
 export function CategoryFilter({
   selected,
@@ -35,17 +63,28 @@ export function CategoryFilter({
 }) {
   const current = selected && CATEGORIES.includes(selected as (typeof CATEGORIES)[number]) ? selected : "All";
   const chips = ["All", ...CATEGORIES];
-  const { containerRef, indicatorRef } = useIndicator<HTMLUListElement>(current);
+  const listRef = useRef<HTMLUListElement>(null);
+
+  // The row scrolls on narrow screens, so a category from a shared link must not start off screen.
+  useEffect(() => {
+    const list = listRef.current;
+    const active = list?.querySelector<HTMLElement>('[aria-current="true"]');
+    if (!list || !active) return;
+    const left = active.offsetLeft - 16;
+    const right = active.offsetLeft + active.offsetWidth + 80 - list.clientWidth;
+    if (left < list.scrollLeft) list.scrollTo({ left: Math.max(0, left) });
+    else if (right > list.scrollLeft) list.scrollTo({ left: right });
+  }, [current]);
 
   return (
     <nav aria-label="Filter by category" className="-mx-4 md:mx-0">
       <ul
-        ref={containerRef}
-        className="scrollbar-none relative isolate flex gap-2 overflow-x-auto px-4 md:flex-wrap md:overflow-visible md:px-0"
+        ref={listRef}
+        className="scrollbar-none relative flex gap-2 overflow-x-auto px-4 md:px-0"
       >
-        <span ref={indicatorRef} aria-hidden className="nav-indicator -z-10 rounded-xl bg-primary opacity-0" />
         {chips.map((chip) => {
           const on = chip === current;
+          const Icon = ICONS[chip];
           return (
             <li key={chip} className="shrink-0">
               <Link
@@ -58,15 +97,25 @@ export function CategoryFilter({
                   onSelect(chip === "All" ? null : chip);
                 }}
                 aria-current={on ? "true" : undefined}
-                data-indicator-target={on}
+                aria-label={chip}
+                title={chip}
                 className={cn(
-                  "press relative inline-flex min-h-11 items-center rounded-xl px-4 text-sm leading-5 no-underline",
-                  on
-                    ? "text-primary-foreground"
-                    : "text-foreground before:absolute before:inset-0 before:-z-20 before:rounded-xl before:bg-card before:transition-colors before:duration-[var(--dur-hover)] hover:before:bg-border",
+                  "press inline-flex h-11 min-w-11 items-center justify-center rounded-xl px-3 text-sm leading-5 no-underline",
+                  on ? "bg-primary text-primary-foreground" : "bg-card text-foreground hover:bg-border",
                 )}
               >
-                {chip}
+                <Icon size={20} strokeWidth={1.5} aria-hidden className="shrink-0" />
+                <span
+                  aria-hidden
+                  className={cn(
+                    "grid transition-[grid-template-columns,opacity] duration-[var(--dur-move)] ease-[var(--ease-in-out)] motion-reduce:transition-none",
+                    on ? "grid-cols-[1fr] opacity-100" : "grid-cols-[0fr] opacity-0",
+                  )}
+                >
+                  <span className="min-w-0 overflow-hidden">
+                    <span className="block pl-2 whitespace-nowrap">{chip}</span>
+                  </span>
+                </span>
               </Link>
             </li>
           );

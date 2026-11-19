@@ -5,6 +5,7 @@ import { useState } from "react";
 
 import { ErrorPanel } from "@/components/error-panel";
 import { Field } from "@/components/field";
+import { Swap } from "@/components/swap";
 import { Button } from "@/components/ui/button";
 import { resetPasswordAction } from "@/lib/actions";
 import { passwordProblem } from "@/lib/auth-rules";
@@ -13,6 +14,7 @@ export function ResetPasswordForm({ token }: { token: string | null }) {
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [passwordError, setPasswordError] = useState<string | null>(null);
   const [done, setDone] = useState(false);
   const [pending, setPending] = useState(false);
   const [expired, setExpired] = useState(false);
@@ -54,9 +56,11 @@ export function ResetPasswordForm({ token }: { token: string | null }) {
         event.preventDefault();
         const problem = passwordProblem(password);
         if (problem) {
-          setError(problem);
+          setPasswordError(problem);
+          setError(null);
           return;
         }
+        setPasswordError(null);
         if (password !== confirm) {
           setError("Those passwords don't match.");
           return;
@@ -84,6 +88,7 @@ export function ResetPasswordForm({ token }: { token: string | null }) {
         value={password}
         onChange={setPassword}
         hint="At least 8 characters."
+        error={passwordError ?? undefined}
       />
       <Field
         label="Confirm password"
@@ -94,8 +99,8 @@ export function ResetPasswordForm({ token }: { token: string | null }) {
         onChange={setConfirm}
         error={error ?? undefined}
       />
-      <Button type="submit" disabled={pending} aria-busy={pending}>
-        {pending ? "Updating" : "Update password"}
+      <Button type="submit" className="w-full" disabled={pending} aria-busy={pending}>
+        <Swap index={pending ? 1 : 0} items={["Update password", "Updating"]} />
       </Button>
     </form>
   );
