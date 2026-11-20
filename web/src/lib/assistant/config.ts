@@ -1,5 +1,16 @@
 /** Assistant settings. Env values override the defaults. Server only: never prefix with NEXT_PUBLIC_. */
 
+/**
+ * Gemini model ids look like `gemini-3.8-flash`. A value that starts with a digit
+ * (`3.5-flash-lite`) is the same model with the prefix left off, and the API 404s it.
+ */
+export function normalizeModelId(raw: string | undefined): string {
+  const id = raw?.trim().replace(/^models\//, "") ?? "";
+  if (!id) return "";
+  if (/^\d/.test(id)) return `gemini-${id}`;
+  return id;
+}
+
 function intEnv(name: string, fallback: number, min = 0): number {
   const raw = process.env[name];
   if (raw === undefined || raw.trim() === "") return fallback;
@@ -9,8 +20,8 @@ function intEnv(name: string, fallback: number, min = 0): number {
 
 export function assistantConfig() {
   return {
-    model: process.env.GEMINI_MODEL?.trim() ?? "",
-    fallbackModel: process.env.GEMINI_FALLBACK_MODEL?.trim() ?? "",
+    model: normalizeModelId(process.env.GEMINI_MODEL),
+    fallbackModel: normalizeModelId(process.env.GEMINI_FALLBACK_MODEL),
     globalDaily: intEnv("AI_GLOBAL_DAILY_LIMIT", 1200),
     globalRpm: intEnv("AI_GLOBAL_RPM_LIMIT", 24),
     maxMessageChars: intEnv("AI_MAX_MESSAGE_CHARS", 300, 1),

@@ -3,8 +3,10 @@ import "server-only";
 import type { GeminiContent } from "./prompt";
 
 const BASE = "https://generativelanguage.googleapis.com/v1beta";
-const FIRST_TOKEN_MS = 10_000;
-const TOTAL_MS = 30_000;
+// Flash-lite's first byte on a cold call lands around 10s. A 10s cap aborts that call
+// and the fallback, which is what the reader sees as "couldn't answer right now".
+const FIRST_TOKEN_MS = 20_000;
+const TOTAL_MS = 45_000;
 
 export type GeminiChunk = { text: string; promptTokens?: number; outputTokens?: number };
 

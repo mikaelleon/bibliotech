@@ -3,6 +3,7 @@ import { describe, it } from "node:test";
 
 import { chatTitle, isUuid } from "./chat.ts";
 import { cleanName, parseActions, type ShelfState } from "./actions.ts";
+import { normalizeModelId } from "./config.ts";
 import { clampHistory, filterMessage } from "./filter.ts";
 import { catalogBlock, REFUSAL_MARKER, RefusalStripper, shelfBlock, TailStripper } from "./prompt.ts";
 import { selectRelevant } from "./retrieve.ts";
@@ -30,6 +31,16 @@ const LEGIT = [
   "Can you compare Plato and Aristotle's books?",
   "Which adventure stories do you carry?",
 ];
+
+describe("normalizeModelId", () => {
+  it("adds the gemini prefix when the id starts with a version number", () => {
+    assert.equal(normalizeModelId("3.5-flash-lite"), "gemini-3.8-flash");
+    assert.equal(normalizeModelId("models/gemini-3.1-flash-lite"), "gemini-3.1-flash-lite");
+    assert.equal(normalizeModelId("  gemini-2.5-flash-lite  "), "gemini-2.5-flash-lite");
+    assert.equal(normalizeModelId(""), "");
+    assert.equal(normalizeModelId(undefined), "");
+  });
+});
 
 describe("filterMessage", () => {
   it("lets real book questions through", () => {
