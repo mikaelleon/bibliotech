@@ -163,7 +163,7 @@ export function UsagePanel({
 }
 
 const styles = StyleSheet.create({
-  card: { backgroundColor: colors.surface, borderRadius: radius.panel, padding: 32 },
+  card: { backgroundColor: colors.surface, borderRadius: radius.panel, padding: 24 },
   head: { flexDirection: "row", alignItems: "baseline", flexWrap: "wrap", columnGap: 12 },
   title: { fontFamily: font.medium, fontSize: 20, lineHeight: 28, color: colors.ink },
   status: { fontFamily: font.sans, fontSize: 14, lineHeight: 20, color: colors.muted },
@@ -177,7 +177,8 @@ const styles = StyleSheet.create({
   track: { flex: 1, height: 8, borderRadius: 999, backgroundColor: colors.line, overflow: "hidden" },
   fill: { height: 8, backgroundColor: colors.accent },
   percent: {
-    minWidth: 64,
+    // Fixed, not min: "30% used" is wider than "5% used" and would shorten its own bar.
+    width: 72,
     textAlign: "right",
     fontFamily: font.sans,
     fontSize: 14,
@@ -186,6 +187,6 @@ const styles = StyleSheet.create({
     fontVariant: ["tabular-nums"],
   },
   note: { marginTop: 16, fontFamily: font.sans, fontSize: 14, lineHeight: 20, color: colors.muted },
-  link: { marginTop: 16, minHeight: 44, justifyContent: "center", alignSelf: "flex-start" },
+  link: { marginTop: 0, minHeight: 44, justifyContent: "center", alignSelf: "flex-start" },
   linkText: { fontFamily: font.sans, fontSize: 14, lineHeight: 20, color: colors.atext, textDecorationLine: "underline" },
 });

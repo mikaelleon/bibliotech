@@ -19,7 +19,8 @@ export default function ProfileScreen() {
   const [confirm, setConfirm] = useState("");
   const [nameError, setNameError] = useState<string | null>(null);
   const [passwordError, setPasswordError] = useState<string | null>(null);
-  const [saved, setSaved] = useState<string | null>(null);
+  const [nameSaved, setNameSaved] = useState<string | null>(null);
+  const [passwordSaved, setPasswordSaved] = useState<string | null>(null);
   const ai = useAiUsage(session.kind === "user" && session.role !== "admin");
   if (session.kind !== "user") return <LockedPanel title="Profile" />;
 
@@ -42,13 +43,16 @@ export default function ProfileScreen() {
         {nameError ? <Text style={styles.error}>{nameError}</Text> : null}
         <Button
           label="Save"
+          full
+          style={styles.action}
           onPress={async () => {
             const message = await rename(name);
             setNameError(message);
-            setSaved(message ? null : "Display name saved.");
+            setNameSaved(message ? null : "Display name saved.");
           }}
         />
-        <Text style={styles.label}>Email</Text>
+        {nameSaved ? <Text accessibilityRole="alert" style={styles.saved}>{nameSaved}</Text> : null}
+        <Text style={[styles.label, styles.labelSection]}>Email</Text>
         <Text style={styles.note}>{session.email}</Text>
       </View>
       {quota ? (
@@ -79,23 +83,28 @@ export default function ProfileScreen() {
         {passwordError ? <Text style={styles.error}>{passwordError}</Text> : null}
         <Button
           label="Update password"
-          variant="outline"
+          full
+          style={styles.action}
           onPress={async () => {
             const message = await changePassword(password, confirm);
             setPasswordError(message);
+            setPasswordSaved(null);
             if (!message) {
               setPassword("");
               setConfirm("");
-              setSaved("Password updated.");
+              setPasswordSaved("Password updated.");
             }
           }}
         />
+        {passwordSaved ? <Text accessibilityRole="alert" style={styles.saved}>{passwordSaved}</Text> : null}
       </View>
       <View style={styles.card}>
         <Text style={styles.usage}>Session</Text>
         <Button
           label="Log out"
           variant="outline"
+          full
+          style={styles.action}
           icon={<LogOut />}
           iconPosition="start"
           onPress={async () => {
@@ -104,7 +113,6 @@ export default function ProfileScreen() {
           }}
         />
       </View>
-      {saved ? <Text accessibilityRole="alert" style={styles.saved}>{saved}</Text> : null}
     </ScrollView>
     </KeyboardAvoidingView>
   );
@@ -115,8 +123,12 @@ const styles = StyleSheet.create({
   page: {
     paddingHorizontal: 16,
     paddingTop: 24,
-    paddingBottom: 32,
-    gap: 24,
+    // Clears the floating Ask AI button (44 high, 16 above the tab bar) at the end of the scroll.
+    paddingBottom: 96,
+    gap: 16,
+  },
+  action: {
+    marginTop: 16,
   },
   title: {
     fontFamily: font.title,
@@ -131,6 +143,9 @@ const styles = StyleSheet.create({
     fontSize: 14,
     lineHeight: 20,
     color: colors.ink,
+  },
+  labelSection: {
+    marginTop: 24,
   },
   input: {
     minHeight: 44,
@@ -151,6 +166,7 @@ const styles = StyleSheet.create({
     color: colors.atext,
   },
   saved: {
+    marginTop: 8,
     fontFamily: font.sans,
     fontSize: 14,
     lineHeight: 20,
@@ -159,7 +175,7 @@ const styles = StyleSheet.create({
   card: {
     backgroundColor: colors.surface,
     borderRadius: radius.panel,
-    padding: 32,
+    padding: 24,
   },
   usage: {
     fontFamily: font.medium,
