@@ -9,6 +9,30 @@ The same catalog and accounts serve two clients:
 
 Accounts, files, and row security live in **Supabase** (Postgres, Auth, and a private Storage bucket).
 
+## Required features checklist
+
+Status of the project brief. Reference for the interface: [z-library.sk](https://z-library.sk/). Host and backend: [wasmer.io](https://wasmer.io).
+
+> **Mandatory:** the AI agent must be embedded in the website and the Android app. Redirecting users to an external chatbot does not satisfy the brief.
+
+| # | Feature | Status | Notes |
+|---|---|---|---|
+| 1 | At least 200 unique books on both platforms | Done | 209 books imported ([catalog report](docs/catalog-report.md)). Web and Android read the same catalog |
+| 2 | Guest Mode, maximum 5 book downloads | Partial | The Guest tier is an unverified account with 5 downloads a month. The "Continue as guest" visitor session cannot download |
+| 3 | Registered User Mode, maximum 10 book downloads | Done | Verified account, 10 new books a month, enforced in `request_download()` |
+| 4 | Secure registration, login, and logout | Done | Supabase Auth, email verification, password reset, on web and Android |
+| 5 | Search and filtering by title, author, and category | Done | `/search`, `/browse`, suggestions, category filter |
+| 6 | Book information and legally authorized download access | Done | Public-domain Project Gutenberg EPUBs, 60-second signed URLs |
+| 7 | Embedded agentic AI assistant in both apps | Done | Web `ai-assistant.tsx`, Android `AIAssistant.tsx`, both calling `/api/assistant` |
+| 8 | Personalized My Library and favorites | Done | Library, collections, and favorites on web and Android |
+| 9 | Synchronized user information and download records | Done | One Supabase project and `/api/downloads` shared by both clients |
+| 10 | Administrator dashboard on the website | Done | `/admin`: dashboard, analytics, catalog, accounts, audit log |
+| 11 | Shared database and RESTful API integration | Done | Supabase Postgres and route handlers in `web/src/app/api/` ([API docs](docs/api.md)) |
+| 12a | Cybersecurity | Partial | Row security, server-only secret key, rate limits, hashed tokens. Security headers (CSP, HSTS, X-Frame-Options) are not set |
+| 12b | Testing | Partial | Unit tests for featured ranking, assistant, and importer only. No auth, quota, admin, or Android tests |
+| 12c | Cloud deployment (Wasmer) | Not done | No Wasmer configuration yet |
+| 12d | DevOps (CI/CD) | Not done | No `.github/workflows/` yet |
+
 ## Repository layout
 
 | Path | What it is |
