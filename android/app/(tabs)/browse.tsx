@@ -16,7 +16,7 @@ import { filterBooks, getBooks } from "@/lib/books";
 import { useCatalogBooks } from "@/lib/catalog";
 import { loadFeaturedScores, useFeaturedBooks } from "@/lib/featured";
 import { CATEGORIES, type Category } from "@/lib/types";
-import { colors, font } from "@/theme/tokens";
+import { aboveAssistant, colors, font } from "@/theme/tokens";
 
 const pageSize = 24;
 
@@ -112,7 +112,7 @@ const styles = StyleSheet.create({
   content: {
     paddingHorizontal: 16,
     paddingTop: 24,
-    paddingBottom: 32,
+    paddingBottom: aboveAssistant,
   },
   columns: {
     gap: 16,

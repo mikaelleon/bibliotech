@@ -44,6 +44,12 @@ export const space = {
   64: 64,
 } as const;
 
+/**
+ * End padding for a tab list. Ask AI is 44 tall and sits 16 above the tab bar;
+ * the rest is air so the last row is not covered.
+ */
+export const aboveAssistant = 96;
+
 export const radius = {
   pill: 999,
   panel: 12,

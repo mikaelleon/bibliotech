@@ -13,7 +13,7 @@ import { Toast, type ToastItem } from "@/components/Toast";
 import { getBook } from "@/lib/books";
 import { useSession } from "@/lib/session";
 import type { Book } from "@/lib/types";
-import { colors } from "@/theme/tokens";
+import { aboveAssistant, colors } from "@/theme/tokens";
 
 export default function FavoritesScreen() {
   const { session, favoriteIds, setFavorite } = useSession();
@@ -83,7 +83,7 @@ const styles = StyleSheet.create({
   page: {
     paddingHorizontal: 16,
     paddingTop: 24,
-    paddingBottom: 32,
+    paddingBottom: aboveAssistant,
     gap: 16,
   },
   header: { marginBottom: 8 },

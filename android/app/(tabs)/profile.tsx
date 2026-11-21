@@ -9,7 +9,7 @@ import { UsagePanel, useAiUsage } from "@/components/UsagePanel";
 import { VerifyEmailBanner } from "@/components/VerifyEmailBanner";
 import { useSession } from "@/lib/session";
 import { quotaFor } from "@/lib/quota";
-import { colors, font, radius } from "@/theme/tokens";
+import { aboveAssistant, colors, font, radius } from "@/theme/tokens";
 
 export default function ProfileScreen() {
   const router = useRouter();
@@ -123,8 +123,7 @@ const styles = StyleSheet.create({
   page: {
     paddingHorizontal: 16,
     paddingTop: 24,
-    // Clears the floating Ask AI button (44 high, 16 above the tab bar) at the end of the scroll.
-    paddingBottom: 96,
+    paddingBottom: aboveAssistant,
     gap: 16,
   },
   action: {

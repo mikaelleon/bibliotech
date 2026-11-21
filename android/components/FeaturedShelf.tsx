@@ -8,10 +8,27 @@ import { displayTitle } from "@/lib/title";
 import type { Book } from "@/lib/types";
 import { colors, font } from "@/theme/tokens";
 
+const focalWidth = 160;
+const neighborWidth = 112;
+const gap = 16;
+
+/** How many covers fit on one page: the large one, then neighbors that still clear the edge. */
+function slotsFor(width: number): number {
+  let slots = 1;
+  let used = gap + focalWidth;
+  while (slots < 3 && used + gap + neighborWidth <= width) {
+    used += gap + neighborWidth;
+    slots += 1;
+  }
+  return slots;
+}
+
 export function FeaturedShelf({ books }: { books: Book[] }) {
-  const { width: pageWidth } = useWindowDimensions();
+  const { width: windowWidth } = useWindowDimensions();
+  const [shelfWidth, setShelfWidth] = useState(windowWidth);
   const [index, setIndex] = useState(0);
   const focal = books[index] ?? books[0];
+  const slots = slotsFor(shelfWidth);
 
   if (!focal) return null;
 
@@ -30,12 +47,16 @@ export function FeaturedShelf({ books }: { books: Book[] }) {
       <ScrollView
         horizontal
         pagingEnabled
-        snapToInterval={pageWidth}
+        snapToInterval={shelfWidth}
         decelerationRate="fast"
         disableIntervalMomentum
         showsHorizontalScrollIndicator={false}
+        onLayout={(event) => {
+          const next = Math.round(event.nativeEvent.layout.width);
+          if (next > 0 && next !== shelfWidth) setShelfWidth(next);
+        }}
         onMomentumScrollEnd={(event) => {
-          const next = Math.round(event.nativeEvent.contentOffset.x / pageWidth);
+          const next = Math.round(event.nativeEvent.contentOffset.x / Math.max(shelfWidth, 1));
           setIndex(Math.max(0, Math.min(books.length - 1, next)));
         }}
         style={styles.row}
@@ -46,12 +67,12 @@ export function FeaturedShelf({ books }: { books: Book[] }) {
             accessibilityElementsHidden={page !== index}
             aria-hidden={page !== index}
             importantForAccessibility={page === index ? "auto" : "no-hide-descendants"}
-            style={[styles.page, { width: pageWidth }]}
+            style={[styles.page, { width: shelfWidth }]}
           >
-            {[0, 1, 2].map((offset) => {
+            {Array.from({ length: slots }, (_, offset) => {
               const book = books[page + offset];
               if (!book) return null;
-              const coverWidth = offset === 0 ? 160 : 112;
+              const coverWidth = offset === 0 ? focalWidth : neighborWidth;
               return (
                 <View key={book.id} style={{ width: coverWidth }}>
                   <BookCard book={book} />
@@ -81,20 +102,19 @@ const styles = StyleSheet.create({
   row: {
     marginTop: 24,
     marginHorizontal: -16,
-    height: 320,
   },
   page: {
     flexDirection: "row",
     alignItems: "flex-start",
     gap: 16,
     paddingLeft: 16,
-    overflow: "hidden",
+    paddingBottom: 8,
   },
   count: {
     marginTop: 16,
     fontFamily: font.sans,
     fontSize: 14,
     lineHeight: 20,
-    color: colors.atext,
+    color: colors.muted,
   },
 });
